@@ -1,0 +1,39 @@
+services:
+  eureka-server:
+    build:
+      context: ./eureka-server
+      dockerfile: Dockerfile
+    container_name: 13friday-eureka-server
+    ports:
+      - "19090:19090"
+
+  gateway:
+    build:
+      context: ./gateway
+      dockerfile: Dockerfile
+    container_name: 13friday-gateway
+    ports:
+      - "19091:19091"
+    depends_on:
+      - eureka-server
+
+  company-service:
+    build:
+      context: company
+      dockerfile: Dockerfile
+    container_name: 13friday-company-service
+    ports:
+      - "19096:19096"
+    depends_on:
+      - company-db
+      - eureka-server
+
+  company-db:
+    image: postgres
+    container_name: 13friday-company-db
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=myuser
+      - POSTGRES_PASSWORD=mypassword
+      - POSTGRES_DB=13friday_company
