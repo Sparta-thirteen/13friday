@@ -32,7 +32,7 @@ services:
     image: postgres
     container_name: 13friday-company-db
     ports:
-      - "5432:5432"
+      - "5436:5436"
     environment:
       - POSTGRES_USER=myuser
       - POSTGRES_PASSWORD=mypassword
