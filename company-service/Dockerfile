@@ -1,6 +1,6 @@
 FROM eclipse-temurin:17-jdk
 
-WORKDIR /company
+WORKDIR /company-service
 
 # 프로젝트 소스 복사
 COPY . .

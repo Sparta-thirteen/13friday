@@ -19,7 +19,7 @@ services:
 
   company-service:
     build:
-      context: company
+      context: ./company-service
       dockerfile: Dockerfile
     container_name: 13friday-company-service
     ports:
