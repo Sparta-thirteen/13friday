@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Unnamed" type="Application" factoryName="Application" nameIsGenerated="true">
-    <option name="MAIN_CLASS_NAME" value="com.sparta.orderservice.OrderServiceApplication" />
+  <configuration default="false" name="com.sparta.order.OrderServiceApplication" type="Application" factoryName="Application" nameIsGenerated="true">
+    <option name="MAIN_CLASS_NAME" value="com.sparta.order.OrderServiceApplication" />
     <method v="2">
       <option name="Make" enabled="true" />
     </method>
