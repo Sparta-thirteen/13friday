@@ -22,6 +22,8 @@ services:
       context: ./company-service
       dockerfile: Dockerfile
     container_name: 13friday-company-service
+    volumes:
+      - ./company-service:/app/company-service
     ports:
       - "19096:19096"
     depends_on:
@@ -31,9 +33,14 @@ services:
   company-db:
     image: postgres
     container_name: 13friday-company-db
+    volumes:
+      - ./db_data/company:/var/lib/postgresql/data
     ports:
       - "5436:5432"
     environment:
       - POSTGRES_USER=myuser
       - POSTGRES_PASSWORD=mypassword
       - POSTGRES_DB=13friday_company
+
+volumes:
+  db_data:
