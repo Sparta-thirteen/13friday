@@ -1,12 +1,28 @@
 spring:
   application:
-   name: hub-service
+    name: hub-service
 
-server:
-  port: 19091
+  datasource:
+    url: jdbc:postgresql://localhost:5432/13friday_hub
+    username: root
+    password: 1234
+    driver-class-name: org.postgresql.Driver
 
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: true
+
+    sql:
+      init:
+        mode: always
 
 eureka:
   client:
-   service-url:
-    defaultZone: http://localhost:19090/eureka/
+    service-url:
+      defaultZone: http://localhost:19090/eureka/
+    register-with-eureka: true
