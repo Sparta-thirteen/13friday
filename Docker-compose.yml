@@ -17,6 +17,27 @@ services:
     depends_on:
       - eureka-server
 
+  hub-service:
+    build:
+      context: ./hub-service
+      dockerfile: Dockerfile
+    container_name: 13friday-hub-service
+    ports:
+      - "19093:19093"
+    depends_on:
+      - hub-db
+      - eureka-server
+
+  hub-db:
+    image: postgres
+    container_name: 13friday-hub-db
+    ports:
+      - "5433:5432"
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=1234
+      - POSTGRES_DB=13friday_hub
+
   order-service:
     build:
       context: ./order-service
