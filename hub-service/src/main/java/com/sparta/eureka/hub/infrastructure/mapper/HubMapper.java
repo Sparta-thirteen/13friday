@@ -9,11 +9,21 @@ public interface HubMapper {
     default Hub createDtoToHub(HubDto.createDto request){
         return Hub.create(
                 request.getHubName(),
-                request.getHubAddress(),
+                request.getAddress(),
                 request.getLat(),
                 request.getLon()
         );
     }
     Hub updateDtoToHub(HubDto.updateDto request);
+//    default HubDto.responseDto hubToResponseDto(Hub hub) {
+//        HubDto.responseDto response =  new HubDto.responseDto();
+//        response.setHubId(hub.getHubId());
+//        response.setHubName(hub.getHubName());
+//        response.setAddress(hub.getAddress());
+//        response.setLat(hub.getLat());
+//        response.setLon(hub.getLon());
+//
+//        return response;
+//    }
     HubDto.responseDto hubToResponseDto(Hub hub);
 }

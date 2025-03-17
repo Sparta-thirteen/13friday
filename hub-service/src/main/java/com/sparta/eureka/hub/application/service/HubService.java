@@ -5,7 +5,13 @@ import com.sparta.eureka.hub.domain.entity.Hub;
 import com.sparta.eureka.hub.domain.repository.HubRepository;
 import com.sparta.eureka.hub.infrastructure.mapper.HubMapper;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -15,6 +21,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class HubService {
     private final HubRepository hubRepository;
+//    @Autowired
     private final HubMapper hubMapper;
 
     public HubDto.responseDto createHub(HubDto.createDto request) {
@@ -23,10 +30,33 @@ public class HubService {
         return hubMapper.hubToResponseDto(hub);
     }
 
+    @Transactional
     public HubDto.responseDto updateHub(UUID hubId, HubDto.updateDto request) {
         Hub hub = findHub(hubId);
+        Hub updatedHub = hubMapper.updateDtoToHub(request);
 
-        return null;
+        hub.update(updatedHub.getHubName(), updatedHub.getAddress(), updatedHub.getLat(), updatedHub.getLon());
+
+        return hubMapper.hubToResponseDto(hub);
+    }
+
+    public Page<HubDto.responseDto> getHubs(int  size, int page) {
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<Hub> hub = hubRepository.findAll(pageable);
+
+        return hub.map(hubMapper::hubToResponseDto);
+    }
+
+    public HubDto.responseDto getHub(UUID hubId) {
+        Hub hub = findHub(hubId);
+
+        return hubMapper.hubToResponseDto(hub);
+    }
+
+    @Transactional
+    public void deleteHub(UUID hubId) {
+        Hub hub = findHub(hubId);
+        hub.delete();
     }
 
     public Hub findHub(UUID hubId) {
@@ -34,4 +64,6 @@ public class HubService {
         return hub.orElseThrow(() ->
                 new EntityNotFoundException("Hub with id " + hubId + " not found"));
     }
+
+
 }

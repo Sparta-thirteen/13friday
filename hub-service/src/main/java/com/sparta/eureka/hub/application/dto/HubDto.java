@@ -4,8 +4,10 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 public class HubDto {
 
@@ -16,7 +18,7 @@ public class HubDto {
         @NotBlank
         private String hubName;
         @NotBlank
-        private String hubAddress;
+        private String address;
         @NotBlank
         private BigDecimal lat;
         @NotBlank
@@ -30,7 +32,7 @@ public class HubDto {
         @NotBlank
         private String hubName;
         @NotBlank
-        private String hubAddress;
+        private String address;
         @NotBlank
         private BigDecimal lat;
         @NotBlank
@@ -38,11 +40,13 @@ public class HubDto {
     }
 
     @Getter
+    @Setter
     @AllArgsConstructor
     @NoArgsConstructor
     public static class responseDto {
+        private UUID hubId;
         private String hubName;
-        private String hubAddress;
+        private String address;
         private BigDecimal lat;
         private BigDecimal lon;
     }
