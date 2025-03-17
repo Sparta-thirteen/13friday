@@ -43,6 +43,20 @@ public class CompanyService {
         .map(CompanyResponseDto::toDto);
   }
 
+  @Transactional
+  public void updateCompany(UUID companyId, CompanyRequestDto requestDto) {
+    // todo: user 권한 검증 로직, hubId 검증 로직
+    Company company = findCompany(companyId);
+    company.update(requestDto);
+  }
+
+  @Transactional
+  public void deleteCompany(UUID companyId) {
+    // todo: user 권한 검증 로직, 삭제 여부 확인 로직
+    Company company = findCompany(companyId);
+    // todo: update deletedAt, deletedBy
+  }
+
   private Company findCompany(UUID companyId) {
     return companyRepository.findById(companyId).orElseThrow(() ->
         new IllegalArgumentException("업체를 찾을 수 없습니다"));

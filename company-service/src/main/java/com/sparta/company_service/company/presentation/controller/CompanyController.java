@@ -9,7 +9,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -44,5 +46,18 @@ public class CompanyController {
       @RequestParam String keyword, Pageable pageable) {
     Page<CompanyResponseDto> responseDto = companyService.searchCompanies(keyword, pageable);
     return ResponseEntity.ok(responseDto);
+  }
+
+  @PatchMapping("/{companyId}")
+  public ResponseEntity<?> updateCompany(@PathVariable UUID companyId,
+      CompanyRequestDto requestDto) {
+    companyService.updateCompany(companyId, requestDto);
+    return ResponseEntity.ok("업체 수정 성공");
+  }
+
+  @DeleteMapping("/{companyId}")
+  public ResponseEntity<?> deleteCompany(@PathVariable UUID companyId) {
+    companyService.deleteCompany(companyId);
+    return ResponseEntity.status(HttpStatus.NO_CONTENT).body("업체 삭제 성공");
   }
 }
