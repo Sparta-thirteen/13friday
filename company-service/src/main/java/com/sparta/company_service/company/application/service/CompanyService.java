@@ -1,9 +1,13 @@
 package com.sparta.company_service.company.application.service;
 
 import com.sparta.company_service.company.application.dto.CompanyRequestDto;
+import com.sparta.company_service.company.application.dto.CompanyResponseDto;
 import com.sparta.company_service.company.domain.entity.Company;
 import com.sparta.company_service.company.domain.repository.CompanyRepository;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,8 +19,26 @@ public class CompanyService {
 
   @Transactional
   public void createCompany(CompanyRequestDto requestDto) {
+    // todo: user 권한 검증 로직
     // todo: 허브 id 검증 로직
     Company company = requestDto.toEntity();
     companyRepository.save(company);
+  }
+
+  @Transactional(readOnly = true)
+  public CompanyResponseDto getCompany(UUID companyId) {
+    Company company = findCompany(companyId);
+    return CompanyResponseDto.toDto(company);
+  }
+
+  @Transactional(readOnly = true)
+  public Page<CompanyResponseDto> getCompanies(Pageable pageable) {
+    return companyRepository.findAll(pageable)
+        .map(CompanyResponseDto::toDto);
+  }
+
+  private Company findCompany(UUID companyId) {
+    return companyRepository.findById(companyId).orElseThrow(() ->
+        new IllegalArgumentException("업체를 찾을 수 없습니다"));
   }
 }
