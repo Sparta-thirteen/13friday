@@ -37,6 +37,12 @@ public class CompanyService {
         .map(CompanyResponseDto::toDto);
   }
 
+  @Transactional(readOnly = true)
+  public Page<CompanyResponseDto> searchCompanies(String keyword, Pageable pageable) {
+    return companyRepository.findAllByName(keyword, pageable)
+        .map(CompanyResponseDto::toDto);
+  }
+
   private Company findCompany(UUID companyId) {
     return companyRepository.findById(companyId).orElseThrow(() ->
         new IllegalArgumentException("업체를 찾을 수 없습니다"));
