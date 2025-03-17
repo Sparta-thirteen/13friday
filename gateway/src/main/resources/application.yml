@@ -13,7 +13,7 @@ spring:
         - id: company-service
           uri: lb://company-service
           predicates:
-            - Path=/api/company/**
+            - Path=/api/companies/**
 
 server:
   port: 19091
