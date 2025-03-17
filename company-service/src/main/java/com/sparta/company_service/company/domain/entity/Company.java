@@ -3,6 +3,8 @@ package com.sparta.company_service.company.domain.entity;
 import com.sparta.company_service.company.application.dto.CompanyRequestDto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.util.UUID;
@@ -27,6 +29,7 @@ public class Company {
 
   private UUID hubId;
 
+  @Enumerated(EnumType.STRING)
   @Column(nullable = false)
   private CompanyType type;
 
