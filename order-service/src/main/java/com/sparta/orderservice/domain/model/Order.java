@@ -34,13 +34,11 @@ public class Order {
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItems> orderItems = new ArrayList<>();
 
-    public Order(UUID suppliersId, UUID recipientsId, UUID deliveryId, int stock, String requestDetails, List<OrderItems> orderItems) {
+    public Order(UUID suppliersId, UUID recipientsId, UUID deliveryId,String requestDetails) {
         this.suppliersId =suppliersId;
         this.recipientsId = recipientsId;
         this.deliveryId =deliveryId;
-        this.stock = stock;
         this.requestDetails =requestDetails;
-        this.orderItems = orderItems;
     }
 
 //    @CreatedDate
@@ -84,6 +82,16 @@ public class Order {
 //            deletedBy = "UNKNOWN";
 //        }
 //    }
+
+
+
+    public void addOrderItem(OrderItems item) {
+        this.orderItems.add(item);
+        item.setOrder(this);
+        this.stock += item.getProductStock();
+    }
+
+
 
 }
 
