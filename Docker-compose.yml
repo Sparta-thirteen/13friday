@@ -17,6 +17,30 @@ services:
     depends_on:
       - eureka-server
 
+  order-service:
+    build:
+      context: ./order-service
+      dockerfile: Dockerfile
+    container_name: 13friday-order-service
+    ports:
+      - "19094:19094"
+    depends_on:
+      - order-db
+      - eureka-server
+
+
+
+  order-db:
+    image: postgres
+    container_name: 13friday-order-db
+    ports:
+      - "5434:5432"
+    environment:
+      - POSTGRES_USER=${ORDER_DB_USER}
+      - POSTGRES_PASSWORD=${ORDER_DB_PASSWORD}
+      - POSTGRES_DB=13friday_order
+
+
   company-service:
     build:
       context: ./company-service
