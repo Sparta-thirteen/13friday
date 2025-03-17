@@ -14,17 +14,20 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-@RestController("/api/companies")
+@RestController
+@RequestMapping("/api/companies")
 @RequiredArgsConstructor
 public class CompanyController {
 
   private final CompanyService companyService;
 
   @PostMapping
-  public ResponseEntity<?> createCompany(CompanyRequestDto requestDto) {
+  public ResponseEntity<?> createCompany(@RequestBody CompanyRequestDto requestDto) {
     companyService.createCompany(requestDto);
     return ResponseEntity.status(HttpStatus.CREATED).body("업체 생성 성공");
   }
@@ -50,7 +53,7 @@ public class CompanyController {
 
   @PatchMapping("/{companyId}")
   public ResponseEntity<?> updateCompany(@PathVariable UUID companyId,
-      CompanyRequestDto requestDto) {
+      @RequestBody CompanyRequestDto requestDto) {
     companyService.updateCompany(companyId, requestDto);
     return ResponseEntity.ok("업체 수정 성공");
   }

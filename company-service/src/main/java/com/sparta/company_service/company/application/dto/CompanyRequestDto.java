@@ -15,10 +15,10 @@ public class CompanyRequestDto {
 
   public Company toEntity() {
     return Company.builder()
-        .hubId(hubId)
-        .type(type)
-        .name(name)
-        .address(address)
+        .hubId(this.hubId)
+        .type(this.type)
+        .name(this.name)
+        .address(this.address)
         .build();
   }
 }

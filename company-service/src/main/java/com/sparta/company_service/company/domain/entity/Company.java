@@ -1,5 +1,6 @@
 package com.sparta.company_service.company.domain.entity;
 
+import com.sparta.company_service.company.application.dto.CompanyRequestDto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -33,4 +34,11 @@ public class Company {
   private String name;
 
   private String address;
+
+  public void update(CompanyRequestDto requestDto) {
+    this.hubId = requestDto.getHubId();
+    this.type = requestDto.getType();
+    this.name = requestDto.getName();
+    this.address = requestDto.getAddress();
+  }
 }
