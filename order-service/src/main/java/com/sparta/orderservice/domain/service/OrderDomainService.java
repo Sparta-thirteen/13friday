@@ -2,6 +2,8 @@ package com.sparta.orderservice.domain.service;
 
 import com.sparta.orderservice.domain.model.Order;
 import com.sparta.orderservice.domain.model.OrderItems;
+import com.sparta.orderservice.domain.model.SearchDto;
+import com.sparta.orderservice.infrastructure.repository.JpaOrderRepository;
 import com.sparta.orderservice.presentation.requset.OrderItemsRequest;
 import com.sparta.orderservice.presentation.requset.OrderRequest;
 import com.sparta.orderservice.presentation.requset.UpdateOrderRequest;
@@ -11,11 +13,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
 @Component
 public class OrderDomainService {
 
+    private JpaOrderRepository jpaOrderRepository;
 
     public Order createOrder(OrderRequest req) {
 
@@ -56,6 +63,29 @@ public class OrderDomainService {
         if (stockQuantity < totalStock) {
             throw new IllegalStateException("재고가 부족합니다.");
         }
+    }
+
+    public Page<Order> searchOrders(int page, SearchDto searchDto) {
+
+        int pageSize =
+            (searchDto.getSize() == 10 || searchDto.getSize() == 30 || searchDto.getSize() == 50)
+                ? searchDto.getSize() : 10;
+
+        Sort sort =
+            searchDto.getDirection().equalsIgnoreCase("asc") ? Sort.by(searchDto.getSortBy())
+                .ascending() : Sort.by(searchDto.getSortBy()).descending();
+
+        Pageable pageable = PageRequest.of(page, pageSize, sort);
+
+        Page<Order> orderPage;
+
+        if (searchDto.getKeyword() != null && !searchDto.getKeyword().trim().isEmpty()) {
+            orderPage = jpaOrderRepository.findByRequestDetailsContaining(searchDto.getKeyword(),
+                pageable);
+        } else {
+            orderPage = jpaOrderRepository.findAll(pageable);
+        }
+        return orderPage;
     }
 
 

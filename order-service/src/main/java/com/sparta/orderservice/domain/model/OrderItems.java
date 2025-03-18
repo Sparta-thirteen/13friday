@@ -19,7 +19,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Table(name="p_orderitems")
 @Getter
-public class OrderItems {
+public class OrderItems extends BaseEntity {
     @Id
     private UUID id;
 

@@ -15,4 +15,6 @@ public interface JpaOrderRepository extends JpaRepository<Order, UUID> {
 
     Optional<Order> findById(UUID id);
     Page<Order> findAll( Pageable pageable);
+    Page<Order> findByRequestDetailsContaining(String keyword, Pageable pageable);
+
 }

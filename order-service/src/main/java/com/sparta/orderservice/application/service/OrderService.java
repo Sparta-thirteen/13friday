@@ -3,6 +3,7 @@ package com.sparta.orderservice.application.service;
 
 import com.sparta.orderservice.application.dto.OrderItemsDto;
 import com.sparta.orderservice.domain.model.OrderItems;
+import com.sparta.orderservice.domain.model.SearchDto;
 import com.sparta.orderservice.domain.service.OrderDomainService;
 import com.sparta.orderservice.presentation.requset.OrderRequest;
 import com.sparta.orderservice.domain.model.Order;
@@ -65,7 +66,6 @@ public class OrderService {
 
         List<OrderItemsDto> list = getOrderItemsDtoList(order);
 
-
         return new UpdateOrderResponse(order.getTotalStock(), order.getRequestDetails(),
             list);
 
@@ -86,14 +86,32 @@ public class OrderService {
 
     // 주문 전체 조회
     @Transactional(readOnly = true)
-    public Page<OrderResponse> getOrders(int page, int size) {
+    public List<OrderResponse> getOrders(int page, int size, String sortBy, String direction) {
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending()); // 최신순 정렬
+        Sort sort = direction.equalsIgnoreCase("asc")
+            ? Sort.by(sortBy).ascending()
+            : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+
         Page<Order> orderPage = jpaOrderRepository.findAll(pageable);
 
+        return orderPage.getContent().stream()
+            .map(order -> new OrderResponse(order.getSuppliersId(), order.getRecipientsId(),
+                order.getDeliveryId(), order.getTotalStock(), order.getRequestDetails(),
+                getOrderItemsDtoList(order))).toList();
+    }
 
-        return orderPage.map(order -> new OrderResponse(order.getSuppliersId(), order.getRecipientsId(),
-            order.getDeliveryId(), order.getTotalStock(), order.getRequestDetails(), list));
+    // TODO : 리팩토링
+    // 주문 검색
+    public List<OrderResponse> searchOrders(int page, SearchDto searchDto) {
+
+        Page<Order> orderPage = orderDomainService.searchOrders(page, searchDto);
+
+        return orderPage.getContent().stream()
+            .map(order -> new OrderResponse(order.getSuppliersId(), order.getRecipientsId(),
+                order.getDeliveryId(), order.getTotalStock(), order.getRequestDetails(),
+                getOrderItemsDtoList(order))).toList();
     }
 
     public Order findOrder(UUID orderId) {

@@ -1,10 +1,12 @@
 package com.sparta.orderservice.presentation.controller;
 
 import com.sparta.orderservice.application.service.OrderService;
+import com.sparta.orderservice.domain.model.SearchDto;
 import com.sparta.orderservice.presentation.requset.OrderRequest;
 import com.sparta.orderservice.presentation.requset.UpdateOrderRequest;
 import com.sparta.orderservice.presentation.response.OrderResponse;
 import com.sparta.orderservice.presentation.response.UpdateOrderResponse;
+import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.sql.Update;
@@ -57,11 +59,31 @@ public class OrderController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<OrderResponse>> getOrders(
-        @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
-        Page<OrderResponse> orders = orderService.getOrders(page, size);
+    public ResponseEntity<List<OrderResponse>> getOrders(
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size,
+        @RequestParam(defaultValue = "createdAt") String sortBy,
+        @RequestParam(defaultValue = "asc") String direction
+    ) {
+        List<OrderResponse> orders = orderService.getOrders(page, size, sortBy, direction);
         return ResponseEntity.ok(orders);
     }
+
+
+    @GetMapping("/search")
+    public ResponseEntity<List<OrderResponse>> searchOrders(
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(required = false) String keyword,
+        @RequestParam(defaultValue = "createdAt") String sortBy,
+        @RequestParam(defaultValue = "asc") String direction,
+        @RequestParam(defaultValue = "10") int size
+    ) {
+        SearchDto searchDto = new SearchDto(keyword, sortBy, direction, size);
+
+        List<OrderResponse> orders = orderService.searchOrders(page, searchDto);
+        return ResponseEntity.ok(orders);
+    }
+
 
 }
 
