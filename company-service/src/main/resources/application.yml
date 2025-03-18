@@ -1,0 +1,28 @@
+spring:
+  application:
+    name: company-service
+
+  datasource:
+    url: jdbc:postgresql://company-db:5432/13friday_company
+    username: myuser
+    password: mypassword
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: true
+
+    sql:
+      init:
+        mode: always
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka-server:19090/eureka/
+    register-with-eureka: true
