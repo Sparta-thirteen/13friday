@@ -28,8 +28,6 @@ services:
       - order-db
       - eureka-server
 
-
-
   order-db:
     image: postgres
     container_name: 13friday-order-db
@@ -39,7 +37,6 @@ services:
       - POSTGRES_USER=${ORDER_DB_USER}
       - POSTGRES_PASSWORD=${ORDER_DB_PASSWORD}
       - POSTGRES_DB=13friday_order
-
 
   company-service:
     build:
@@ -62,8 +59,8 @@ services:
     ports:
       - "5436:5432"
     environment:
-      - POSTGRES_USER=myuser
-      - POSTGRES_PASSWORD=mypassword
+      - POSTGRES_USER=${COMPANY_DB_USER}
+      - POSTGRES_PASSWORD=${COMPANY_DB_PASSWORD}
       - POSTGRES_DB=13friday_company
 
 volumes:
