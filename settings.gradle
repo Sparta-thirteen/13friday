@@ -1,7 +1,0 @@
-rootProject.name = '13friday'
-
-include("common")
-include("eureka-server")
-include("order-service")
-include("company-service")
-include("gateway")
