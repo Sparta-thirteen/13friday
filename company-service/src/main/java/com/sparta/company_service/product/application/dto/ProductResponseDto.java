@@ -17,6 +17,7 @@ public class ProductResponseDto {
   private UUID companyId;
   private UUID hubId;
   private String name;
+  private Integer stock;
 
   public static ProductResponseDto toDto(Product product) {
     return ProductResponseDto.builder()
@@ -24,6 +25,7 @@ public class ProductResponseDto {
         .companyId(product.getCompanyId())
         .hubId(product.getHubId())
         .name(product.getName())
+        .stock(product.getStock())
         .build();
   }
 }

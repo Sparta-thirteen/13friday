@@ -1,5 +1,6 @@
 package com.sparta.company_service.product.domain.entity;
 
+import com.sparta.company_service.product.application.dto.ProductRequestDto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -30,4 +31,13 @@ public class Product {
 
   @Column(nullable = false)
   private String name;
+
+  private Integer stock;
+
+  public void update(ProductRequestDto requestDto, UUID hubId) {
+    this.companyId = requestDto.getCompanyId();
+    this.hubId = hubId;
+    this.name = requestDto.getName();
+    this.stock = requestDto.getStock();
+  }
 }

@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -46,5 +47,12 @@ public class ProductController {
       Pageable pageable) {
     Page<ProductResponseDto> responseDto = productService.searchProducts(keyword, pageable);
     return ResponseEntity.ok(responseDto);
+  }
+
+  @PatchMapping("/{productId}")
+  public ResponseEntity<?> updateProduct(@PathVariable UUID productId,
+      @RequestBody ProductRequestDto requestDto) {
+    productService.updateProduct(productId, requestDto);
+    return ResponseEntity.status(HttpStatus.OK).body("상품 수정 성공");
   }
 }

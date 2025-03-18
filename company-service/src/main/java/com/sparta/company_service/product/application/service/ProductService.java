@@ -46,6 +46,15 @@ public class ProductService {
         .map(ProductResponseDto::toDto);
   }
 
+  @Transactional
+  public void updateProduct(UUID productId, ProductRequestDto requestDto) {
+    // todo: user 권한 검증 로직, deleteAt 검증 로직
+    Product product = findProduct(productId);
+    Company company = companyService.findCompany(requestDto.getCompanyId());
+    UUID hubId = company.getHubId();
+    product.update(requestDto, hubId);
+  }
+
   private Product findProduct(UUID productId) {
     return productRepository.findById(productId).orElseThrow(() ->
         new IllegalArgumentException("상품을 찾을 수 없습니다."));
