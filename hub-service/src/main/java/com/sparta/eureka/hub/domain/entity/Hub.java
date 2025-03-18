@@ -26,7 +26,7 @@ public class Hub {
     @Column(nullable = false, unique = true)
     private String address;
 
-    @Column(nullable = false, unique = true)
+    @Column
     private BigDecimal lat;
 
     @Column
@@ -34,7 +34,7 @@ public class Hub {
 
     private boolean isDeleted;
 
-    public static Hub create(String hubName, String address, BigDecimal lat, BigDecimal lon) {
+    public static Hub create(String hubName, String address) {
 
         return Hub.builder()
                 .hubName(hubName)
