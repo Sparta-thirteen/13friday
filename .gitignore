@@ -1,5 +1,7 @@
 .idea
 
-
 ### Environment file ###
 .env
+
+### database volum ###
+db_data/
