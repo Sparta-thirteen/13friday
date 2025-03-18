@@ -55,6 +55,7 @@ public class ProductService {
     product.update(requestDto, hubId);
   }
 
+  @Transactional
   public void deleteProduct(UUID productId) {
     // todo: user 권한 검증 로직
     Product product = findProduct(productId);
