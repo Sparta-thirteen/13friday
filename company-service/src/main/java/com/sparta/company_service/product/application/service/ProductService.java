@@ -3,8 +3,10 @@ package com.sparta.company_service.product.application.service;
 import com.sparta.company_service.company.application.service.CompanyService;
 import com.sparta.company_service.company.domain.entity.Company;
 import com.sparta.company_service.product.application.dto.ProductRequestDto;
+import com.sparta.company_service.product.application.dto.ProductResponseDto;
 import com.sparta.company_service.product.domain.entity.Product;
 import com.sparta.company_service.product.domain.repository.ProductRepository;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,4 +26,14 @@ public class ProductService {
     productRepository.save(product);
   }
 
+  @Transactional(readOnly = true)
+  public ProductResponseDto getProduct(UUID productId) {
+    Product product = findProduct(productId);
+    return ProductResponseDto.toDto(product);
+  }
+
+  private Product findProduct(UUID productId) {
+    return productRepository.findById(productId).orElseThrow(() ->
+        new IllegalArgumentException("상품을 찾을 수 없습니다."));
+  }
 }
