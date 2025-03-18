@@ -10,6 +10,9 @@ public class OrderItemsRequest {
 
     @NotEmpty
     private UUID productId;
-    private int productStock;
+
+    private String name;
+
+    private int stock;
 
 }

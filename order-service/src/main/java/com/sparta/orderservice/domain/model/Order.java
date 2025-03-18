@@ -1,6 +1,8 @@
 package com.sparta.orderservice.domain.model;
 
 
+import com.sparta.orderservice.presentation.requset.OrderItemsRequest;
+import com.sparta.orderservice.presentation.requset.UpdateOrderRequest;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -10,13 +12,14 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @Entity
-@Table(name ="p_order")
+@Table(name = "p_order")
 @Getter
 @RequiredArgsConstructor
 @AllArgsConstructor
@@ -29,68 +32,41 @@ public class Order {
     private UUID suppliersId;
     private UUID recipientsId;
     private UUID deliveryId;
-    private int stock;
+    private int totalStock;
     private String requestDetails;
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItems> orderItems = new ArrayList<>();
 
-    public Order(UUID suppliersId, UUID recipientsId, UUID deliveryId,String requestDetails) {
-        this.suppliersId =suppliersId;
+    public Order(UUID suppliersId, UUID recipientsId, UUID deliveryId, String requestDetails) {
+        this.suppliersId = suppliersId;
         this.recipientsId = recipientsId;
-        this.deliveryId =deliveryId;
-        this.requestDetails =requestDetails;
+        this.deliveryId = deliveryId;
+        this.requestDetails = requestDetails;
     }
-
-//    @CreatedDate
-//    private LocalDateTime createdAt;
-//
-//    @LastModifiedDate
-//    private LocalDateTime modifiedAt;
-//
-//    @Column(nullable = false, columnDefinition = "boolean default false")
-//    private boolean isDeleted;
-//
-//    private LocalDateTime deletedAt;
-//
-//    @CreatedBy
-//    private String createdBy;
-//
-//    @LastModifiedBy
-//    private String modifiedBy;
-//
-//    private String deletedBy;
-//
-//    @PreUpdate
-//    public void setDeleted() {
-//        if (isDeleted) {
-//            deletedAt = LocalDateTime.now();
-//
-//            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//
-//            if (authentication == null || !authentication.isAuthenticated()) {
-//                deletedBy = "SYSTEM";
-//                return;
-//            }
-//
-//            Object principal = authentication.getPrincipal();
-//
-//            if (principal instanceof UserDetails) {
-//                deletedBy = ((UserDetails) principal).getUsername();
-//                return;
-//            }
-//
-//            deletedBy = "UNKNOWN";
-//        }
-//    }
-
 
 
     public void addOrderItem(OrderItems item) {
         this.orderItems.add(item);
         item.setOrder(this);
-        this.stock += item.getProductStock();
+        this.totalStock += item.getStock();
     }
 
+    public void updateOrderItems(List<OrderItemsRequest> req, Map<UUID, OrderItems> existsItemsMap) {
+
+
+        for (OrderItemsRequest request : OrderItemsRequest) {
+            for (OrderItems item : this.orderItems) {
+                if (item.getProductId().equals(request.getProductId())) {
+                    item.updateOrderItem(request.getName(), request.getStock());
+                }
+            }
+        }
+    }
+
+    public void updateStockAndRequestsDetails(int totalStock, String requestDetails) {
+        this.totalStock = totalStock;
+        this.requestDetails = requestDetails;
+    }
 
 
 }

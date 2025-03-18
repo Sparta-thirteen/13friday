@@ -4,8 +4,13 @@ import com.sparta.orderservice.domain.model.Order;
 import com.sparta.orderservice.domain.model.OrderItems;
 import com.sparta.orderservice.presentation.requset.OrderItemsRequest;
 import com.sparta.orderservice.presentation.requset.OrderRequest;
+import com.sparta.orderservice.presentation.requset.UpdateOrderRequest;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -13,8 +18,6 @@ public class OrderDomainService {
 
 
     public Order createOrder(OrderRequest req) {
-        // OrderItem 엔티티 생성 및 저장
-        List<OrderItems> itemList = new ArrayList<>();
 
         // Order 엔티티 생성
         Order order = new Order(req.getSuppliersId(), req.getRecipientsId(), req.getDeliveryId(),
@@ -23,11 +26,34 @@ public class OrderDomainService {
         // TODO: 재고 비교 값 필요
         int stockQuantity = 10000;
         for (OrderItemsRequest request : req.getOrderItemsRequests()) {
-            OrderItems orderItems = new OrderItems(request.getProductId(),
-                request.getProductStock());
+            OrderItems orderItems = new OrderItems(request.getProductId(), request.getName(),
+                request.getStock());
             order.addOrderItem(orderItems);
-            validateProductStock(stockQuantity, order.getStock());
+            validateProductStock(stockQuantity, order.getTotalStock());
         }
+        return order;
+    }
+
+    public Order updateOrder(Order order,UpdateOrderRequest req) {
+
+
+        Map<UUID, OrderItems> existsItemsMap = new HashMap<>();
+        for (OrderItems item : order.getOrderItems()) {
+            existsItemsMap.put(item.getId(), item);
+        }
+        order.updateOrderItems(req.getOrderItemsRequests(),existsItemsMap);
+
+        // TODO: 재고 비교 값 필요
+        int stockQuantity = 10000;
+        int totalQuantity = 0;
+        for (OrderItemsRequest request : req.getOrderItemsRequests()) {
+            OrderItems orderItems = existsItemsMap.get(request.getProductId());
+            totalQuantity += request.getStock();
+        }
+        validateProductStock(stockQuantity, order.getTotalStock());
+
+        order.updateStockAndRequestsDetails(totalQuantity,req.getRequestDetails());
+
         return order;
     }
 
