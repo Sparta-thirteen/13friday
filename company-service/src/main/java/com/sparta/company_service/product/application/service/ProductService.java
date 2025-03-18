@@ -40,6 +40,12 @@ public class ProductService {
         .map(ProductResponseDto::toDto);
   }
 
+  @Transactional(readOnly = true)
+  public Page<ProductResponseDto> searchProducts(String keyword, Pageable pageable) {
+    return productRepository.findAllByName(keyword, pageable)
+        .map(ProductResponseDto::toDto);
+  }
+
   private Product findProduct(UUID productId) {
     return productRepository.findById(productId).orElseThrow(() ->
         new IllegalArgumentException("상품을 찾을 수 없습니다."));

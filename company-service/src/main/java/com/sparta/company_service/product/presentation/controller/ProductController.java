@@ -40,4 +40,11 @@ public class ProductController {
     Page<ProductResponseDto> responseDto = productService.getProducts(pageable);
     return ResponseEntity.ok(responseDto);
   }
+
+  @GetMapping("/search")
+  public ResponseEntity<Page<ProductResponseDto>> searchProducts(String keyword,
+      Pageable pageable) {
+    Page<ProductResponseDto> responseDto = productService.searchProducts(keyword, pageable);
+    return ResponseEntity.ok(responseDto);
+  }
 }
