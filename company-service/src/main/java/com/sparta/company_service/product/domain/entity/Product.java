@@ -24,4 +24,10 @@ public class Product {
   @Column(name = "product_id")
   private UUID id;
 
+  private UUID companyId;
+
+  private UUID hubId;
+
+  @Column(nullable = false)
+  private String name;
 }

@@ -57,7 +57,7 @@ public class CompanyService {
     // todo: update deletedAt, deletedBy
   }
 
-  private Company findCompany(UUID companyId) {
+  public Company findCompany(UUID companyId) {
     return companyRepository.findById(companyId).orElseThrow(() ->
         new IllegalArgumentException("업체를 찾을 수 없습니다"));
   }
