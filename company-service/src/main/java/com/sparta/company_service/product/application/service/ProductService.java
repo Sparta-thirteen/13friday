@@ -55,6 +55,11 @@ public class ProductService {
     product.update(requestDto, hubId);
   }
 
+  public void deleteProduct(UUID productId) {
+    // todo: user 권한 검증 로직
+    Product product = findProduct(productId);
+  }
+
   private Product findProduct(UUID productId) {
     return productRepository.findById(productId).orElseThrow(() ->
         new IllegalArgumentException("상품을 찾을 수 없습니다."));
