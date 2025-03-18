@@ -3,6 +3,8 @@ package com.sparta.eureka.hub.application.service;
 import com.sparta.eureka.hub.application.dto.HubDto;
 import com.sparta.eureka.hub.domain.entity.Hub;
 import com.sparta.eureka.hub.domain.repository.HubRepository;
+import com.sparta.eureka.hub.infrastructure.geocoding.Coordinates;
+import com.sparta.eureka.hub.infrastructure.geocoding.GeocodingService;
 import com.sparta.eureka.hub.infrastructure.mapper.HubMapper;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -14,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -21,8 +24,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class HubService {
     private final HubRepository hubRepository;
-//    @Autowired
     private final HubMapper hubMapper;
+    private final GeocodingService geocodingService;
 
     public HubDto.responseDto createHub(HubDto.createDto request) {
         Hub hub = hubRepository.save(hubMapper.createDtoToHub(request));
@@ -65,5 +68,15 @@ public class HubService {
                 new EntityNotFoundException("Hub with id " + hubId + " not found"));
     }
 
+    public void updateHubCoordinates(UUID hubId) {
+        Hub hub = findHub(hubId);
+
+        Coordinates coordinates = geocodingService.getCoordinatesFromAddress(hub.getAddress());
+
+        hub.latAndLon(BigDecimal.valueOf(coordinates.getLat()),
+                BigDecimal.valueOf(coordinates.getLon()));
+
+        hubRepository.save(hub);
+    }
 
 }

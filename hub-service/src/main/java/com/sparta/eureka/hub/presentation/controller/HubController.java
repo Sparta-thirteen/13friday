@@ -47,6 +47,14 @@ public class HubController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @PostMapping("/{hubId}/update-coordinates")
+    public ResponseEntity<Void> updateCoordinates(@PathVariable UUID hubId) {
+        hubService.updateHubCoordinates(hubId);
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+
     @DeleteMapping("/{hubId}")
     public ResponseEntity<HubDto.responseDto> deleteHub(@PathVariable UUID hubId) {
         hubService.deleteHub(hubId);

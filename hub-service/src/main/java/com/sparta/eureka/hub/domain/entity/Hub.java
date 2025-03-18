@@ -20,13 +20,13 @@ public class Hub {
     @GeneratedValue
     private UUID hubId;
 
-    @Column
+    @Column(nullable = false, unique = true)
     private String hubName;
 
-    @Column
+    @Column(nullable = false, unique = true)
     private String address;
 
-    @Column
+    @Column(nullable = false, unique = true)
     private BigDecimal lat;
 
     @Column
@@ -39,8 +39,8 @@ public class Hub {
         return Hub.builder()
                 .hubName(hubName)
                 .address(address)
-                .lat(lat)
-                .lon(lon)
+                .lat(null)
+                .lon(null)
                 .isDeleted(false)
                 .build();
     }
@@ -48,6 +48,11 @@ public class Hub {
     public void update(String hubName, String address, BigDecimal lat, BigDecimal lon) {
         this.hubName = hubName;
         this.address = address;
+        this.lat = lat;
+        this.lon = lon;
+    }
+
+    public void latAndLon (BigDecimal lat, BigDecimal lon) {
         this.lat = lat;
         this.lon = lon;
     }
