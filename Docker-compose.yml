@@ -84,5 +84,32 @@ services:
       - POSTGRES_PASSWORD=${COMPANY_DB_PASSWORD}
       - POSTGRES_DB=13friday_company
 
+
+  delivery-service:
+    build:
+      context: ./delivery-service
+      dockerfile: Dockerfile
+    container_name: 13friday-delivery-service
+    ports:
+      - "19095:19095"
+    depends_on:
+      - delivery-db
+      - eureka-server
+
+
+
+  delivery-db:
+    image: postgres
+    container_name: 13friday-delivery-db
+    ports:
+      - "5435:5432"
+    environment:
+      - POSTGRES_USER=${DELIVERY_DB_USER}
+      - POSTGRES_PASSWORD=${DELIVERY_DB_PASSWORD}
+      - POSTGRES_DB=13friday_delivery
+
+
+
+
 volumes:
   db_data:
