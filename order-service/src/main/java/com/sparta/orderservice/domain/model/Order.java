@@ -11,6 +11,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -51,15 +52,21 @@ public class Order {
         this.totalStock += item.getStock();
     }
 
-    public void updateOrderItems(List<OrderItemsRequest> req, Map<UUID, OrderItems> existsItemsMap) {
+    public void updateOrderItems(List<OrderItemsRequest> req) {
+        Map<UUID, OrderItems> existsItemsMap = new HashMap<>();
+        for (OrderItems item : this.getOrderItems()) {
+            existsItemsMap.put(item.getId(), item);
+            System.out.println(item.getId());
 
+        }
 
-        for (OrderItemsRequest request : OrderItemsRequest) {
-            for (OrderItems item : this.orderItems) {
-                if (item.getProductId().equals(request.getProductId())) {
-                    item.updateOrderItem(request.getName(), request.getStock());
+        for (OrderItemsRequest request : req) {
+            System.out.println(request.getProductId());
+            if(existsItemsMap.containsKey(request.getProductId())){
+                    System.out.println("아니야?");
+                    existsItemsMap.get(request.getProductId()).updateOrderItem(request.getName(),request.getStock());
                 }
-            }
+
         }
     }
 

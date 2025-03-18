@@ -21,7 +21,6 @@ import lombok.RequiredArgsConstructor;
 @Getter
 public class OrderItems {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     private String name;
@@ -43,9 +42,9 @@ public class OrderItems {
 
     }
 
-    public void updateOrderItem(OrderItems orderItems){
-        this.name = orderItems.getName();
-        this.stock = orderItems.getStock();
+    public void updateOrderItem(String name,int stock){
+        this.name = name;
+        this.stock = stock;
     }
 
 

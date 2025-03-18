@@ -37,17 +37,12 @@ public class OrderDomainService {
     public Order updateOrder(Order order,UpdateOrderRequest req) {
 
 
-        Map<UUID, OrderItems> existsItemsMap = new HashMap<>();
-        for (OrderItems item : order.getOrderItems()) {
-            existsItemsMap.put(item.getId(), item);
-        }
-        order.updateOrderItems(req.getOrderItemsRequests(),existsItemsMap);
+        order.updateOrderItems(req.getOrderItemsRequests());
 
         // TODO: 재고 비교 값 필요
         int stockQuantity = 10000;
         int totalQuantity = 0;
         for (OrderItemsRequest request : req.getOrderItemsRequests()) {
-            OrderItems orderItems = existsItemsMap.get(request.getProductId());
             totalQuantity += request.getStock();
         }
         validateProductStock(stockQuantity, order.getTotalStock());
