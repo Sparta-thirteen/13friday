@@ -5,6 +5,8 @@ import com.sparta.company_service.product.application.dto.ProductResponseDto;
 import com.sparta.company_service.product.application.service.ProductService;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,6 +32,12 @@ public class ProductController {
   @GetMapping("/{productId}")
   public ResponseEntity<ProductResponseDto> getProduct(@PathVariable UUID productId) {
     ProductResponseDto responseDto = productService.getProduct(productId);
+    return ResponseEntity.ok(responseDto);
+  }
+
+  @GetMapping
+  public ResponseEntity<Page<ProductResponseDto>> getProducts(Pageable pageable) {
+    Page<ProductResponseDto> responseDto = productService.getProducts(pageable);
     return ResponseEntity.ok(responseDto);
   }
 }

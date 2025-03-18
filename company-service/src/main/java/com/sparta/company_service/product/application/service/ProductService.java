@@ -8,6 +8,8 @@ import com.sparta.company_service.product.domain.entity.Product;
 import com.sparta.company_service.product.domain.repository.ProductRepository;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +32,12 @@ public class ProductService {
   public ProductResponseDto getProduct(UUID productId) {
     Product product = findProduct(productId);
     return ProductResponseDto.toDto(product);
+  }
+
+  @Transactional(readOnly = true)
+  public Page<ProductResponseDto> getProducts(Pageable pageable) {
+    return productRepository.findAll(pageable)
+        .map(ProductResponseDto::toDto);
   }
 
   private Product findProduct(UUID productId) {
