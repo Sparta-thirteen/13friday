@@ -25,7 +25,7 @@ public class BaseEntity {
   private LocalDateTime createdAt;
 
   @CreatedBy
-  @Column(name = "created_by", nullable = false, length = 100, updatable = false)
+  @Column(name = "created_by", length = 100, updatable = false)
   @Comment("생성자")
   private String createdBy;
 

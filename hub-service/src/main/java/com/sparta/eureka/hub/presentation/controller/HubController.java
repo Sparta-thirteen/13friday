@@ -47,9 +47,16 @@ public class HubController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @PostMapping("/{hubId}/update-coordinates")
+    @PostMapping("/{hubId}/coordinates")
     public ResponseEntity<Void> updateCoordinates(@PathVariable UUID hubId) {
         hubService.updateHubCoordinates(hubId);
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PostMapping("/allCoordinates")
+    public ResponseEntity<Void> updateAllCoordinates() {
+        hubService.updateAllCoordinates();
 
         return new ResponseEntity<>(HttpStatus.OK);
     }

@@ -17,6 +17,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -73,10 +74,32 @@ public class HubService {
 
         Coordinates coordinates = geocodingService.getCoordinatesFromAddress(hub.getAddress());
 
-        hub.latAndLon(BigDecimal.valueOf(coordinates.getLat()),
-                BigDecimal.valueOf(coordinates.getLon()));
+        hub.latAndLon(
+                BigDecimal.valueOf(coordinates.getLat()),
+                BigDecimal.valueOf(coordinates.getLon())
+        );
 
         hubRepository.save(hub);
+    }
+
+    @Transactional
+    public void updateAllCoordinates() {
+        List<Hub> hubs = hubRepository.findAll();
+
+        for (Hub hub : hubs) {
+            String address = hub.getAddress();
+
+            if (address != null && !address.isEmpty()) {
+                Coordinates coordinates = geocodingService.getCoordinatesFromAddress(address);
+
+                hub.latAndLon(
+                        BigDecimal.valueOf(coordinates.getLat()),
+                        BigDecimal.valueOf(coordinates.getLon())
+                );
+
+                hubRepository.save(hub);
+            }
+        }
     }
 
 }

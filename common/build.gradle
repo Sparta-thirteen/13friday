@@ -1,3 +1,7 @@
+plugins {
+	id 'java-library' // 추가
+}
+
 ext {
 	set('springCloudVersion', "2024.0.0")
 }
@@ -7,6 +11,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
 	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+	implementation 'org.projectlombok:lombok'
 }
 
 dependencyManagement {
@@ -14,3 +19,6 @@ dependencyManagement {
 		mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
 	}
 }
+
+bootJar.enabled = false // Executable Archive
+jar.enabled = true // Plain Archive

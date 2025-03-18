@@ -1,12 +1,14 @@
 package com.sparta.eureka.hub.domain.entity;
 
+
+import com.sparta.common.jpa.BaseEntity;
 import jakarta.persistence.*;
-
-import lombok.*;
-
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -15,7 +17,7 @@ import java.util.UUID;
 @Table(name = "p_hub")
 @NoArgsConstructor
 @AllArgsConstructor
-public class Hub {
+public class Hub extends BaseEntity {
     @Id
     @GeneratedValue
     private UUID hubId;
@@ -26,7 +28,7 @@ public class Hub {
     @Column(nullable = false, unique = true)
     private String address;
 
-    @Column(nullable = false, unique = true)
+    @Column
     private BigDecimal lat;
 
     @Column
@@ -34,7 +36,7 @@ public class Hub {
 
     private boolean isDeleted;
 
-    public static Hub create(String hubName, String address, BigDecimal lat, BigDecimal lon) {
+    public static Hub create(String hubName, String address) {
 
         return Hub.builder()
                 .hubName(hubName)
