@@ -34,10 +34,7 @@ public class DeliveryRoute extends BaseEntity {
     private UUID deliveryId;
 
     @Column(nullable = false)
-    private UUID deliveryManagerId;
-
-    @Column(nullable = false)
-    private UUID companyDeliveryManagerId;
+    private UUID shippingManagerId;
 
     @Column(nullable = false)
     private String shippingAddress;
@@ -62,14 +59,13 @@ public class DeliveryRoute extends BaseEntity {
     private int sequence;
 
     public DeliveryRoute(UUID departureHubId, UUID destinationHubId, UUID deliveryId,
-        UUID deliveryManagerId, UUID companyDeliveryManagerId, String shippingAddress,
+        UUID shippingManagerId, String shippingAddress,
         Long estimatedDistance, LocalDateTime estimatedTime, Long actualDistance,
         LocalDateTime actualTime, DeliveryRouteType deliveryStatus, int sequence) {
         this.departureHubId = departureHubId;
         this.destinationHubId = destinationHubId;
         this.deliveryId = deliveryId;
-        this.deliveryManagerId = deliveryManagerId;
-        this.companyDeliveryManagerId = companyDeliveryManagerId;
+        this.shippingManagerId = shippingManagerId;
         this.shippingAddress = shippingAddress;
         this.estimatedDistance = estimatedDistance;
         this.estimatedTime = estimatedTime;
@@ -82,7 +78,7 @@ public class DeliveryRoute extends BaseEntity {
 
 
     public static DeliveryRoute testDeliveryRoute(DeliveryRouteType deliveryStatus, int sequence) {
-       return new DeliveryRoute(UUID.randomUUID(),UUID.randomUUID(),UUID.randomUUID(),UUID.randomUUID(),UUID.randomUUID(),"강남구 123",150L,LocalDateTime.now().plusDays(2),148L,LocalDateTime.now().plusDays(2).plusHours(1),deliveryStatus,sequence);
+       return new DeliveryRoute(UUID.randomUUID(),UUID.randomUUID(),UUID.randomUUID(),UUID.randomUUID(),"강남구 123",150L,LocalDateTime.now().plusDays(2),148L,LocalDateTime.now().plusDays(2).plusHours(1),deliveryStatus,sequence);
     }
 
 }
