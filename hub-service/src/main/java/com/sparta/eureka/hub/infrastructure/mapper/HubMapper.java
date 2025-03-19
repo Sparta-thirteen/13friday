@@ -12,16 +12,18 @@ public interface HubMapper {
                 request.getAddress()
         );
     }
+
     Hub updateDtoToHub(HubDto.updateDto request);
-//    default HubDto.responseDto hubToResponseDto(Hub hub) {
-//        HubDto.responseDto response =  new HubDto.responseDto();
-//        response.setHubId(hub.getHubId());
-//        response.setHubName(hub.getHubName());
-//        response.setAddress(hub.getAddress());
-//        response.setLat(hub.getLat());
-//        response.setLon(hub.getLon());
-//
-//        return response;
-//    }
-    HubDto.responseDto hubToResponseDto(Hub hub);
+
+    default HubDto.responseDto hubToResponseDto(Hub hub) {
+        HubDto.responseDto response =  new HubDto.responseDto();
+        response.setHubId(hub.getHubId());
+        response.setHubName(hub.getHubName());
+        response.setAddress(hub.getAddress());
+        response.setLat(hub.getLat());
+        response.setLon(hub.getLon());
+
+        return response;
+    }
+
 }
