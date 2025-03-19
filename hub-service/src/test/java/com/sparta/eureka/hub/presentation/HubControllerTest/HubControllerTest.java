@@ -35,9 +35,7 @@ class HubControllerTest {
         //given
         HubDto.createDto request = new HubDto.createDto(
                 "서울특별시 센터",
-                "서울특별시 송파구 송파대로 55",
-                new BigDecimal("37.4759"),
-                new BigDecimal("127.1233")
+                "서울특별시 송파구 송파대로 55"
         );
         HubDto.responseDto response = new HubDto.responseDto(
                 UUID.randomUUID(),
@@ -62,9 +60,7 @@ class HubControllerTest {
         UUID hubId = UUID.randomUUID();
         HubDto.updateDto request = new HubDto.updateDto(
                 "경기 북부 센터",
-                "경기도 고양시 덕양구 권율대로 570",
-                new BigDecimal("37.64054"),
-                new BigDecimal("126.8737")
+                "경기도 고양시 덕양구 권율대로 570"
         );
         HubDto.responseDto response = new HubDto.responseDto(
                 UUID.randomUUID(),

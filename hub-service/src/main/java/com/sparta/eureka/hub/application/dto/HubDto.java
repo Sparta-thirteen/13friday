@@ -29,10 +29,6 @@ public class HubDto {
         private String hubName;
         @NotBlank
         private String address;
-        @NotBlank
-        private BigDecimal lat;
-        @NotBlank
-        private BigDecimal lon;
     }
 
     @Getter

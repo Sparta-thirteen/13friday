@@ -35,7 +35,7 @@ public class Hub extends Auditable {
     private BigDecimal lon;
 
     @Column
-    private boolean isDeleted = false;
+    private boolean isDeleted;
 
     public static Hub create(String hubName, String address) {
 
@@ -48,11 +48,9 @@ public class Hub extends Auditable {
                 .build();
     }
 
-    public void update(String hubName, String address, BigDecimal lat, BigDecimal lon) {
+    public void update(String hubName, String address) {
         this.hubName = hubName;
         this.address = address;
-        this.lat = lat;
-        this.lon = lon;
     }
 
     public void latAndLon (BigDecimal lat, BigDecimal lon) {
