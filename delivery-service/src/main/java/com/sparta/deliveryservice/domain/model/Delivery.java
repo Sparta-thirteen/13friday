@@ -1,6 +1,7 @@
 package com.sparta.deliveryservice.domain.model;
 
 
+import com.sparta.deliveryservice.presentation.request.UpdateDeliveryRequest;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -17,29 +18,43 @@ import lombok.RequiredArgsConstructor;
 @Table(name = "p_delivery")
 @Getter
 @RequiredArgsConstructor
-public class Delivery {
+public class Delivery extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
     @Column(nullable = false)
-    private UUID departure_hub_id;
+    private UUID departureHubId;
     @Column(nullable = false)
-    private UUID destination_hub_id;
+    private UUID destinationHubId;
     @Column(nullable = false)
-    private UUID shipping_manager_id;
+    private UUID shippingManagerId;
     @Column(nullable = false)
-    private UUID shipping_manager_slack_id;
+    private UUID shippingManagerSlackId;
     @Column(nullable = false)
-    private UUID company_delivery_manager_id;
+    private UUID companyDeliveryManagerId;
     @Column(nullable = false)
-    private String shipping_address;
+    private String shippingAddress;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private DeliveryType delivery_status;
+    private DeliveryType deliveryStatus;
 
 
+    public Delivery(UUID departureHubId, UUID destinationHubId, UUID shippingManagerId, UUID shippingManagerSlackId, UUID companyDeliveryManagerId, String shippingAddress, DeliveryType deliveryStatus) {
+        this.departureHubId =departureHubId;
+        this.destinationHubId =destinationHubId;
+        this.shippingManagerId = shippingManagerId;
+        this.shippingManagerSlackId =shippingManagerSlackId;
+        this.companyDeliveryManagerId = companyDeliveryManagerId;
+        this.shippingAddress =shippingAddress;
+        this.deliveryStatus =deliveryStatus;
+    }
+
+
+    public void updateDelivery(UpdateDeliveryRequest req) {
+        this.deliveryStatus = req.getDelivery_status();
+    }
 }
 
 
