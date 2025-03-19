@@ -1,4 +1,9 @@
-FROM openjdk:17-jdk
-ARG JAR_FILE=build/libs/*.jar
-COPY ${JAR_FILE} app.jar
-ENTRYPOINT ["java", "-jar", "/app.jar", "--server.port=19095"]
+FROM eclipse-temurin:17-jdk
+WORKDIR /delivery-service
+
+COPY . .
+
+RUN chmod +x gradlew
+
+CMD ["./gradlew", "bootRun"]
+
