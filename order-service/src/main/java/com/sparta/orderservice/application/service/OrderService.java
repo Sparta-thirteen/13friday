@@ -94,7 +94,7 @@ public class OrderService {
 
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        Page<Order> orderPage = jpaOrderRepository.findAll(pageable);
+        Page<Order> orderPage = jpaOrderRepository.findByIsDeletedFalse(pageable);
 
         return orderPage.getContent().stream()
             .map(order -> new OrderResponse(order.getSuppliersId(), order.getRecipientsId(),
@@ -104,6 +104,7 @@ public class OrderService {
 
     // TODO : 리팩토링
     // 주문 검색
+    @Transactional(readOnly = true)
     public List<OrderResponse> searchOrders(int page, SearchDto searchDto) {
 
         Page<Order> orderPage = orderDomainService.searchOrders(page, searchDto);
