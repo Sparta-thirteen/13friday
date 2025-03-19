@@ -7,6 +7,7 @@ import com.sparta.company_service.product.application.dto.ProductRequestDto;
 import com.sparta.company_service.product.application.dto.ProductResponseDto;
 import com.sparta.company_service.product.domain.entity.Product;
 import com.sparta.company_service.product.domain.repository.ProductRepository;
+import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -73,5 +74,9 @@ public class ProductService {
     }
 
     return product;
+  }
+
+  public void softDeleteByCompanyId(UUID companyId) {
+    productRepository.softDeleteByCompanyId(companyId, LocalDateTime.now());
   }
 }

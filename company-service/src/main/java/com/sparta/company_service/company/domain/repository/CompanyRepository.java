@@ -11,7 +11,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface CompanyRepository extends JpaRepository<Company, UUID> {
 
-  @Query("SELECT c FROM Company c WHERE c.name LIKE %:keyword% AND c.deletedAt IS NULL ORDER BY c.createdAt DESC, c.updatedAt DESC")
+  @Query("SELECT c FROM Company c WHERE c.name LIKE %:keyword% AND c.deletedAt IS NULL "
+      + "ORDER BY c.createdAt DESC, c.updatedAt DESC")
   Page<Company> findAllByName(String keyword, Pageable pageable);
 
   Page<Company> findByDeletedAtIsNull(Pageable pageable);

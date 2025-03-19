@@ -5,6 +5,7 @@ import com.sparta.company_service.company.application.dto.CompanyRequestDto;
 import com.sparta.company_service.company.application.dto.CompanyResponseDto;
 import com.sparta.company_service.company.domain.entity.Company;
 import com.sparta.company_service.company.domain.repository.CompanyRepository;
+import com.sparta.company_service.product.application.service.ProductService;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -18,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class CompanyService {
 
   private final CompanyRepository companyRepository;
+  private final ProductService productService;
 
   @Transactional
   public void createCompany(CompanyRequestDto requestDto) {
@@ -54,8 +56,9 @@ public class CompanyService {
 
   @Transactional
   public void deleteCompany(UUID companyId) {
-    // todo: user 권한 검증 로직, 삭제 여부 확인 로직
+    // todo: user 권한 검증 로직
     Company company = findCompany(companyId);
+    productService.softDeleteByCompanyId(companyId);
     company.softDelete();
   }
 
