@@ -35,7 +35,7 @@ public class CompanyService {
 
   @Transactional(readOnly = true)
   public Page<CompanyResponseDto> getCompanies(Pageable pageable) {
-    return companyRepository.findAll(pageable)
+    return companyRepository.findByDeletedAtIsNull(pageable)
         .map(CompanyResponseDto::toDto);
   }
 
@@ -56,11 +56,17 @@ public class CompanyService {
   public void deleteCompany(UUID companyId) {
     // todo: user 권한 검증 로직, 삭제 여부 확인 로직
     Company company = findCompany(companyId);
-    // todo: update deletedAt, deletedBy
+    company.softDelete();
   }
 
   public Company findCompany(UUID companyId) {
-    return companyRepository.findById(companyId).orElseThrow(() ->
+    Company company = companyRepository.findById(companyId).orElseThrow(() ->
         new GlobalException(HttpStatus.NOT_FOUND, "업체를 찾을 수 없습니다."));
+
+    if (company.getDeletedAt() != null) {
+      throw new GlobalException(HttpStatus.BAD_REQUEST, "삭제된 업체입니다.");
+    }
+
+    return company;
   }
 }
