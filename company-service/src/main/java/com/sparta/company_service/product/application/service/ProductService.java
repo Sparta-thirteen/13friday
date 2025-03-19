@@ -38,7 +38,7 @@ public class ProductService {
 
   @Transactional(readOnly = true)
   public Page<ProductResponseDto> getProducts(Pageable pageable) {
-    return productRepository.findAll(pageable)
+    return productRepository.findByDeletedAtIsNull(pageable)
         .map(ProductResponseDto::toDto);
   }
 
@@ -50,7 +50,7 @@ public class ProductService {
 
   @Transactional
   public void updateProduct(UUID productId, ProductRequestDto requestDto) {
-    // todo: user 권한 검증 로직, deleteAt 검증 로직
+    // todo: user 권한 검증 로직
     Product product = findProduct(productId);
     Company company = companyService.findCompany(requestDto.getCompanyId());
     UUID hubId = company.getHubId();
@@ -61,10 +61,17 @@ public class ProductService {
   public void deleteProduct(UUID productId) {
     // todo: user 권한 검증 로직
     Product product = findProduct(productId);
+    product.softDelete();
   }
 
   private Product findProduct(UUID productId) {
-    return productRepository.findById(productId).orElseThrow(() ->
+    Product product = productRepository.findById(productId).orElseThrow(() ->
         new GlobalException(HttpStatus.NOT_FOUND, "상품을 찾을 수 없습니다."));
+
+    if (product.getDeletedAt() != null) {
+      throw new GlobalException(HttpStatus.BAD_REQUEST, "삭제된 상품입니다.");
+    }
+
+    return product;
   }
 }

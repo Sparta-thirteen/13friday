@@ -12,6 +12,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ProductRepository extends JpaRepository<Product, UUID> {
 
-  @Query("SELECT p FROM Product p WHERE p.name LIKE %:keyword%")
+  @Query("SELECT p FROM Product p WHERE p.name LIKE %:keyword% AND p.deletedAt IS NULL ORDER BY p.createdAt DESC, p.updatedAt DESC")
   Page<Product> findAllByName(String keyword, Pageable pageable);
+
+  Page<Product> findByDeletedAtIsNull(Pageable pageable);
 }
