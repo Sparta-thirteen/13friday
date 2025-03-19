@@ -1,5 +1,6 @@
 package com.sparta.company_service.product.domain.entity;
 
+import com.sparta.company_service.common.global.TimeStamped;
 import com.sparta.company_service.product.application.dto.ProductRequestDto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -18,7 +19,7 @@ import org.hibernate.annotations.UuidGenerator;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "p_product")
-public class Product {
+public class Product extends TimeStamped {
 
   @Id
   @UuidGenerator
