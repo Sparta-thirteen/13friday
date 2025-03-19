@@ -47,6 +47,16 @@ public class HubController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<Page<HubDto.responseDto>> searchHubs(@RequestParam(defaultValue = "10") int size,
+                                                               @RequestParam(defaultValue = "1") int page,
+                                                               @RequestParam String keyword,
+                                                               @RequestParam(defaultValue = "true") boolean isDesc) {
+        Page<HubDto.responseDto> response = hubService.searchHubs(size, page, keyword, isDesc);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
     @PostMapping("/{hubId}/updateCoordinates")
     public ResponseEntity<Void> updateCoordinates(@PathVariable UUID hubId) {
         hubService.updateHubCoordinates(hubId);

@@ -38,7 +38,7 @@ public class HubService {
         Hub hub = findHub(hubId);
         Hub updatedHub = hubMapper.updateDtoToHub(request);
 
-        hub.update(updatedHub.getHubName(), updatedHub.getAddress(), updatedHub.getLat(), updatedHub.getLon());
+        hub.update(updatedHub.getHubName(), updatedHub.getAddress());
 
         return hubMapper.hubToResponseDto(hub);
     }
@@ -82,5 +82,13 @@ public class HubService {
     }
 
 
+    public Page<HubDto.responseDto> searchHubs(int size,
+                                               int page,
+                                               String keyword,
+                                               boolean isDesc) {
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<Hub> hubs = hubRepository.searchByKeyword(keyword, isDesc, pageable);
 
+        return hubs.map(hubMapper::hubToResponseDto);
+    }
 }
