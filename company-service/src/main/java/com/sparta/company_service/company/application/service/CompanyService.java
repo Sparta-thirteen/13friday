@@ -1,5 +1,6 @@
 package com.sparta.company_service.company.application.service;
 
+import com.sparta.company_service.common.global.GlobalException;
 import com.sparta.company_service.company.application.dto.CompanyRequestDto;
 import com.sparta.company_service.company.application.dto.CompanyResponseDto;
 import com.sparta.company_service.company.domain.entity.Company;
@@ -8,6 +9,7 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -59,6 +61,6 @@ public class CompanyService {
 
   public Company findCompany(UUID companyId) {
     return companyRepository.findById(companyId).orElseThrow(() ->
-        new IllegalArgumentException("업체를 찾을 수 없습니다"));
+        new GlobalException(HttpStatus.NOT_FOUND, "업체를 찾을 수 없습니다."));
   }
 }

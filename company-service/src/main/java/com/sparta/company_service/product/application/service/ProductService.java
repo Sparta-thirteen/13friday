@@ -1,5 +1,6 @@
 package com.sparta.company_service.product.application.service;
 
+import com.sparta.company_service.common.global.GlobalException;
 import com.sparta.company_service.company.application.service.CompanyService;
 import com.sparta.company_service.company.domain.entity.Company;
 import com.sparta.company_service.product.application.dto.ProductRequestDto;
@@ -10,6 +11,7 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -63,6 +65,6 @@ public class ProductService {
 
   private Product findProduct(UUID productId) {
     return productRepository.findById(productId).orElseThrow(() ->
-        new IllegalArgumentException("상품을 찾을 수 없습니다."));
+        new GlobalException(HttpStatus.NOT_FOUND, "상품을 찾을 수 없습니다."));
   }
 }
