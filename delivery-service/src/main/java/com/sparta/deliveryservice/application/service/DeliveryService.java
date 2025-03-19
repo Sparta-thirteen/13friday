@@ -34,10 +34,10 @@ public class DeliveryService {
     @Transactional
     public ResponseEntity<String> createDelivery(DeliveryRequest req) {
         // TODO: id 전부 외부 api로 받아야함.
-        Delivery delivery = new Delivery(req.getDestination_hub_id(), req.getDestination_hub_id(),
-            req.getShipping_manager_id(), req.getShipping_manager_slack_id(),
-            req.getCompany_delivery_manager_id(), req.getShipping_address(),
-            req.getDelivery_status());
+        Delivery delivery = new Delivery(req.getDepartureHubId(), req.getDestinationHubId(),
+            req.getShippingManagerId(), req.getShippingManagerSlackId(),
+            req.getCompanyDeliveryManagerId(), req.getShippingAddress(),
+            req.getDeliveryStatus());
 
         jpaDeliveryRepository.save(delivery);
         return ResponseEntity.ok("배송 생성 완료");
@@ -60,9 +60,9 @@ public class DeliveryService {
         UpdateDeliveryRequest req) {
         // TODO: id 전부 외부 api로 받아야함.
         Delivery delivery = findDelivery(deliveryId);
-        if (delivery.isDeleted()) {
-            throw new IllegalArgumentException("삭제된 배송정보입니다.");
-        }
+
+        isDeletedDelivery(delivery);
+
 
         delivery.updateDelivery(req);
 
@@ -74,9 +74,8 @@ public class DeliveryService {
     public DeliveryResponse getDelivery(UUID deliveryId) {
 
         Delivery delivery = findDelivery(deliveryId);
-        if (delivery.isDeleted()) {
-            throw new IllegalArgumentException("삭제된 배송정보입니다.");
-        }
+
+        isDeletedDelivery(delivery);
 
         // TODO: id 전부 외부 api로 받아야함.
 
@@ -89,7 +88,8 @@ public class DeliveryService {
 
     // 배송 전체 조회
     @Transactional(readOnly = true)
-    public List<DeliveryResponse> getDeliveries(int page, int size, String sortBy, String direction) {
+    public List<DeliveryResponse> getDeliveries(int page, int size, String sortBy,
+        String direction) {
         Sort sort = direction.equalsIgnoreCase("asc")
             ? Sort.by(sortBy).ascending()
             : Sort.by(sortBy).descending();
@@ -99,7 +99,8 @@ public class DeliveryService {
         Page<Delivery> deliveryPage = jpaDeliveryRepository.findByIsDeletedFalse(pageable);
 
         return deliveryPage.getContent().stream()
-            .map(delivery -> new DeliveryResponse(delivery.getDepartureHubId(), delivery.getDestinationHubId(),
+            .map(delivery -> new DeliveryResponse(delivery.getDepartureHubId(),
+                delivery.getDestinationHubId(),
                 delivery.getShippingManagerId(), delivery.getShippingManagerSlackId(),
                 delivery.getCompanyDeliveryManagerId(), delivery.getShippingAddress(),
                 delivery.getDeliveryStatus())).toList();
@@ -112,7 +113,8 @@ public class DeliveryService {
         Page<Delivery> deliberyPage = deliveryDomainService.searchDeliveries(page, searchDto);
 
         return deliberyPage.getContent().stream()
-            .map(delivery -> new DeliveryResponse(delivery.getDepartureHubId(), delivery.getDestinationHubId(),
+            .map(delivery -> new DeliveryResponse(delivery.getDepartureHubId(),
+                delivery.getDestinationHubId(),
                 delivery.getShippingManagerId(), delivery.getShippingManagerSlackId(),
                 delivery.getCompanyDeliveryManagerId(), delivery.getShippingAddress(),
                 delivery.getDeliveryStatus())).toList();
@@ -122,6 +124,12 @@ public class DeliveryService {
     private Delivery findDelivery(UUID deliveryId) {
         return jpaDeliveryRepository.findById(deliveryId)
             .orElseThrow(() -> new IllegalArgumentException("배송 아이디가 없습니다."));
+    }
+
+    private void isDeletedDelivery(Delivery delivery) {
+        if (delivery.isDeleted()) {
+            throw new IllegalArgumentException("삭제된 배송정보입니다.");
+        }
     }
 
 }
