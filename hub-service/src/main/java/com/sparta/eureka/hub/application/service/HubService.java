@@ -6,7 +6,6 @@ import com.sparta.eureka.hub.domain.repository.HubRepository;
 import com.sparta.eureka.hub.infrastructure.geocoding.Coordinates;
 import com.sparta.eureka.hub.infrastructure.geocoding.GeocodingService;
 import com.sparta.eureka.hub.infrastructure.mapper.HubMapper;
-import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -16,11 +15,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
