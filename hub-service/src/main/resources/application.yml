@@ -3,7 +3,8 @@ spring:
     name: hub-service
 
   datasource:
-    url: jdbc:postgresql://localhost:5433/13friday_hub
+    url: jdbc:postgresql://hub-db:5432/13friday_hub  # docker 환경
+#    url: jdbc:postgresql://localhost:5433/13friday_hub # 로컬 환경
     username: root
     password: 1234
     driver-class-name: org.postgresql.Driver
