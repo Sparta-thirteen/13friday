@@ -1,5 +1,5 @@
 FROM eclipse-temurin:17-jdk
-WORKDIR /order-service
+WORKDIR /delivery-service
 
 COPY . .
 

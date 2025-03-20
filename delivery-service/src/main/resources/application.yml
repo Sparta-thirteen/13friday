@@ -1,6 +1,6 @@
 spring:
   application:
-    name: order-service
+    name: delivery-service
 
 
   jpa:
@@ -15,22 +15,17 @@ spring:
 
 
   datasource:
-    url: jdbc:postgresql://order-db:5432/13friday_order
-    username: ${ORDER_DB_USER}
-    password: ${ORDER_DB_PASSWORD}
+    url: jdbc:postgresql://delivery-db:5432/13friday_delivery
+    username: ${DELIVERY_DB_USER}
+    password: ${DELIVERY_DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
 
-
 server:
-  port: 19094
+  port: 19095
 
 eureka:
   client:
-#    enabled: false
     service-url:
       defaultZone: http://eureka-server:19090/eureka/
     register-with-eureka: true
-
-
-
