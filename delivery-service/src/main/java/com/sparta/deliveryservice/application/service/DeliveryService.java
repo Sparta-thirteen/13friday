@@ -4,6 +4,7 @@ package com.sparta.deliveryservice.application.service;
 import com.sparta.deliveryservice.domain.model.BaseEntity;
 import com.sparta.deliveryservice.domain.model.Delivery;
 import com.sparta.deliveryservice.domain.model.SearchDto;
+import com.sparta.deliveryservice.domain.model.SortDto;
 import com.sparta.deliveryservice.domain.service.DeliveryDomainService;
 import com.sparta.deliveryservice.infrastructure.repository.JpaDeliveryRepository;
 import com.sparta.deliveryservice.presentation.request.DeliveryRequest;
@@ -88,13 +89,12 @@ public class DeliveryService {
 
     // 배송 전체 조회
     @Transactional(readOnly = true)
-    public List<DeliveryResponse> getDeliveries(int page, int size, String sortBy,
-        String direction) {
-        Sort sort = direction.equalsIgnoreCase("asc")
-            ? Sort.by(sortBy).ascending()
-            : Sort.by(sortBy).descending();
+    public List<DeliveryResponse> getDeliveries(SortDto sortDto) {
+        Sort sort = sortDto.getDirection().equalsIgnoreCase("asc")
+            ? Sort.by(sortDto.getSortBy()).ascending()
+            : Sort.by(sortDto.getSortBy()).descending();
 
-        Pageable pageable = PageRequest.of(page, size, sort);
+        Pageable pageable = PageRequest.of(sortDto.getPage(),sortDto.getPage(), sort);
 
         Page<Delivery> deliveryPage = jpaDeliveryRepository.findByIsDeletedFalse(pageable);
 
@@ -108,11 +108,11 @@ public class DeliveryService {
 
     // 배송 검색
     @Transactional(readOnly = true)
-    public List<DeliveryResponse> searchDeliveries(int page, SearchDto searchDto) {
+    public List<DeliveryResponse> searchDeliveries(SearchDto searchDto) {
         // TODO : 리팩토링
-        Page<Delivery> deliberyPage = deliveryDomainService.searchDeliveries(page, searchDto);
+        Page<Delivery> deliveryPage = deliveryDomainService.searchDeliveries(searchDto);
 
-        return deliberyPage.getContent().stream()
+        return deliveryPage.getContent().stream()
             .map(delivery -> new DeliveryResponse(delivery.getDepartureHubId(),
                 delivery.getDestinationHubId(),
                 delivery.getShippingManagerId(), delivery.getShippingManagerSlackId(),

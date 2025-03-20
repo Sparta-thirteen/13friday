@@ -3,7 +3,9 @@ package com.sparta.deliveryservice.application.service;
 
 import com.sparta.deliveryservice.domain.model.DeliveryRoute;
 import com.sparta.deliveryservice.domain.model.DeliveryRouteType;
+import com.sparta.deliveryservice.domain.model.SearchDto;
 import com.sparta.deliveryservice.domain.model.SortDto;
+import com.sparta.deliveryservice.domain.service.DeliveryRouteDomainService;
 import com.sparta.deliveryservice.infrastructure.repository.JpaDeliveryRouteRepository;
 import com.sparta.deliveryservice.presentation.response.DeliveryRouteResponse;
 import java.util.List;
@@ -22,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class DeliveryRouteService {
 
     private final JpaDeliveryRouteRepository jpaDeliveryRouteRepository;
+    private final DeliveryRouteDomainService deliveryRouteDomainService;
 
 
     // 배송경로 생성
@@ -106,6 +109,21 @@ public class DeliveryRouteService {
                 route.getDeliveryStatus(), route.getSequence())).toList();
 
         return ResponseEntity.ok(response);
+    }
+
+    // 배송경로 검색
+    @Transactional(readOnly = true)
+    public List<DeliveryRouteResponse> searchDeliveryRoute(SearchDto searchDto) {
+
+        Page<DeliveryRoute> deliveryRoutePage = deliveryRouteDomainService.searchDeliveryRoute(searchDto);
+
+        return deliveryRoutePage.getContent().stream()
+            .map(route -> new DeliveryRouteResponse(route.getDepartureHubId(),
+                route.getDestinationHubId(),
+                route.getDeliveryId(), route.getShippingManagerId(), route.getShippingAddress(),
+                route.getEstimatedDistance(),
+                route.getEstimatedTime(), route.getActualDistance(), route.getActualTime(),
+                route.getDeliveryStatus(), route.getSequence())).toList();
     }
 
 //    // 배송경로 수정

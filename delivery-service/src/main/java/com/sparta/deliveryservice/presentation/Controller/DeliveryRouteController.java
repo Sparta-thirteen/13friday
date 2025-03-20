@@ -2,6 +2,7 @@ package com.sparta.deliveryservice.presentation.Controller;
 
 import com.sparta.deliveryservice.application.service.DeliveryRouteService;
 
+import com.sparta.deliveryservice.domain.model.SearchDto;
 import com.sparta.deliveryservice.domain.model.SortDto;
 
 import com.sparta.deliveryservice.presentation.response.DeliveryRouteResponse;
@@ -11,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -47,17 +47,42 @@ public class DeliveryRouteController {
 
     @GetMapping("/delivery/{deliveryId}")
     public ResponseEntity<List<DeliveryRouteResponse>> getDeliveryRouteByDeliveryId(
-        @PathVariable UUID deliveryId,@ModelAttribute
-    SortDto sortDto) {
+        @PathVariable UUID deliveryId,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "createdAt") String sortBy,
+        @RequestParam(defaultValue = "asc") String direction,
+        @RequestParam(defaultValue = "10") int size) {
+
+        SortDto sortDto = new SortDto(page, size, sortBy, direction);
 
         return deliveryRouteService.getDeliveryRouteByDelivery(deliveryId, sortDto);
     }
 
-    @GetMapping()
-    public ResponseEntity<List<DeliveryRouteResponse>> getAllDeliveryRoute(@ModelAttribute
-    SortDto sortDto) {
+    @GetMapping
+    public ResponseEntity<List<DeliveryRouteResponse>> getAllDeliveryRoute(
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "createdAt") String sortBy,
+        @RequestParam(defaultValue = "asc") String direction,
+        @RequestParam(defaultValue = "10") int size) {
+
+        SortDto sortDto = new SortDto(page, size, sortBy, direction);
 
         return deliveryRouteService.getAllDeliveryRoute(sortDto);
     }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<DeliveryRouteResponse>> searchOrders(
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(required = false, defaultValue = "") String keyword,
+        @RequestParam(defaultValue = "createdAt") String sortBy,
+        @RequestParam(defaultValue = "asc") String direction,
+        @RequestParam(defaultValue = "10") int size
+    ) {
+        SearchDto searchDto = new SearchDto(page, keyword, sortBy, direction, size);
+        List<DeliveryRouteResponse> deliveries = deliveryRouteService.searchDeliveryRoute(
+            searchDto);
+        return ResponseEntity.ok(deliveries);
+    }
+
 
 }

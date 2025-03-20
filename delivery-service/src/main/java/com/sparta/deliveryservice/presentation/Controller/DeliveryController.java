@@ -2,6 +2,7 @@ package com.sparta.deliveryservice.presentation.Controller;
 
 import com.sparta.deliveryservice.application.service.DeliveryService;
 import com.sparta.deliveryservice.domain.model.SearchDto;
+import com.sparta.deliveryservice.domain.model.SortDto;
 import com.sparta.deliveryservice.presentation.request.DeliveryRequest;
 import com.sparta.deliveryservice.presentation.request.UpdateDeliveryRequest;
 import com.sparta.deliveryservice.presentation.response.DeliveryResponse;
@@ -12,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -60,26 +62,26 @@ public class DeliveryController {
     @GetMapping
     public ResponseEntity<List<DeliveryResponse>> getOrders(
         @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "10") int size,
         @RequestParam(defaultValue = "createdAt") String sortBy,
-        @RequestParam(defaultValue = "asc") String direction
+        @RequestParam(defaultValue = "asc") String direction,
+        @RequestParam(defaultValue = "10") int size
     ) {
-        List<DeliveryResponse> deliveries = deliveryService.getDeliveries(page, size, sortBy,
-            direction);
+        SortDto sortDto = new SortDto(page, size, sortBy, direction);
+        List<DeliveryResponse> deliveries = deliveryService.getDeliveries(sortDto);
         return ResponseEntity.ok(deliveries);
     }
 
     @GetMapping("/search")
     public ResponseEntity<List<DeliveryResponse>> searchOrders(
         @RequestParam(defaultValue = "0") int page,
-        @RequestParam(required = false) String keyword,
+        @RequestParam(required = false, defaultValue = "") String keyword,
         @RequestParam(defaultValue = "createdAt") String sortBy,
         @RequestParam(defaultValue = "asc") String direction,
         @RequestParam(defaultValue = "10") int size
     ) {
-        SearchDto searchDto = new SearchDto(keyword, sortBy, direction, size);
+        SearchDto searchDto = new SearchDto(page, keyword, sortBy, direction, size);
 
-        List<DeliveryResponse> deliveries = deliveryService.searchDeliveries(page, searchDto);
+        List<DeliveryResponse> deliveries = deliveryService.searchDeliveries(searchDto);
         return ResponseEntity.ok(deliveries);
     }
 

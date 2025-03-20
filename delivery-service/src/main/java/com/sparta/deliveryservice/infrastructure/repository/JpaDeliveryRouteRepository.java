@@ -16,6 +16,8 @@ public interface JpaDeliveryRouteRepository extends JpaRepository<DeliveryRoute,
     Page<DeliveryRoute> findAll( Pageable pageable);
     Page<DeliveryRoute> findByIsDeletedFalse( Pageable pageable);
     Page<DeliveryRoute> findByDeliveryIdAndIsDeletedFalse(UUID deliveryId,Pageable pageable);
+    Page<DeliveryRoute>  findByShippingAddressAndIsDeletedFalse(String keyword, Pageable pageable);
+    Page<DeliveryRoute>  findByShippingAddressContainingIgnoreCaseAndIsDeletedFalse(String keyword, Pageable pageable);
 
 
 }

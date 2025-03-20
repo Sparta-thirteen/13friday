@@ -14,11 +14,5 @@ public class SortDto {
     private String direction;
 
 
-    public SortDto() {
-        this.page = 0;
-        this.size = 10;
-        this.sortBy = "createdAt";
-        this.direction = "asc";
-    }
 
 }
