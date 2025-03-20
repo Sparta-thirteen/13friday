@@ -1,4 +1,4 @@
-package com.sparta.eureka.hub.application.dto;
+package com.sparta.eureka.hub.application.dto.hub;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -14,7 +14,7 @@ public class HubDto {
     @Getter
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class createDto {
+    public static class CreateDto {
         @NotBlank
         private String hubName;
         @NotBlank
@@ -24,7 +24,7 @@ public class HubDto {
     @Getter
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class updateDto {
+    public static class UpdateDto {
         @NotBlank
         private String hubName;
         @NotBlank
@@ -35,7 +35,7 @@ public class HubDto {
     @Setter
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class responseDto {
+    public static class ResponseDto {
         private UUID hubId;
         private String hubName;
         private String address;

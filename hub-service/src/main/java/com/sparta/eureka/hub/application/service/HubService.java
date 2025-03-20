@@ -1,6 +1,6 @@
 package com.sparta.eureka.hub.application.service;
 
-import com.sparta.eureka.hub.application.dto.HubDto;
+import com.sparta.eureka.hub.application.dto.hub.HubDto;
 import com.sparta.eureka.hub.domain.entity.Hub;
 import com.sparta.eureka.hub.domain.repository.HubRepository;
 import com.sparta.eureka.hub.infrastructure.geocoding.Coordinates;
@@ -25,7 +25,7 @@ public class HubService {
     private final HubMapper hubMapper;
     private final GeocodingService geocodingService;
 
-    public HubDto.responseDto createHub(HubDto.createDto request) {
+    public HubDto.ResponseDto createHub(HubDto.CreateDto request) {
         Hub hub = hubRepository.save(hubMapper.createDtoToHub(request));
 
         return hubMapper.hubToResponseDto(hub);
@@ -34,7 +34,7 @@ public class HubService {
 
 
     @Transactional
-    public HubDto.responseDto updateHub(UUID hubId, HubDto.updateDto request) {
+    public HubDto.ResponseDto updateHub(UUID hubId, HubDto.UpdateDto request) {
         Hub hub = findHub(hubId);
         Hub updatedHub = hubMapper.updateDtoToHub(request);
 
@@ -43,14 +43,14 @@ public class HubService {
         return hubMapper.hubToResponseDto(hub);
     }
 
-    public Page<HubDto.responseDto> getHubs(int  size, int page) {
+    public Page<HubDto.ResponseDto> getHubs(int  size, int page) {
         Pageable pageable = PageRequest.of(page - 1, size);
         Page<Hub> hub = hubRepository.findAll(pageable);
 
         return hub.map(hubMapper::hubToResponseDto);
     }
 
-    public HubDto.responseDto getHub(UUID hubId) {
+    public HubDto.ResponseDto getHub(UUID hubId) {
         Hub hub = findHub(hubId);
 
         return hubMapper.hubToResponseDto(hub);
@@ -82,7 +82,7 @@ public class HubService {
     }
 
 
-    public Page<HubDto.responseDto> searchHubs(int size,
+    public Page<HubDto.ResponseDto> searchHubs(int size,
                                                int page,
                                                String keyword,
                                                boolean isDesc) {
