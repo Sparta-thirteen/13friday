@@ -18,7 +18,7 @@ import org.hibernate.annotations.UuidGenerator;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "p_slack")
-public class Slack {
+public class Slacks {
 
   @Id
   @UuidGenerator
