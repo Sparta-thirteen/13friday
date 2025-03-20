@@ -1,6 +1,5 @@
 package com.sparta.eureka.hub.infrastructure.geocoding;
 
-import lombok.Getter;
 import org.json.JSONArray;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
