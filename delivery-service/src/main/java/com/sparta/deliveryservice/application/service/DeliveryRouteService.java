@@ -1,12 +1,14 @@
 package com.sparta.deliveryservice.application.service;
 
 
+import com.sparta.deliveryservice.domain.model.Delivery;
 import com.sparta.deliveryservice.domain.model.DeliveryRoute;
 import com.sparta.deliveryservice.domain.model.DeliveryRouteType;
 import com.sparta.deliveryservice.domain.model.SearchDto;
 import com.sparta.deliveryservice.domain.model.SortDto;
 import com.sparta.deliveryservice.domain.service.DeliveryRouteDomainService;
 import com.sparta.deliveryservice.infrastructure.repository.JpaDeliveryRouteRepository;
+import com.sparta.deliveryservice.presentation.request.UpdateDeliveryRequest;
 import com.sparta.deliveryservice.presentation.response.DeliveryRouteResponse;
 import java.util.List;
 import java.util.UUID;
@@ -64,7 +66,7 @@ public class DeliveryRouteService {
 
     // 특정 배송의 모든 경로 조회
     @Transactional(readOnly = true)
-    public ResponseEntity<List<DeliveryRouteResponse>> getDeliveryRouteByDelivery(
+    public ResponseEntity<List<DeliveryRouteResponse>> getDeliveryRouteByDeliveryAddress(
         UUID deliveryRouteId,
         SortDto sortDto) {
         Sort sort = sortDto.getDirection().equalsIgnoreCase("asc")
@@ -128,17 +130,9 @@ public class DeliveryRouteService {
 
 //    // 배송경로 수정
 //    @Transactional
-//    public ResponseEntity<String> updateDeliveryRoute(UUID deliveryId,
-//        UpdateDeliveryRequest req) {
-//        // TODO: id 전부 외부 api로 받아야함.
-//        Delivery delivery = findDeliveryRoute(deliveryRouteId);
-//        if (delivery.isDeleted()) {
-//            throw new IllegalArgumentException("삭제된 배송정보입니다.");
-//        }
-//
-//        delivery.updateDelivery(req);
-//
-//        return ResponseEntity.ok("배송 상태 수정 완료 " + req.getDelivery_status());
+//    public ResponseEntity<String> updateDeliveryRoute(
+//   ) {
+//        // TODO: ??
 //    }
 
     private DeliveryRoute findDeliveryRoute(UUID deliveryRouteId) {
