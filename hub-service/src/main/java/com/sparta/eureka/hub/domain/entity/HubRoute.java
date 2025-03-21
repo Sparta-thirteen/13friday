@@ -55,6 +55,7 @@ public class HubRoute extends Auditable {
 
     public void delete() {
         this.setDeletedAt(LocalDateTime.now());
+        this.setDeleted(true);
 //        this.setDeletedBy();
     }
 }

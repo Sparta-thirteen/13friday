@@ -7,8 +7,9 @@ import com.sparta.eureka.hub.domain.repository.HubRepository;
 import com.sparta.eureka.hub.domain.repository.HubRouteRepository;
 import com.sparta.eureka.hub.infrastructure.client.openRouteService.OpenRouteServiceClient;
 import com.sparta.eureka.hub.infrastructure.client.openRouteService.OpenRouteServiceResponse;
+import com.sparta.eureka.hub.infrastructure.common.exception.BusinessLogicException;
+import com.sparta.eureka.hub.infrastructure.common.exception.ErrorCode;
 import com.sparta.eureka.hub.infrastructure.mapper.HubRouteMapper;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -56,15 +57,29 @@ public class HubRouteService {
 
     public Page<HubRouteDto.ResponseDto> getHubRoutes(int page, int size) {
         Pageable pageable = PageRequest.of(page - 1, size);
-        Page<HubRoute> hubRoutes = hubRouteRepository.findAll(pageable);
+        Page<HubRoute> hubRoutes = hubRouteRepository.findAllByIsDeletedIsFalse(pageable);
 
         return hubRoutes.map(hubRouteMapper::hubRouteToResponseDto);
     }
 
     public HubRouteDto.ResponseDto getHubRoute(UUID hubRouteId) {
         HubRoute hubRoute = findHubRoute(hubRouteId);
+        if(!hubRoute.isDeleted()) {
+            return hubRouteMapper.hubRouteToResponseDto(hubRoute);
+        } else {
+            throw new BusinessLogicException(ErrorCode.HUB_ROUTE_NOT_FOUND);
+        }
+    }
 
-        return hubRouteMapper.hubRouteToResponseDto(hubRoute);
+    public Page<HubRouteDto.ResponseDto> searchHubRoutes(int page,
+                                                         int size,
+                                                         String keyword,
+                                                         boolean isDesc) {
+        Pageable pageable = PageRequest.of(page - 1, size);
+
+       Page<HubRoute> hubRoutes =  hubRouteRepository.searchHubRoutes(keyword, isDesc, pageable);
+
+        return hubRoutes.map(hubRouteMapper::hubRouteToResponseDto);
     }
 
     @Transactional
@@ -97,13 +112,12 @@ public class HubRouteService {
     public Hub findHub(UUID hubId) {
         Optional<Hub> hub = hubRepository.findById(hubId);
         return hub.orElseThrow(() ->
-                new EntityNotFoundException("Hub with id " + hubId + " not found"));
+                new BusinessLogicException(ErrorCode.HUB_NOT_FOUND));
     }
 
     public HubRoute findHubRoute(UUID hubRouteId) {
         Optional<HubRoute> hubRoute = hubRouteRepository.findById(hubRouteId);
 
-        return hubRoute.orElseThrow();
+        return hubRoute.orElseThrow(() -> new BusinessLogicException(ErrorCode.HUB_ROUTE_NOT_FOUND));
     }
-
 }

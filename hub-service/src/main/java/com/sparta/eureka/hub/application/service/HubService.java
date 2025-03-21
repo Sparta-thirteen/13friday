@@ -3,10 +3,11 @@ package com.sparta.eureka.hub.application.service;
 import com.sparta.eureka.hub.application.dto.hub.HubDto;
 import com.sparta.eureka.hub.domain.entity.Hub;
 import com.sparta.eureka.hub.domain.repository.HubRepository;
+import com.sparta.eureka.hub.infrastructure.common.exception.BusinessLogicException;
+import com.sparta.eureka.hub.infrastructure.common.exception.ErrorCode;
 import com.sparta.eureka.hub.infrastructure.geocoding.Coordinates;
 import com.sparta.eureka.hub.infrastructure.geocoding.GeocodingService;
 import com.sparta.eureka.hub.infrastructure.mapper.HubMapper;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -45,15 +46,28 @@ public class HubService {
 
     public Page<HubDto.ResponseDto> getHubs(int page, int size) {
         Pageable pageable = PageRequest.of(page - 1, size);
-        Page<Hub> hub = hubRepository.findAll(pageable);
+        Page<Hub> hub = hubRepository.findAllByIsDeletedFalse(pageable);
 
         return hub.map(hubMapper::hubToResponseDto);
     }
 
     public HubDto.ResponseDto getHub(UUID hubId) {
         Hub hub = findHub(hubId);
+        if(!hub.isDeleted()) {
+            return hubMapper.hubToResponseDto(hub);
+        } else {
+            throw new BusinessLogicException(ErrorCode.HUB_NOT_FOUND);
+        }
+    }
 
-        return hubMapper.hubToResponseDto(hub);
+    public Page<HubDto.ResponseDto> searchHubs(int size,
+                                               int page,
+                                               String keyword,
+                                               boolean isDesc) {
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<Hub> hubs = hubRepository.searchByKeyword(keyword, isDesc, pageable);
+
+        return hubs.map(hubMapper::hubToResponseDto);
     }
 
     @Transactional
@@ -64,8 +78,8 @@ public class HubService {
 
     public Hub findHub(UUID hubId) {
         Optional<Hub> hub = hubRepository.findById(hubId);
-        return hub.orElseThrow(() ->
-                new EntityNotFoundException("Hub with id " + hubId + " not found"));
+
+        return hub.orElseThrow(() -> new BusinessLogicException(ErrorCode.HUB_NOT_FOUND));
     }
 
     public void updateHubCoordinates(UUID hubId) {
@@ -79,16 +93,5 @@ public class HubService {
         );
 
         hubRepository.save(hub);
-    }
-
-
-    public Page<HubDto.ResponseDto> searchHubs(int size,
-                                               int page,
-                                               String keyword,
-                                               boolean isDesc) {
-        Pageable pageable = PageRequest.of(page - 1, size);
-        Page<Hub> hubs = hubRepository.searchByKeyword(keyword, isDesc, pageable);
-
-        return hubs.map(hubMapper::hubToResponseDto);
     }
 }

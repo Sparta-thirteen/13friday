@@ -46,6 +46,16 @@ public class HubRouteController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<Page<HubRouteDto.ResponseDto>> searchHubRoutes(@RequestParam(defaultValue = "10") int size,
+                                                                         @RequestParam(defaultValue = "1") int page,
+                                                                         @RequestParam String keyword,
+                                                                         @RequestParam(defaultValue = "true") boolean isDesc) {
+        Page<HubRouteDto.ResponseDto> response =  hubRouteService.searchHubRoutes(page, size, keyword, isDesc);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
     @DeleteMapping("/{hubRouteId}")
     public ResponseEntity<HubRouteDto.ResponseDto> deleteHubRoute(@PathVariable UUID hubRouteId) {
         hubRouteService.deleteHubRoute(hubRouteId);

@@ -4,7 +4,6 @@ import com.sparta.eureka.hub.application.dto.hubRoute.HubRouteDto;
 import com.sparta.eureka.hub.domain.entity.Hub;
 import com.sparta.eureka.hub.domain.entity.HubRoute;
 import org.mapstruct.Mapper;
-import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
 public interface HubRouteMapper {
