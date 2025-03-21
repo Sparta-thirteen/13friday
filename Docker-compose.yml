@@ -17,54 +17,79 @@ services:
     depends_on:
       - eureka-server
 
-  order-service:
+#  order-service:
+  ##    build:
+  ##      context: ./order-service
+  ##      dockerfile: Dockerfile
+  ##    container_name: 13friday-order-service
+  ##    ports:
+  ##      - "19094:19094"
+  ##    depends_on:
+  ##      - order-db
+  ##      - eureka-server
+
+
+#  order-db:
+#    image: postgres
+#    container_name: 13friday-order-db
+#    ports:
+#      - "5434:5432"
+#    environment:
+#      - POSTGRES_USER=${ORDER_DB_USER}
+#      - POSTGRES_PASSWORD=${ORDER_DB_PASSWORD}
+#      - POSTGRES_DB=13friday_order
+
+
+#  company-service:
+#    build:
+#      context: ./company-service
+#      dockerfile: Dockerfile
+#    container_name: 13friday-company-service
+#    volumes:
+#      - ./company-service:/app/company-service
+#    ports:
+#      - "19096:19096"
+#    depends_on:
+#      - company-db
+#      - eureka-server
+
+  auth-service:
     build:
-      context: ./order-service
+      context: ./auth-service
       dockerfile: Dockerfile
-    container_name: 13friday-order-service
+    container_name: 13friday-auth-service
+    volumes:
+      - ./auth-service:/app/auth-service
     ports:
-      - "19094:19094"
+      - "19092:19092"
     depends_on:
-      - order-db
+      - auth-db
       - eureka-server
 
-
-
-  order-db:
+  auth-db:
     image: postgres
-    container_name: 13friday-order-db
-    ports:
-      - "5434:5432"
-    environment:
-      - POSTGRES_USER=${ORDER_DB_USER}
-      - POSTGRES_PASSWORD=${ORDER_DB_PASSWORD}
-      - POSTGRES_DB=13friday_order
-
-
-  company-service:
-    build:
-      context: ./company-service
-      dockerfile: Dockerfile
-    container_name: 13friday-company-service
+    container_name: 13friday-auth-db
     volumes:
-      - ./company-service:/app/company-service
+      - ./db_data/auth:/var/lib/postgresql/data
     ports:
-      - "19096:19096"
-    depends_on:
-      - company-db
-      - eureka-server
-
-  company-db:
-    image: postgres
-    container_name: 13friday-company-db
-    volumes:
-      - ./db_data/company:/var/lib/postgresql/data
-    ports:
-      - "5436:5432"
+      - "5433:5432"
     environment:
       - POSTGRES_USER=myuser
       - POSTGRES_PASSWORD=mypassword
-      - POSTGRES_DB=13friday_company
+      - POSTGRES_DB=13friday_auth
+
+  
+#  company-db:
+#    image: postgres
+#    container_name: 13friday-company-db
+#    volumes:
+#      - ./db_data/company:/var/lib/postgresql/data
+#    ports:
+#      - "5436:5432"
+#    environment:
+#      - POSTGRES_USER=myuser
+#      - POSTGRES_PASSWORD=mypassword
+#      - POSTGRES_DB=13friday_company
 
 volumes:
   db_data:
