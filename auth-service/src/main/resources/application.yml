@@ -3,12 +3,12 @@ spring:
     name: auth-service
 
   datasource:
-#    url: jdbc:postgresql://13friday-auth-db:5432/13friday_auth
-#    username: myuser
-#    password: mypassword
-    url: jdbc:postgresql://localhost:5432/fridayauth
-    username: postgres
-    password: 1234
+    url: jdbc:postgresql://13friday-auth-db:5432/13friday_auth
+    username: myuser
+    password: mypassword
+#    url: jdbc:postgresql://localhost:5432/fridayauth
+#    username: postgres
+#    password: 1234
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -23,7 +23,7 @@ spring:
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:19090/eureka/
+      defaultZone: http://eureka-server:19090/eureka/
 
 server:
   port: 19092
