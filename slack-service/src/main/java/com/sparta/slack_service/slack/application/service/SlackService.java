@@ -29,7 +29,7 @@ public class SlackService {
   private final SlackRepository slackRepository;
   private final Slack slack = Slack.getInstance();
 
-  public void sendDirectMessage(SlackRequestDto requestDto) {
+  public void sendMessage(SlackRequestDto requestDto) {
     try {
       // Slack 사용자 이메일로 사용자 ID 조회
       String slackId = getSlackId(requestDto.getReceiverEmail());

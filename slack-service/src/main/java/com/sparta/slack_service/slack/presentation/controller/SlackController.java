@@ -17,8 +17,10 @@ public class SlackController {
   private final SlackService slackService;
 
   @PostMapping
-  public ResponseEntity<?> sendDirectMessage(@RequestBody SlackRequestDto requestDto) {
-    slackService.sendDirectMessage(requestDto);
+  public ResponseEntity<?> sendMessage(@RequestBody SlackRequestDto requestDto) {
+    slackService.sendMessage(requestDto);
     return ResponseEntity.ok().body("Slack 메시지 전송 완료");
   }
+
+
 }
