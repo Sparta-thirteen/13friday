@@ -28,7 +28,10 @@ public class Hub extends Auditable {
     @Column(nullable = false, unique = true)
     private String address;
 
+    @Column(precision = 9, scale = 6)
     private BigDecimal lat;
+
+    @Column(precision = 9, scale = 6)
     private BigDecimal lon;
 
     public static Hub create(String hubName, String address) {

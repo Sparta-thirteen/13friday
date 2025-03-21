@@ -36,9 +36,9 @@ public class HubService {
     @Transactional
     public HubDto.ResponseDto updateHub(UUID hubId, HubDto.UpdateDto request) {
         Hub hub = findHub(hubId);
-        Hub updatedHub = hubMapper.updateDtoToHub(request);
+        hubMapper.updateDtoToHub(request, hub);
 
-        hub.update(updatedHub.getHubName(), updatedHub.getAddress());
+        hub.update(hub.getHubName(), hub.getAddress());
 
         return hubMapper.hubToResponseDto(hub);
     }

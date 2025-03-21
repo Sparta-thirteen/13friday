@@ -3,6 +3,7 @@ package com.sparta.eureka.hub.infrastructure.mapper;
 import com.sparta.eureka.hub.application.dto.hub.HubDto;
 import com.sparta.eureka.hub.domain.entity.Hub;
 import org.mapstruct.Mapper;
+import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
 public interface HubMapper {
@@ -13,7 +14,7 @@ public interface HubMapper {
         );
     }
 
-    Hub updateDtoToHub(HubDto.UpdateDto request);
+   Hub updateDtoToHub(HubDto.UpdateDto request, @MappingTarget Hub hub);
 
     default HubDto.ResponseDto hubToResponseDto(Hub hub) {
         HubDto.ResponseDto response =  new HubDto.ResponseDto();
