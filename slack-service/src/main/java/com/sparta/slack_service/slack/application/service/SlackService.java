@@ -36,32 +36,27 @@ public class SlackService {
   private final SlackRepository slackRepository;
   private final Slack slack = Slack.getInstance();
 
-  public void sendMessage(SlackRequestDto requestDto) {
-    try {
-      // Slack 사용자 이메일로 사용자 ID 조회
-      String slackUserId = getSlackUserId(requestDto.getReceiverEmail());
+  public void sendMessage(SlackRequestDto requestDto) throws IOException, SlackApiException {
+    // Slack 사용자 이메일로 사용자 ID 조회
+    String slackUserId = getSlackUserId(requestDto.getReceiverEmail());
 
-      // 사용자와 DM 채널 생성
-      String dmChannelId = getDmChannelId(slackUserId);
+    // 사용자와 DM 채널 생성
+    String dmChannelId = getDmChannelId(slackUserId);
 
-      // DM 채널 ID를 사용해 메시지 전송
-      ChatPostMessageResponse response = slack.methods(slackToken).chatPostMessage(
-          ChatPostMessageRequest.builder()
-              .channel(dmChannelId)
-              .text(requestDto.getMessage())
-              .build()
-      );
+    // DM 채널 ID를 사용해 메시지 전송
+    ChatPostMessageResponse response = slack.methods(slackToken).chatPostMessage(
+        ChatPostMessageRequest.builder()
+            .channel(dmChannelId)
+            .text(requestDto.getMessage())
+            .build()
+    );
 
-      // response 검증
-      validateSlackResponse(response);
+    // response 검증
+    validateSlackResponse(response);
 
-      // DB에 저장
-      Slacks slacks = requestDto.toEntity(dmChannelId, response.getTs());
-      slackRepository.save(slacks);
-
-    } catch (IOException | SlackApiException e) {
-      throw new GlobalException(HttpStatus.BAD_REQUEST, "Slack DM 메시지 전송 실패: " + e.getMessage());
-    }
+    // DB에 저장
+    Slacks slacks = requestDto.toEntity(dmChannelId, response.getTs());
+    slackRepository.save(slacks);
   }
 
   @Transactional(readOnly = true)
@@ -71,42 +66,33 @@ public class SlackService {
   }
 
   @Transactional
-  public void updateMessage(UUID slackId, SlackRequestDto requestDto) {
-    try {
-      Slacks slacks = findSlacks(slackId);
+  public void updateMessage(UUID slackId, SlackRequestDto requestDto)
+      throws IOException, SlackApiException {
+    Slacks slacks = findSlacks(slackId);
 
-      ChatUpdateResponse response = slack.methods(slackToken).chatUpdate(
-          ChatUpdateRequest.builder()
-              .channel(slacks.getChannelId())
-              .ts(slacks.getSentAt())
-              .text(requestDto.getMessage())
-              .build()
-      );
-      validateSlackResponse(response);
-      slacks.update(requestDto);
-
-    } catch (IOException | SlackApiException e) {
-      throw new GlobalException(HttpStatus.BAD_REQUEST, "Slack DM 메시지 수정 실패: " + e.getMessage());
-    }
+    ChatUpdateResponse response = slack.methods(slackToken).chatUpdate(
+        ChatUpdateRequest.builder()
+            .channel(slacks.getChannelId())
+            .ts(slacks.getSentAt())
+            .text(requestDto.getMessage())
+            .build()
+    );
+    validateSlackResponse(response);
+    slacks.update(requestDto);
   }
 
   @Transactional
-  public void deleteMessage(UUID slackId) {
-    try {
-      Slacks slacks = findSlacks(slackId);
+  public void deleteMessage(UUID slackId) throws IOException, SlackApiException {
+    Slacks slacks = findSlacks(slackId);
 
-      ChatDeleteResponse response = slack.methods(slackToken).chatDelete(
-          ChatDeleteRequest.builder()
-              .channel(slacks.getChannelId())
-              .ts(slacks.getSentAt())
-              .build()
-      );
-      validateSlackResponse(response);
-      slacks.softDelete();
-
-    } catch (IOException | SlackApiException e) {
-      throw new GlobalException(HttpStatus.BAD_REQUEST, "Slack DM 메시지 삭제 실패: " + e.getMessage());
-    }
+    ChatDeleteResponse response = slack.methods(slackToken).chatDelete(
+        ChatDeleteRequest.builder()
+            .channel(slacks.getChannelId())
+            .ts(slacks.getSentAt())
+            .build()
+    );
+    validateSlackResponse(response);
+    slacks.softDelete();
   }
 
   private String getSlackUserId(String email) throws IOException, SlackApiException {
@@ -133,30 +119,6 @@ public class SlackService {
     return response.getChannel().getId();
   }
 
-  private void validateSlackResponse(ChatPostMessageResponse response) {
-    if (!response.isOk()) {
-      throw new GlobalException(HttpStatus.BAD_REQUEST, "Slack DM 메시지 전송 실패");
-    }
-  }
-
-  private void validateSlackResponse(ConversationsOpenResponse response) {
-    if (!response.isOk()) {
-      throw new GlobalException(HttpStatus.BAD_REQUEST, "Slack DM 채널 생성 실패");
-    }
-  }
-
-  private void validateSlackResponse(ChatUpdateResponse response) {
-    if (!response.isOk()) {
-      throw new GlobalException(HttpStatus.BAD_REQUEST, "Slack DM 메시지 수정 실패");
-    }
-  }
-
-  private void validateSlackResponse(ChatDeleteResponse response) {
-    if (!response.isOk()) {
-      throw new GlobalException(HttpStatus.BAD_REQUEST, "Slack DM 메시지 삭제 실패");
-    }
-  }
-
   private Slacks findSlacks(UUID slackId) {
     Slacks slacks = slackRepository.findById(slackId).orElseThrow(() ->
         new GlobalException(HttpStatus.NOT_FOUND, "Slack 메시지를 찾을 수 없습니다"));
@@ -166,5 +128,23 @@ public class SlackService {
     }
 
     return slacks;
+  }
+
+  private <T> void validateSlackResponse(T response) {
+    if (response instanceof ChatPostMessageResponse
+        && !((ChatPostMessageResponse) response).isOk()) {
+      throw new GlobalException(HttpStatus.BAD_REQUEST,
+          "Slack DM 메시지 전송 실패: " + ((ChatPostMessageResponse) response).getError());
+    } else if (response instanceof ConversationsOpenResponse
+        && !((ConversationsOpenResponse) response).isOk()) {
+      throw new GlobalException(HttpStatus.BAD_REQUEST,
+          "Slack DM 채널 생성 실패: " + ((ConversationsOpenResponse) response).getError());
+    } else if (response instanceof ChatUpdateResponse && !((ChatUpdateResponse) response).isOk()) {
+      throw new GlobalException(HttpStatus.BAD_REQUEST,
+          "Slack DM 메시지 수정 실패: " + ((ChatUpdateResponse) response).getError());
+    } else if (response instanceof ChatDeleteResponse && !((ChatDeleteResponse) response).isOk()) {
+      throw new GlobalException(HttpStatus.BAD_REQUEST,
+          "Slack DM 메시지 삭제 실패: " + ((ChatDeleteResponse) response).getError());
+    }
   }
 }
