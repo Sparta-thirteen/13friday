@@ -6,6 +6,7 @@ import com.sparta.slack_service.slack.application.service.SlackService;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -38,5 +39,12 @@ public class SlackController {
       @RequestBody SlackRequestDto requestDto) {
     slackService.updateMessage(slackId, requestDto);
     return ResponseEntity.ok().body("Slack 메시지 수정 완료");
+  }
+
+  @DeleteMapping("/{slackId}")
+  public ResponseEntity<?> deleteMessage(@PathVariable UUID slackId,
+      @RequestBody SlackRequestDto requestDto) {
+    slackService.deleteMessage(slackId, requestDto);
+    return ResponseEntity.ok().body("Slack 메시지 삭제 완료");
   }
 }

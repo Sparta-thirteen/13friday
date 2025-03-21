@@ -2,10 +2,12 @@ package com.sparta.slack_service.slack.application.service;
 
 import com.slack.api.Slack;
 import com.slack.api.methods.SlackApiException;
+import com.slack.api.methods.request.chat.ChatDeleteRequest;
 import com.slack.api.methods.request.chat.ChatPostMessageRequest;
 import com.slack.api.methods.request.chat.ChatUpdateRequest;
 import com.slack.api.methods.request.conversations.ConversationsOpenRequest;
 import com.slack.api.methods.request.users.UsersLookupByEmailRequest;
+import com.slack.api.methods.response.chat.ChatDeleteResponse;
 import com.slack.api.methods.response.chat.ChatPostMessageResponse;
 import com.slack.api.methods.response.chat.ChatUpdateResponse;
 import com.slack.api.methods.response.conversations.ConversationsOpenResponse;
@@ -90,6 +92,27 @@ public class SlackService {
     }
   }
 
+  @Transactional
+  public void deleteMessage(UUID slackId, SlackRequestDto requestDto) {
+    try {
+      Slacks slacks = findSlacks(slackId);
+      String slackUserId = getSlackUserId(requestDto.getReceiverEmail());
+      String dmChannelId = getDmChannelId(slackUserId);
+
+      ChatDeleteResponse response = slack.methods(slackToken).chatDelete(
+          ChatDeleteRequest.builder()
+              .channel(dmChannelId)
+              .ts(slacks.getSentAt())
+              .build()
+      );
+      validateSlackResponse(response);
+      slacks.softDelete();
+
+    } catch (IOException | SlackApiException e) {
+      throw new GlobalException(HttpStatus.BAD_REQUEST, "Slack DM 메시지 삭제 실패: " + e.getMessage());
+    }
+  }
+
   private String getSlackUserId(String email) throws IOException, SlackApiException {
     UsersLookupByEmailResponse response = slack.methods(slackToken).usersLookupByEmail(
         UsersLookupByEmailRequest.builder().email(email).build()
@@ -132,8 +155,20 @@ public class SlackService {
     }
   }
 
+  private void validateSlackResponse(ChatDeleteResponse response) {
+    if (!response.isOk()) {
+      throw new GlobalException(HttpStatus.BAD_REQUEST, "Slack DM 메시지 삭제 실패");
+    }
+  }
+
   private Slacks findSlacks(UUID slackId) {
-    return slackRepository.findById(slackId).orElseThrow(() ->
+    Slacks slacks = slackRepository.findById(slackId).orElseThrow(() ->
         new GlobalException(HttpStatus.NOT_FOUND, "Slack 메시지를 찾을 수 없습니다"));
+
+    if (slacks.getDeletedAt() != null) {
+      throw new GlobalException(HttpStatus.BAD_REQUEST, "삭제된 Slack 메시지입니다");
+    }
+
+    return slacks;
   }
 }
