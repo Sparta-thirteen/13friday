@@ -35,7 +35,7 @@ public class HubController {
     public ResponseEntity<Page<HubDto.ResponseDto>> getHubs(@RequestParam(defaultValue = "10") int size,
                                                             @RequestParam(defaultValue = "1") int page) {
 
-        Page<HubDto.ResponseDto> response = hubService.getHubs(size, page);
+        Page<HubDto.ResponseDto> response = hubService.getHubs(page, size);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

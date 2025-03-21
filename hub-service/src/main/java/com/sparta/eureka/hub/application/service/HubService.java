@@ -36,14 +36,14 @@ public class HubService {
     @Transactional
     public HubDto.ResponseDto updateHub(UUID hubId, HubDto.UpdateDto request) {
         Hub hub = findHub(hubId);
-        hubMapper.updateDtoToHub(request, hub);
+        Hub updateHub = hubMapper.updateDtoToHub(request);
 
-        hub.update(hub.getHubName(), hub.getAddress());
+        hub.update(updateHub.getHubName(), updateHub.getAddress());
 
         return hubMapper.hubToResponseDto(hub);
     }
 
-    public Page<HubDto.ResponseDto> getHubs(int  size, int page) {
+    public Page<HubDto.ResponseDto> getHubs(int page, int size) {
         Pageable pageable = PageRequest.of(page - 1, size);
         Page<Hub> hub = hubRepository.findAll(pageable);
 
