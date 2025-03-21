@@ -17,20 +17,20 @@ public class DeliveryRequest {
 
 
     @NotBlank
-    private UUID departure_hub_id;
+    private UUID departureHubId;
     @NotBlank
-    private UUID destination_hub_id;
+    private UUID destinationHubId;
     @NotBlank
-    private UUID shipping_manager_id;
+    private UUID shippingManagerId;
     @NotBlank
-    private UUID shipping_manager_slack_id;
+    private UUID shippingManagerSlackId;
     @NotBlank
-    private UUID company_delivery_manager_id;
+    private UUID companyDeliveryManagerId;
     @NotBlank
-    private String shipping_address;
+    private String shippingAddress;
 
     @Enumerated(EnumType.STRING)
-    private DeliveryType delivery_status;
+    private DeliveryType deliveryStatus;
 
 
 
