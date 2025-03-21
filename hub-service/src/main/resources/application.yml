@@ -2,22 +2,21 @@ spring:
   application:
     name: hub-service
 
+  datasource:
+    url: jdbc:postgresql://hub-db:5432/13friday_hub  # docker 환경
+#    url: jdbc:postgresql://localhost:5433/13friday_hub # 로컬 환경
+    username: root
+    password: 1234
+    driver-class-name: org.postgresql.Driver
+
   jpa:
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
     properties:
       hibernate:
         format_sql: true
         show_sql: true
-
-
-
-  datasource:
-    url: jdbc:postgresql://localhost:5433/13friday_hub
-    username: root
-    password: 1234
-    driver-class-name: org.postgresql.Driver
 
 
 server:

@@ -48,6 +48,8 @@ services:
     depends_on:
       - order-db
       - eureka-server
+    env_file:
+      - .env
 
   order-db:
     image: postgres
@@ -58,6 +60,33 @@ services:
       - POSTGRES_USER=${ORDER_DB_USER}
       - POSTGRES_PASSWORD=${ORDER_DB_PASSWORD}
       - POSTGRES_DB=13friday_order
+    env_file:
+      - .env
+
+  delivery-service:
+    build:
+      context: ./delivery-service
+      dockerfile: Dockerfile
+    container_name: 13friday-delivery-service
+    ports:
+      - "19095:19095"
+    depends_on:
+      - delivery-db
+      - eureka-server
+    env_file:
+      - .env
+
+  delivery-db:
+    image: postgres
+    container_name: 13friday-delivery-db
+    ports:
+      - "5435:5432"
+    environment:
+      - POSTGRES_USER=${DELIVERY_DB_USER}
+      - POSTGRES_PASSWORD=${DELIVERY_DB_PASSWORD}
+      - POSTGRES_DB=13friday_delivery
+    env_file:
+      - .env
 
   company-service:
     build:

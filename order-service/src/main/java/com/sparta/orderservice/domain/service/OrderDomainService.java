@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -20,9 +21,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class OrderDomainService {
 
-    private JpaOrderRepository jpaOrderRepository;
+    private final JpaOrderRepository jpaOrderRepository;
 
     public Order createOrder(OrderRequest req) {
 
@@ -41,8 +43,7 @@ public class OrderDomainService {
         return order;
     }
 
-    public Order updateOrder(Order order,UpdateOrderRequest req) {
-
+    public Order updateOrder(Order order, UpdateOrderRequest req) {
 
         order.updateOrderItems(req.getOrderItemsRequests());
 
@@ -54,7 +55,7 @@ public class OrderDomainService {
         }
         validateProductStock(stockQuantity, order.getTotalStock());
 
-        order.updateStockAndRequestsDetails(totalQuantity,req.getRequestDetails());
+        order.updateStockAndRequestsDetails(totalQuantity, req.getRequestDetails());
 
         return order;
     }
@@ -80,10 +81,10 @@ public class OrderDomainService {
         Page<Order> orderPage;
 
         if (searchDto.getKeyword() != null && !searchDto.getKeyword().trim().isEmpty()) {
-            orderPage = jpaOrderRepository.findByRequestDetailsContaining(searchDto.getKeyword(),
+            orderPage = jpaOrderRepository.findByRequestDetailsContainingAndIsDeletedFalse(searchDto.getKeyword(),
                 pageable);
         } else {
-            orderPage = jpaOrderRepository.findAll(pageable);
+            orderPage = jpaOrderRepository.findByIsDeletedFalse(pageable);
         }
         return orderPage;
     }
