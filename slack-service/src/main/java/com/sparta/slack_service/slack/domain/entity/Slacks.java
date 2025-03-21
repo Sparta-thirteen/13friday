@@ -1,10 +1,10 @@
 package com.sparta.slack_service.slack.domain.entity;
 
+import com.sparta.slack_service.common.global.TimeStamped;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,7 +18,7 @@ import org.hibernate.annotations.UuidGenerator;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "p_slack")
-public class Slacks {
+public class Slacks extends TimeStamped {
 
   @Id
   @UuidGenerator
@@ -32,5 +32,5 @@ public class Slacks {
   @Column(columnDefinition = "TEXT")
   private String message;
 
-  private LocalDateTime sentAt;
+  private String sentAt;
 }

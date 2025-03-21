@@ -11,9 +11,10 @@ public class SlackRequestDto {
   //  private UUID orderId;
   private String message;
 
-  public Slacks toEntity() {
+  public Slacks toEntity(String sentAt) {
     return Slacks.builder()
         .message(this.message)
+        .sentAt(sentAt)
         .build();
   }
 }
