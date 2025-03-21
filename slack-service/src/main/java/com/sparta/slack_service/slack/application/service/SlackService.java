@@ -56,7 +56,7 @@ public class SlackService {
       validateSlackResponse(response);
 
       // DB에 저장
-      Slacks slacks = requestDto.toEntity(response.getTs());
+      Slacks slacks = requestDto.toEntity(dmChannelId, response.getTs());
       slackRepository.save(slacks);
 
     } catch (IOException | SlackApiException e) {
@@ -74,12 +74,10 @@ public class SlackService {
   public void updateMessage(UUID slackId, SlackRequestDto requestDto) {
     try {
       Slacks slacks = findSlacks(slackId);
-      String slackUserId = getSlackUserId(requestDto.getReceiverEmail());
-      String dmChannelId = getDmChannelId(slackUserId);
 
       ChatUpdateResponse response = slack.methods(slackToken).chatUpdate(
           ChatUpdateRequest.builder()
-              .channel(dmChannelId)
+              .channel(slacks.getChannelId())
               .ts(slacks.getSentAt())
               .text(requestDto.getMessage())
               .build()
@@ -93,15 +91,13 @@ public class SlackService {
   }
 
   @Transactional
-  public void deleteMessage(UUID slackId, SlackRequestDto requestDto) {
+  public void deleteMessage(UUID slackId) {
     try {
       Slacks slacks = findSlacks(slackId);
-      String slackUserId = getSlackUserId(requestDto.getReceiverEmail());
-      String dmChannelId = getDmChannelId(slackUserId);
 
       ChatDeleteResponse response = slack.methods(slackToken).chatDelete(
           ChatDeleteRequest.builder()
-              .channel(dmChannelId)
+              .channel(slacks.getChannelId())
               .ts(slacks.getSentAt())
               .build()
       );

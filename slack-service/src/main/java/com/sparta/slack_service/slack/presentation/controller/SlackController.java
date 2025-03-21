@@ -42,9 +42,8 @@ public class SlackController {
   }
 
   @DeleteMapping("/{slackId}")
-  public ResponseEntity<?> deleteMessage(@PathVariable UUID slackId,
-      @RequestBody SlackRequestDto requestDto) {
-    slackService.deleteMessage(slackId, requestDto);
+  public ResponseEntity<?> deleteMessage(@PathVariable UUID slackId) {
+    slackService.deleteMessage(slackId);
     return ResponseEntity.ok().body("Slack 메시지 삭제 완료");
   }
 }

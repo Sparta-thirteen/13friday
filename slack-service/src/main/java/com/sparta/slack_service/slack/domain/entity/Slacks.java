@@ -30,6 +30,8 @@ public class Slacks extends TimeStamped {
 
   private UUID orderId;
 
+  private String channelId;
+
   @Column(columnDefinition = "TEXT")
   private String message;
 
