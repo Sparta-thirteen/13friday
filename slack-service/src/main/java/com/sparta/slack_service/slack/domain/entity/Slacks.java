@@ -1,6 +1,7 @@
 package com.sparta.slack_service.slack.domain.entity;
 
 import com.sparta.slack_service.common.global.TimeStamped;
+import com.sparta.slack_service.slack.application.dto.SlackRequestDto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -33,4 +34,8 @@ public class Slacks extends TimeStamped {
   private String message;
 
   private String sentAt;
+
+  public void update(SlackRequestDto requestDto) {
+    this.message = requestDto.getMessage();
+  }
 }

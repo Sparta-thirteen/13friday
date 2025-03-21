@@ -7,6 +7,7 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -30,5 +31,12 @@ public class SlackController {
   public ResponseEntity<SlackResponseDto> getMessage(@PathVariable UUID slackId) {
     SlackResponseDto responseDto = slackService.getMessage(slackId);
     return ResponseEntity.ok().body(responseDto);
+  }
+
+  @PatchMapping("/{slackId}")
+  public ResponseEntity<?> updateMessage(@PathVariable UUID slackId,
+      @RequestBody SlackRequestDto requestDto) {
+    slackService.updateMessage(slackId, requestDto);
+    return ResponseEntity.ok().body("Slack 메시지 수정 완료");
   }
 }

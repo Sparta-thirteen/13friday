@@ -3,9 +3,11 @@ package com.sparta.slack_service.slack.application.service;
 import com.slack.api.Slack;
 import com.slack.api.methods.SlackApiException;
 import com.slack.api.methods.request.chat.ChatPostMessageRequest;
+import com.slack.api.methods.request.chat.ChatUpdateRequest;
 import com.slack.api.methods.request.conversations.ConversationsOpenRequest;
 import com.slack.api.methods.request.users.UsersLookupByEmailRequest;
 import com.slack.api.methods.response.chat.ChatPostMessageResponse;
+import com.slack.api.methods.response.chat.ChatUpdateResponse;
 import com.slack.api.methods.response.conversations.ConversationsOpenResponse;
 import com.slack.api.methods.response.users.UsersLookupByEmailResponse;
 import com.sparta.slack_service.common.global.GlobalException;
@@ -35,10 +37,10 @@ public class SlackService {
   public void sendMessage(SlackRequestDto requestDto) {
     try {
       // Slack 사용자 이메일로 사용자 ID 조회
-      String slackId = getSlackId(requestDto.getReceiverEmail());
+      String slackUserId = getSlackUserId(requestDto.getReceiverEmail());
 
       // 사용자와 DM 채널 생성
-      String dmChannelId = getDmChannelId(slackId);
+      String dmChannelId = getDmChannelId(slackUserId);
 
       // DM 채널 ID를 사용해 메시지 전송
       ChatPostMessageResponse response = slack.methods(slackToken).chatPostMessage(
@@ -60,12 +62,48 @@ public class SlackService {
     }
   }
 
-  private String getSlackId(String email) throws IOException, SlackApiException {
+  @Transactional(readOnly = true)
+  public SlackResponseDto getMessage(UUID slackId) {
+    Slacks slacks = findSlacks(slackId);
+    return SlackResponseDto.toDto(slacks);
+  }
+
+  @Transactional
+  public void updateMessage(UUID slackId, SlackRequestDto requestDto) {
+    try {
+      Slacks slacks = findSlacks(slackId);
+      String slackUserId = getSlackUserId(requestDto.getReceiverEmail());
+      String dmChannelId = getDmChannelId(slackUserId);
+
+      ChatUpdateResponse response = slack.methods(slackToken).chatUpdate(
+          ChatUpdateRequest.builder()
+              .channel(dmChannelId)
+              .ts(slacks.getSentAt())
+              .text(requestDto.getMessage())
+              .build()
+      );
+      validateSlackResponse(response);
+      slacks.update(requestDto);
+
+    } catch (IOException | SlackApiException e) {
+      throw new GlobalException(HttpStatus.BAD_REQUEST, "Slack DM 메시지 수정 실패: " + e.getMessage());
+    }
+  }
+
+  private String getSlackUserId(String email) throws IOException, SlackApiException {
     UsersLookupByEmailResponse response = slack.methods(slackToken).usersLookupByEmail(
         UsersLookupByEmailRequest.builder().email(email).build()
     );
 
-    return getSlackIdByResponse(response);
+    return getSlackUserIdByResponse(response);
+  }
+
+  private String getSlackUserIdByResponse(UsersLookupByEmailResponse response) {
+    if (response.isOk() && response.getUser() != null) {
+      return response.getUser().getId();
+    } else {
+      throw new GlobalException(HttpStatus.BAD_REQUEST, "Slack 사용자 ID 조회 실패");
+    }
   }
 
   private String getDmChannelId(String receiverId) throws IOException, SlackApiException {
@@ -88,18 +126,10 @@ public class SlackService {
     }
   }
 
-  private String getSlackIdByResponse(UsersLookupByEmailResponse response) {
-    if (response.isOk() && response.getUser() != null) {
-      return response.getUser().getId();
-    } else {
-      throw new GlobalException(HttpStatus.BAD_REQUEST, "Slack 사용자 ID 조회 실패");
+  private void validateSlackResponse(ChatUpdateResponse response) {
+    if (!response.isOk()) {
+      throw new GlobalException(HttpStatus.BAD_REQUEST, "Slack DM 메시지 수정 실패");
     }
-  }
-
-  @Transactional(readOnly = true)
-  public SlackResponseDto getMessage(UUID slackId) {
-    Slacks slacks = findSlacks(slackId);
-    return SlackResponseDto.toDto(slacks);
   }
 
   private Slacks findSlacks(UUID slackId) {
