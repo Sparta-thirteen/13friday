@@ -32,6 +32,8 @@ public class HubRouteDto {
         private UUID hubRouteId;
         private UUID departHubId;
         private UUID arriveHubId;
+        private String departHubName;
+        private String arriveHubName;
         private Long estimatedTime;
         private BigDecimal distance;
     }

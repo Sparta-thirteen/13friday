@@ -4,17 +4,11 @@ import com.sparta.eureka.hub.application.dto.hubRoute.HubRouteDto;
 import com.sparta.eureka.hub.domain.entity.Hub;
 import com.sparta.eureka.hub.domain.entity.HubRoute;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
 public interface HubRouteMapper {
-    default HubRoute createDtoToHubRoute(HubRouteDto.CreateDto request) {
-        Hub departHub = Hub.builder()
-                .hubId(request.getDepartHubId())
-                .build();
-        Hub arriveHub = Hub.builder()
-                .hubId(request.getArriveHubId())
-                .build();
+    default HubRoute createDtoToHubRoute(Hub departHub, Hub arriveHub) {
 
         return HubRoute.create(departHub, arriveHub);
     }
@@ -26,6 +20,8 @@ public interface HubRouteMapper {
                 .hubRouteId(hubRoute.getHubRouteId())
                 .departHubId(hubRoute.getDepartHub().getHubId())
                 .arriveHubId(hubRoute.getArriveHub().getHubId())
+                .departHubName(hubRoute.getDepartHub().getHubName())
+                .arriveHubName(hubRoute.getArriveHub().getHubName())
                 .estimatedTime(hubRoute.getEstimatedTime())
                 .distance(hubRoute.getDistance())
                 .build();

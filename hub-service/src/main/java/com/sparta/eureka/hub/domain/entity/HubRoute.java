@@ -1,5 +1,6 @@
 package com.sparta.eureka.hub.domain.entity;
 
+import com.sparta.eureka.hub.infrastructure.common.audit.Auditable;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -7,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Builder
@@ -15,7 +17,7 @@ import java.util.UUID;
 @Table(name = "p_hubRoute")
 @NoArgsConstructor
 @AllArgsConstructor
-public class HubRoute {
+public class HubRoute extends Auditable {
     @Id
     @GeneratedValue
     private UUID hubRouteId;
@@ -29,6 +31,8 @@ public class HubRoute {
     private Hub arriveHub;
 
     private Long estimatedTime;
+
+    @Column(precision = 9, scale = 2)
     private BigDecimal distance;
 
     public static HubRoute create(Hub departHub, Hub arriveHub) {
@@ -41,5 +45,16 @@ public class HubRoute {
     public void setEstimatedTimeAndDistance(Long estimatedTime,  BigDecimal distance) {
         this.estimatedTime = estimatedTime;
         this.distance = distance;
+    }
+
+    public void update(HubRoute hubRoute) {
+        this.departHub = hubRoute.getDepartHub();
+        this.arriveHub = hubRoute.getArriveHub();
+//        this.setUpdatedBy();
+    }
+
+    public void delete() {
+        this.setDeletedAt(LocalDateTime.now());
+//        this.setDeletedBy();
     }
 }

@@ -12,6 +12,9 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -30,10 +33,44 @@ public class HubRouteService {
 
     @Transactional
     public HubRouteDto.ResponseDto createHubRoute(HubRouteDto.CreateDto request) {
-        HubRoute hubRoute = hubRouteRepository.save(hubRouteMapper.createDtoToHubRoute(request));
+        Hub departHub = findHub(request.getDepartHubId());
+        Hub arriveHub = findHub(request.getArriveHubId());
+
+        HubRoute hubRoute = hubRouteRepository.save(hubRouteMapper.createDtoToHubRoute(departHub, arriveHub));
         calculateRouteData(request.getDepartHubId(), request.getArriveHubId(), hubRoute);
 
         return hubRouteMapper.hubRouteToResponseDto(hubRoute);
+    }
+
+    @Transactional
+    public HubRouteDto.ResponseDto updateHubRoute(UUID hubRouteId, HubRouteDto.UpdateDto request) {
+        HubRoute hubRoute = findHubRoute(hubRouteId);
+        HubRoute updateHubRoute = hubRouteMapper.updateDtoToHubRoute(request);
+
+        calculateRouteData(request.getDepartHubId(), request.getArriveHubId(), updateHubRoute);
+
+        hubRoute.update(updateHubRoute);
+
+        return hubRouteMapper.hubRouteToResponseDto(hubRoute);
+    }
+
+    public Page<HubRouteDto.ResponseDto> getHubRoutes(int page, int size) {
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<HubRoute> hubRoutes = hubRouteRepository.findAll(pageable);
+
+        return hubRoutes.map(hubRouteMapper::hubRouteToResponseDto);
+    }
+
+    public HubRouteDto.ResponseDto getHubRoute(UUID hubRouteId) {
+        HubRoute hubRoute = findHubRoute(hubRouteId);
+
+        return hubRouteMapper.hubRouteToResponseDto(hubRoute);
+    }
+
+    @Transactional
+    public void deleteHubRoute(UUID hubRouteId) {
+        HubRoute hubRoute = findHubRoute(hubRouteId);
+        hubRoute.delete();
     }
 
     public OpenRouteServiceResponse calculateDistance(UUID departHubId, UUID arriveHubId) {
@@ -61,6 +98,12 @@ public class HubRouteService {
         Optional<Hub> hub = hubRepository.findById(hubId);
         return hub.orElseThrow(() ->
                 new EntityNotFoundException("Hub with id " + hubId + " not found"));
+    }
+
+    public HubRoute findHubRoute(UUID hubRouteId) {
+        Optional<HubRoute> hubRoute = hubRouteRepository.findById(hubRouteId);
+
+        return hubRoute.orElseThrow();
     }
 
 }
