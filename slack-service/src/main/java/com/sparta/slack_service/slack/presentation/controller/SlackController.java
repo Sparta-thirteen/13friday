@@ -40,11 +40,17 @@ public class SlackController {
     return ResponseEntity.ok().body(responseDto);
   }
 
+  @GetMapping
+  public ResponseEntity<Page<SlackResponseDto>> getMessages(Pageable pageable) {
+    Page<SlackResponseDto> responseDto = slackService.getMessages(pageable);
+    return ResponseEntity.ok().body(responseDto);
+  }
+
   @GetMapping("/search")
   public ResponseEntity<Page<SlackResponseDto>> searchMessage(
       @RequestParam String keyword, Pageable pageable) {
-    Page<SlackResponseDto> responseDtoList = slackService.searchMessage(keyword, pageable);
-    return ResponseEntity.ok().body(responseDtoList);
+    Page<SlackResponseDto> responseDto = slackService.searchMessage(keyword, pageable);
+    return ResponseEntity.ok().body(responseDto);
   }
 
   @PatchMapping("/{slackId}")

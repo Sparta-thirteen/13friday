@@ -14,4 +14,6 @@ public interface SlackRepository extends JpaRepository<Slacks, UUID> {
   @Query("SELECT s FROM Slacks s WHERE s.message LIKE %:keyword% AND s.deletedAt IS NULL " +
       "ORDER BY s.createdAt DESC, s.updatedAt DESC")
   Page<Slacks> findAllByMessage(String keyword, Pageable pageable);
+
+  Page<Slacks> findAllByDeletedAtIsNull(Pageable pageable);
 }

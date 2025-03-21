@@ -68,6 +68,12 @@ public class SlackService {
   }
 
   @Transactional(readOnly = true)
+  public Page<SlackResponseDto> getMessages(Pageable pageable) {
+    return slackRepository.findAllByDeletedAtIsNull(pageable)
+        .map(SlackResponseDto::toDto);
+  }
+
+  @Transactional(readOnly = true)
   public Page<SlackResponseDto> searchMessage(String keyword, Pageable pageable) {
     return slackRepository.findAllByMessage(keyword, pageable)
         .map(SlackResponseDto::toDto);
