@@ -1,5 +1,7 @@
 package com.sparta.slack_service.common.global;
 
+import com.slack.api.methods.SlackApiException;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import org.springframework.http.HttpStatus;
@@ -30,5 +32,11 @@ public class GlobalExceptionHandler {
         .forEach(c -> errors.put(((FieldError) c).getField(), c.getDefaultMessage()));
 
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+  }
+
+  @ExceptionHandler({IOException.class, SlackApiException.class})
+  public ResponseEntity<String> handleSlackApiException(Exception ex) {
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        .body("Slack API Error: " + ex.getMessage());
   }
 }

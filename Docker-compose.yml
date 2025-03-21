@@ -93,6 +93,8 @@ services:
       - ./slack-service:/app/slack-service
     ports:
       - "19097:19097"
+    env_file:
+      - .env
     depends_on:
       - slack-db
       - eureka-server
