@@ -16,43 +16,7 @@ services:
       - "19091:19091"
     depends_on:
       - eureka-server
-
-#  order-service:
-  ##    build:
-  ##      context: ./order-service
-  ##      dockerfile: Dockerfile
-  ##    container_name: 13friday-order-service
-  ##    ports:
-  ##      - "19094:19094"
-  ##    depends_on:
-  ##      - order-db
-  ##      - eureka-server
-
-
-#  order-db:
-#    image: postgres
-#    container_name: 13friday-order-db
-#    ports:
-#      - "5434:5432"
-#    environment:
-#      - POSTGRES_USER=${ORDER_DB_USER}
-#      - POSTGRES_PASSWORD=${ORDER_DB_PASSWORD}
-#      - POSTGRES_DB=13friday_order
-
-
-#  company-service:
-#    build:
-#      context: ./company-service
-#      dockerfile: Dockerfile
-#    container_name: 13friday-company-service
-#    volumes:
-#      - ./company-service:/app/company-service
-#    ports:
-#      - "19096:19096"
-#    depends_on:
-#      - company-db
-#      - eureka-server
-
+  
   auth-service:
     build:
       context: ./auth-service
@@ -65,7 +29,7 @@ services:
     depends_on:
       - auth-db
       - eureka-server
-
+  
   auth-db:
     image: postgres
     container_name: 13friday-auth-db
@@ -77,19 +41,105 @@ services:
       - POSTGRES_USER=myuser
       - POSTGRES_PASSWORD=mypassword
       - POSTGRES_DB=13friday_auth
-
   
-#  company-db:
-#    image: postgres
-#    container_name: 13friday-company-db
-#    volumes:
-#      - ./db_data/company:/var/lib/postgresql/data
-#    ports:
-#      - "5436:5432"
-#    environment:
-#      - POSTGRES_USER=myuser
-#      - POSTGRES_PASSWORD=mypassword
-#      - POSTGRES_DB=13friday_company
+  hub-service:
+    build:
+      context: ./hub-service
+      dockerfile: Dockerfile
+    container_name: 13friday-hub-service
+    ports:
+      - "19093:19093"
+    depends_on:
+      - hub-db
+      - eureka-server
+
+  hub-db:
+    image: postgres
+    container_name: 13friday-hub-db
+    ports:
+      - "5433:5432"
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=1234
+      - POSTGRES_DB=13friday_hub
+
+  order-service:
+    build:
+      context: ./order-service
+      dockerfile: Dockerfile
+    container_name: 13friday-order-service
+    ports:
+      - "19094:19094"
+    depends_on:
+      - order-db
+      - eureka-server
+    env_file:
+      - .env
+
+  order-db:
+    image: postgres
+    container_name: 13friday-order-db
+    ports:
+      - "5434:5432"
+    environment:
+      - POSTGRES_USER=${ORDER_DB_USER}
+      - POSTGRES_PASSWORD=${ORDER_DB_PASSWORD}
+      - POSTGRES_DB=13friday_order
+    env_file:
+      - .env
+
+  company-service:
+    build:
+      context: ./company-service
+      dockerfile: Dockerfile
+    container_name: 13friday-company-service
+    volumes:
+      - ./company-service:/app/company-service
+    ports:
+      - "19096:19096"
+    depends_on:
+      - company-db
+      - eureka-server
+
+  company-db:
+    image: postgres
+    container_name: 13friday-company-db
+    volumes:
+      - ./db_data/company:/var/lib/postgresql/data
+    ports:
+      - "5436:5432"
+    environment:
+      - POSTGRES_USER=${COMPANY_DB_USER}
+      - POSTGRES_PASSWORD=${COMPANY_DB_PASSWORD}
+      - POSTGRES_DB=13friday_company
+
+
+  delivery-service:
+    build:
+      context: ./delivery-service
+      dockerfile: Dockerfile
+    container_name: 13friday-delivery-service
+    ports:
+      - "19095:19095"
+    depends_on:
+      - delivery-db
+      - eureka-server
+    env_file:
+      - .env
+
+
+  delivery-db:
+    image: postgres
+    container_name: 13friday-delivery-db
+    ports:
+      - "5435:5432"
+    environment:
+      - POSTGRES_USER=${DELIVERY_DB_USER}
+      - POSTGRES_PASSWORD=${DELIVERY_DB_PASSWORD}
+      - POSTGRES_DB=13friday_delivery
+    env_file:
+      - .env
+
 
 volumes:
   db_data:

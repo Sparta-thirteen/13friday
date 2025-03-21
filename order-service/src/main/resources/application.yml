@@ -21,11 +21,13 @@ spring:
     driver-class-name: org.postgresql.Driver
 
 
+
 server:
   port: 19094
 
 eureka:
   client:
+#    enabled: false
     service-url:
       defaultZone: http://eureka-server:19090/eureka/
     register-with-eureka: true
