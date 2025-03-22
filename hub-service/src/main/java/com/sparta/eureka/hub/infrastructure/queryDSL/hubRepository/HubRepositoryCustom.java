@@ -1,4 +1,4 @@
-package com.sparta.eureka.hub.infrastructure.queryDSL;
+package com.sparta.eureka.hub.infrastructure.queryDSL.hubRepository;
 
 import com.sparta.eureka.hub.domain.entity.Hub;
 import org.springframework.data.domain.Page;

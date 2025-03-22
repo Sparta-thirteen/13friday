@@ -17,6 +17,31 @@ services:
     depends_on:
       - eureka-server
 
+  auth-service:
+    build:
+      context: ./auth-service
+      dockerfile: Dockerfile
+    container_name: 13friday-auth-service
+    volumes:
+      - ./auth-service:/app/auth-service
+    ports:
+      - "19092:19092"
+    depends_on:
+      - auth-db
+      - eureka-server
+
+  auth-db:
+    image: postgres
+    container_name: 13friday-auth-db
+    volumes:
+      - ./db_data/auth:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=myuser
+      - POSTGRES_PASSWORD=mypassword
+      - POSTGRES_DB=13friday_auth
+
   hub-service:
     build:
       context: ./hub-service
