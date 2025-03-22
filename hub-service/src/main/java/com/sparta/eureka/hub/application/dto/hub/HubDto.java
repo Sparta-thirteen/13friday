@@ -25,9 +25,7 @@ public class HubDto {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class UpdateDto {
-        @NotBlank
         private String hubName;
-        @NotBlank
         private String address;
     }
 
