@@ -6,6 +6,7 @@ import com.sparta.eureka.client.auth.domain.user.dto.response.SearchUserResponse
 import com.sparta.eureka.client.auth.domain.user.dto.response.UserResponseDto;
 import com.sparta.eureka.client.auth.domain.user.service.UserService;
 import java.time.LocalDate;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -54,12 +55,13 @@ public class UserController {
     return ResponseEntity.status(HttpStatus.OK).body(BaseResponse.success("회원 목록 조회 성공", searchUserResponseDto));
   }
 
-  @PatchMapping("/{id}")
+  @PatchMapping("/{id}/")
   public ResponseEntity<BaseResponse<UserResponseDto>> updateUser(
       @PathVariable Long id,
       @RequestHeader("X-Role") String role,
+      @RequestParam(required = false) UUID hubID,
       @RequestBody UserRoleUpdateRequestDto userRoleUpdateRequestDto){
-    UserResponseDto userResponseDto = userService.updateUserRole(id, role, userRoleUpdateRequestDto);
+    UserResponseDto userResponseDto = userService.updateUserRole(id, role, hubID, userRoleUpdateRequestDto);
     return ResponseEntity.status(HttpStatus.OK).body(BaseResponse.success("회원 권한 변경 성공",userResponseDto));
   }
 

@@ -1,6 +1,10 @@
 package com.sparta.eureka.client.auth.domain.user.service;
 
 import com.sparta.eureka.client.auth.common.exception.ApiBusinessException;
+import com.sparta.eureka.client.auth.common.client.CompanyClient;
+import com.sparta.eureka.client.auth.common.client.HubClient;
+import com.sparta.eureka.client.auth.domain.user.dto.request.CompanyRequestDto;
+import com.sparta.eureka.client.auth.common.client.dto.HubRequestDto;
 import com.sparta.eureka.client.auth.domain.user.dto.request.UserRoleUpdateRequestDto;
 import com.sparta.eureka.client.auth.domain.user.dto.response.PageInfoDto;
 import com.sparta.eureka.client.auth.domain.user.dto.response.ReadResponseDto;
@@ -12,6 +16,7 @@ import com.sparta.eureka.client.auth.domain.user.exception.UserExceptionCode;
 import com.sparta.eureka.client.auth.domain.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import java.time.LocalDate;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +30,8 @@ import org.springframework.stereotype.Service;
 public class UserService {
 
   private final UserRepository userRepository;
+  private final HubClient hubClient;
+  private final CompanyClient companyClient;
 
   // 회원 목록 조회 & 검색기능 포함
   public SearchUserResponseDto searchUser(
@@ -82,14 +89,21 @@ public class UserService {
 
   //마스터가 다른 사람들의 권한 수정
   @Transactional
-  public UserResponseDto updateUserRole(Long id, String role, UserRoleUpdateRequestDto userRoleUpdateRequestDto){
+  public UserResponseDto updateUserRole(Long id, String role, UUID uuid,UserRoleUpdateRequestDto userRoleUpdateRequestDto){
     Role userRole = Role.valueOf(role);
     if(!userRole.isMaster()){
       throw new ApiBusinessException(UserExceptionCode.USER_NOT_AUTHORITY);
     }
     User user = userRepository.findById(id)
         .orElseThrow(()->new ApiBusinessException(UserExceptionCode.USER_NOT_FOUND));
+
     user.updateRole(userRoleUpdateRequestDto.getRole());
+    if(user.getRole().isHubManager()){
+      hubClient.updateHub(role, id, new HubRequestDto(uuid));
+    }else if(userRoleUpdateRequestDto.getRole().isCompanyManager()){
+      companyClient.updateCompany(role, id, new CompanyRequestDto(uuid));
+    }
+
     return UserResponseDto.fromEntity(user);
   }
 
@@ -107,4 +121,6 @@ public class UserService {
     Long userIdLong = Long.valueOf(userId);
     user.delete(userIdLong);
   }
+
+
 }
