@@ -17,16 +17,18 @@ public class HubController {
     private final HubService hubService;
 
     @PostMapping
-    public ResponseEntity<HubDto.ResponseDto> createHub(@RequestBody HubDto.CreateDto request) {
-        HubDto.ResponseDto response = hubService.createHub(request);
+    public ResponseEntity<HubDto.ResponseDto> createHub(@RequestHeader("X-Role") String role,
+                                                        @RequestBody HubDto.CreateDto request) {
+        HubDto.ResponseDto response = hubService.createHub(role, request);
 
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @PatchMapping("/{hub_id}")
-    public ResponseEntity<HubDto.ResponseDto> updateHub(@PathVariable("hub_id") UUID hubId,
+    public ResponseEntity<HubDto.ResponseDto> updateHub(@RequestHeader("X-Role") String role,
+                                                        @PathVariable("hub_id") UUID hubId,
                                                         @RequestBody HubDto.UpdateDto request) {
-        HubDto.ResponseDto response = hubService.updateHub(hubId, request);
+        HubDto.ResponseDto response = hubService.updateHub(role, hubId, request);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -57,16 +59,28 @@ public class HubController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @PostMapping("/{hubId}/updateCoordinates")
-    public ResponseEntity<Void> updateCoordinates(@PathVariable UUID hubId) {
-        hubService.updateHubCoordinates(hubId);
+    @PatchMapping("/{hubId}/updateCoordinates")
+    public ResponseEntity<Void> updateCoordinates(@RequestHeader("X-Role") String role,
+                                                  @PathVariable UUID hubId) {
+        hubService.updateHubCoordinates(role, hubId);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @PatchMapping("/grant/{hubId}")
+    public ResponseEntity<HubDto.ResponseDto> grantHub(@RequestHeader("X-Role") String role,
+                                                       @PathVariable UUID hubId,
+                                                       @RequestBody HubDto.UpdateUserDto request) {
+        HubDto.ResponseDto response = hubService.addHubAuth(role, hubId, request);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+
     @DeleteMapping("/{hubId}")
-    public ResponseEntity<HubDto.ResponseDto> deleteHub(@PathVariable UUID hubId) {
-        hubService.deleteHub(hubId);
+    public ResponseEntity<HubDto.ResponseDto> deleteHub(@RequestHeader("X-Role") String role,
+                                                        @PathVariable UUID hubId) {
+        hubService.deleteHub(role, hubId);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

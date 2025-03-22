@@ -17,16 +17,18 @@ public class HubRouteController {
     private final HubRouteService hubRouteService;
 
     @PostMapping
-    public ResponseEntity<HubRouteDto.ResponseDto> createHubRoute(@RequestBody HubRouteDto.CreateDto request) {
-        HubRouteDto.ResponseDto response = hubRouteService.createHubRoute(request);
+    public ResponseEntity<HubRouteDto.ResponseDto> createHubRoute(@RequestHeader("X-Role") String role,
+                                                                  @RequestBody HubRouteDto.CreateDto request) {
+        HubRouteDto.ResponseDto response = hubRouteService.createHubRoute(role, request);
 
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @PatchMapping("/{hubRouteId}")
-    public ResponseEntity<HubRouteDto.ResponseDto> updateHubRoute(@PathVariable UUID hubRouteId,
+    public ResponseEntity<HubRouteDto.ResponseDto> updateHubRoute(@RequestHeader("X-Role") String role,
+                                                                  @PathVariable UUID hubRouteId,
                                                                   @RequestBody HubRouteDto.UpdateDto request) {
-        HubRouteDto.ResponseDto response = hubRouteService.updateHubRoute(hubRouteId, request);
+        HubRouteDto.ResponseDto response = hubRouteService.updateHubRoute(role, hubRouteId, request);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -57,8 +59,9 @@ public class HubRouteController {
     }
 
     @DeleteMapping("/{hubRouteId}")
-    public ResponseEntity<HubRouteDto.ResponseDto> deleteHubRoute(@PathVariable UUID hubRouteId) {
-        hubRouteService.deleteHubRoute(hubRouteId);
+    public ResponseEntity<HubRouteDto.ResponseDto> deleteHubRoute(@RequestHeader("X-Role") String role,
+                                                                  @PathVariable UUID hubRouteId) {
+        hubRouteService.deleteHubRoute(role, hubRouteId);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

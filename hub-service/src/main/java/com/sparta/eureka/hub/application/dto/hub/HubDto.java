@@ -30,6 +30,13 @@ public class HubDto {
     }
 
     @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class UpdateUserDto {
+        private Long hubUserId;
+    }
+
+    @Getter
     @Setter
     @AllArgsConstructor
     @NoArgsConstructor

@@ -56,6 +56,10 @@ public class Hub extends Auditable {
         this.lon = lon;
     }
 
+    public void updateUserId(Long userId) {
+        this.hubUserId = userId;
+    }
+
     public void delete() {
         this.setDeletedAt(LocalDateTime.now());
 //        this.setDeletedBy();
