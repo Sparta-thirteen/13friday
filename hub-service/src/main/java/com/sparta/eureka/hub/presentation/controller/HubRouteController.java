@@ -59,9 +59,10 @@ public class HubRouteController {
     }
 
     @DeleteMapping("/{hubRouteId}")
-    public ResponseEntity<HubRouteDto.ResponseDto> deleteHubRoute(@RequestHeader("X-Role") String role,
+    public ResponseEntity<HubRouteDto.ResponseDto> deleteHubRoute(@RequestHeader("X-User-Id") String userId,
+                                                                  @RequestHeader("X-Role") String role,
                                                                   @PathVariable UUID hubRouteId) {
-        hubRouteService.deleteHubRoute(role, hubRouteId);
+        hubRouteService.deleteHubRoute(userId, role, hubRouteId);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

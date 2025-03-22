@@ -98,10 +98,10 @@ public class HubService {
     }
 
     @Transactional
-    public void deleteHub(String role, UUID hubId) {
+    public void deleteHub(String userId, String role, UUID hubId) {
         if(role.equals("MASTER")) {
             Hub hub = findHub(hubId);
-            hub.delete();
+            hub.delete(Long.parseLong(userId));
         } else {
             throw new BusinessLogicException(ErrorCode.UNAUTHORIZED);
         }

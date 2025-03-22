@@ -39,7 +39,7 @@ public class HubRouteService {
 
         if(role.equals("MASTER")){
         HubRoute hubRoute = hubRouteRepository.save(hubRouteMapper.createDtoToHubRoute(departHub, arriveHub));
-        calculateRouteData(request.getDepartHubId(), request.getArriveHubId(), hubRoute);
+        calculateRouteData(departHub.getHubId(), arriveHub.getHubId(), hubRoute);
 
         return hubRouteMapper.hubRouteToResponseDto(hubRoute);
         } else {
@@ -50,12 +50,20 @@ public class HubRouteService {
     @Transactional
     public HubRouteDto.ResponseDto updateHubRoute(String role, UUID hubRouteId, HubRouteDto.UpdateDto request) {
         HubRoute hubRoute = findHubRoute(hubRouteId);
+
         if(role.equals("MASTER")) {
+            Hub departHub = findHub(request.getDepartHubId());
+            Hub arriveHub = findHub(request.getArriveHubId());
             HubRoute updateHubRoute = hubRouteMapper.updateDtoToHubRoute(request);
+            System.out.println("update hub route: " + departHub.getHubId());
 
-            calculateRouteData(request.getDepartHubId(), request.getArriveHubId(), updateHubRoute);
+            updateHubRoute.update(departHub, arriveHub);
+            hubRoute.update(departHub, arriveHub);
 
-            hubRoute.update(updateHubRoute);
+            calculateRouteData(
+                    departHub.getHubId(),
+                    arriveHub.getHubId(),
+                    hubRoute);
 
             return hubRouteMapper.hubRouteToResponseDto(hubRoute);
         } else {
@@ -91,10 +99,11 @@ public class HubRouteService {
     }
 
     @Transactional
-    public void deleteHubRoute(String role, UUID hubRouteId) {
+    public void deleteHubRoute(String userId, String role, UUID hubRouteId) {
+
         if(role.equals("MASTER")) {
             HubRoute hubRoute = findHubRoute(hubRouteId);
-            hubRoute.delete();
+            hubRoute.delete(Long.parseLong(userId));
         } else {
             throw new BusinessLogicException(ErrorCode.UNAUTHORIZED);
         }
