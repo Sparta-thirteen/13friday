@@ -18,7 +18,6 @@ spring:
         format_sql: true
         show_sql: true
 
-
 server:
   port: 19093
 
@@ -27,3 +26,6 @@ eureka:
     service-url:
       defaultZone: http://eureka-server:19090/eureka/
     register-with-eureka: true
+
+
+open-route-api-key: "5b3ce3597851110001cf6248cd8682b6f5434b408c38dddc3093851a"

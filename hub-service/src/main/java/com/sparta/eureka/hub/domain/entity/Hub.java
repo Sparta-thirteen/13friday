@@ -22,13 +22,18 @@ public class Hub extends Auditable {
     @GeneratedValue
     private UUID hubId;
 
+    private Long hubUserId;
+
     @Column(nullable = false, unique = true)
     private String hubName;
 
     @Column(nullable = false, unique = true)
     private String address;
 
+    @Column(precision = 9, scale = 6)
     private BigDecimal lat;
+
+    @Column(precision = 9, scale = 6)
     private BigDecimal lon;
 
     public static Hub create(String hubName, String address) {
@@ -36,8 +41,6 @@ public class Hub extends Auditable {
         return Hub.builder()
                 .hubName(hubName)
                 .address(address)
-                .lat(null)
-                .lon(null)
                 .build();
     }
 
