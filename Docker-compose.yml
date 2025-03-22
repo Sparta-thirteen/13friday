@@ -26,6 +26,8 @@ services:
       - ./auth-service:/app/auth-service
     ports:
       - "19092:19092"
+    env_file:
+      - .env
     depends_on:
       - auth-db
       - eureka-server
@@ -38,8 +40,8 @@ services:
     ports:
       - "5433:5432"
     environment:
-      - POSTGRES_USER=myuser
-      - POSTGRES_PASSWORD=mypassword
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASS}
       - POSTGRES_DB=13friday_auth
   
   hub-service:
