@@ -24,9 +24,9 @@ public class HubController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-    @PatchMapping("/{hub_id}")
+    @PatchMapping("/{hubId}")
     public ResponseEntity<HubDto.ResponseDto> updateHub(@RequestHeader("X-Role") String role,
-                                                        @PathVariable("hub_id") UUID hubId,
+                                                        @PathVariable("hubId") UUID hubId,
                                                         @RequestBody HubDto.UpdateDto request) {
         HubDto.ResponseDto response = hubService.updateHub(role, hubId, request);
 
@@ -36,7 +36,6 @@ public class HubController {
     @GetMapping
     public ResponseEntity<Page<HubDto.ResponseDto>> getHubs(@RequestParam(defaultValue = "10") int size,
                                                             @RequestParam(defaultValue = "1") int page) {
-
         Page<HubDto.ResponseDto> response = hubService.getHubs(page, size);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -59,6 +58,13 @@ public class HubController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @GetMapping("/manager")
+    public ResponseEntity<HubDto.ResponseDto> getHubByManager(@RequestHeader("X-User-Id") String userId) {
+        HubDto.ResponseDto response = hubService.getHubByManager(userId);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
     @PatchMapping("/{hubId}/updateCoordinates")
     public ResponseEntity<Void> updateCoordinates(@RequestHeader("X-Role") String role,
                                                   @PathVariable UUID hubId) {
@@ -67,11 +73,11 @@ public class HubController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PatchMapping("/grant/{hubId}")
+    @PatchMapping("/grant/{userId}")
     public ResponseEntity<HubDto.ResponseDto> grantHub(@RequestHeader("X-Role") String role,
-                                                       @PathVariable UUID hubId,
+                                                       @PathVariable Long userId,
                                                        @RequestBody HubDto.UpdateUserDto request) {
-        HubDto.ResponseDto response = hubService.addHubAuth(role, hubId, request);
+        HubDto.ResponseDto response = hubService.addHubAuth(role, userId, request);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

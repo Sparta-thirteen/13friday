@@ -78,15 +78,23 @@ public class HubService {
     }
 
     @Transactional
-    public HubDto.ResponseDto addHubAuth(String role, UUID hubId, HubDto.UpdateUserDto request) {
-        Hub hub = findHub(hubId);
+    public HubDto.ResponseDto addHubAuth(String role, Long userId, HubDto.UpdateUserDto request) {
+        Hub hub = findHub(request.getHubId());
         if(role.equals("MASTER")) {
-            hub.updateUserId(request.getHubUserId());
+            hub.updateUserId(userId);
 
             return hubMapper.hubToResponseDto(hub);
         } else {
             throw new BusinessLogicException(ErrorCode.UNAUTHORIZED);
         }
+    }
+
+    public HubDto.ResponseDto getHubByManager(String userId) {
+        long managerId = Long.parseLong(userId);
+        Hub hub = hubRepository.findByHubUserId(managerId)
+                .orElseThrow(() -> new BusinessLogicException(ErrorCode.MANAGER_NOT_FOUND));
+
+        return hubMapper.hubToResponseDto(hub);
     }
 
     @Transactional
