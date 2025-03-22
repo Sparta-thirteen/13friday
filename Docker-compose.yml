@@ -17,6 +17,31 @@ services:
     depends_on:
       - eureka-server
 
+  auth-service:
+    build:
+      context: ./auth-service
+      dockerfile: Dockerfile
+    container_name: 13friday-auth-service
+    volumes:
+      - ./auth-service:/app/auth-service
+    ports:
+      - "19092:19092"
+    depends_on:
+      - auth-db
+      - eureka-server
+
+  auth-db:
+    image: postgres
+    container_name: 13friday-auth-db
+    volumes:
+      - ./db_data/auth:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=myuser
+      - POSTGRES_PASSWORD=mypassword
+      - POSTGRES_DB=13friday_auth
+
   hub-service:
     build:
       context: ./hub-service
@@ -63,6 +88,31 @@ services:
     env_file:
       - .env
 
+  delivery-service:
+    build:
+      context: ./delivery-service
+      dockerfile: Dockerfile
+    container_name: 13friday-delivery-service
+    ports:
+      - "19095:19095"
+    depends_on:
+      - delivery-db
+      - eureka-server
+    env_file:
+      - .env
+
+  delivery-db:
+    image: postgres
+    container_name: 13friday-delivery-db
+    ports:
+      - "5435:5432"
+    environment:
+      - POSTGRES_USER=${DELIVERY_DB_USER}
+      - POSTGRES_PASSWORD=${DELIVERY_DB_PASSWORD}
+      - POSTGRES_DB=13friday_delivery
+    env_file:
+      - .env
+
   company-service:
     build:
       context: ./company-service
@@ -84,39 +134,36 @@ services:
     ports:
       - "5436:5432"
     environment:
-      - POSTGRES_USER=${COMPANY_DB_USER}
-      - POSTGRES_PASSWORD=${COMPANY_DB_PASSWORD}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
       - POSTGRES_DB=13friday_company
 
-
-  delivery-service:
+  slack-service:
     build:
-      context: ./delivery-service
+      context: ./slack-service
       dockerfile: Dockerfile
-    container_name: 13friday-delivery-service
+    container_name: 13friday-slack-service
+    volumes:
+      - ./slack-service:/app/slack-service
     ports:
-      - "19095:19095"
+      - "19097:19097"
+    env_file:
+      - .env
     depends_on:
-      - delivery-db
+      - slack-db
       - eureka-server
-    env_file:
-      - .env
 
-
-  delivery-db:
+  slack-db:
     image: postgres
-    container_name: 13friday-delivery-db
+    container_name: 13friday-slack-db
+    volumes:
+      - ./db_data/slack:/var/lib/postgresql/data
     ports:
-      - "5435:5432"
+      - "5437:5432"
     environment:
-      - POSTGRES_USER=${DELIVERY_DB_USER}
-      - POSTGRES_PASSWORD=${DELIVERY_DB_PASSWORD}
-      - POSTGRES_DB=13friday_delivery
-    env_file:
-      - .env
-
-
-
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=13friday_slack
 
 volumes:
   db_data:
