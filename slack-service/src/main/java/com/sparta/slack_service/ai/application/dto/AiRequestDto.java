@@ -15,4 +15,12 @@ public class AiRequestDto {
   private String sendHub;
   private String receiveHub;
   private String requestMessage;
+
+  public static AiRequestDto of(String sendHub, String receiveHub, String requestMessage) {
+    return AiRequestDto.builder()
+        .sendHub(sendHub)
+        .receiveHub(receiveHub)
+        .requestMessage(requestMessage)
+        .build();
+  }
 }

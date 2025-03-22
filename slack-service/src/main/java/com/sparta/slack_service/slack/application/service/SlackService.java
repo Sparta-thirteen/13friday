@@ -12,6 +12,8 @@ import com.slack.api.methods.response.chat.ChatPostMessageResponse;
 import com.slack.api.methods.response.chat.ChatUpdateResponse;
 import com.slack.api.methods.response.conversations.ConversationsOpenResponse;
 import com.slack.api.methods.response.users.UsersLookupByEmailResponse;
+import com.sparta.slack_service.ai.application.dto.AiRequestDto;
+import com.sparta.slack_service.ai.application.service.AiService;
 import com.sparta.slack_service.common.global.GlobalException;
 import com.sparta.slack_service.slack.application.dto.SlackRequestDto;
 import com.sparta.slack_service.slack.application.dto.SlackResponseDto;
@@ -36,11 +38,19 @@ public class SlackService {
   private String slackToken;
 
   private final SlackRepository slackRepository;
+  private final AiService aiService;
   private final Slack slack = Slack.getInstance();
 
-  public void sendMessage(SlackRequestDto requestDto) throws IOException, SlackApiException {
+  public void sendMessage(SlackRequestDto slackRequestDto) throws IOException, SlackApiException {
+    // gemini ai에서 발송 시한 받아오기
+    // todo: 주문 정보 받아서 요청 수정 예정
+    AiRequestDto aiRequestDto = AiRequestDto.of(
+        slackRequestDto.getSendHub(), slackRequestDto.getReceiveHub(), slackRequestDto.getMessage()
+    );
+    String deadline = aiService.getShippingDeadline(aiRequestDto);
+
     // Slack 사용자 이메일로 사용자 ID 조회
-    String slackUserId = getSlackUserId(requestDto.getReceiverEmail());
+    String slackUserId = getSlackUserId(slackRequestDto.getReceiverEmail());
 
     // 사용자와 DM 채널 생성
     String dmChannelId = getDmChannelId(slackUserId);
@@ -49,7 +59,7 @@ public class SlackService {
     ChatPostMessageResponse response = slack.methods(slackToken).chatPostMessage(
         ChatPostMessageRequest.builder()
             .channel(dmChannelId)
-            .text(requestDto.getMessage())
+            .text("발송 시한: " + deadline)
             .build()
     );
 
@@ -57,7 +67,7 @@ public class SlackService {
     validateSlackResponse(response);
 
     // DB에 저장
-    Slacks slacks = requestDto.toEntity(dmChannelId, response.getTs());
+    Slacks slacks = slackRequestDto.toEntity(dmChannelId, response.getTs());
     slackRepository.save(slacks);
   }
 
