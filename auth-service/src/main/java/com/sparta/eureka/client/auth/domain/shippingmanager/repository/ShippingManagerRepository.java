@@ -14,6 +14,15 @@ import org.springframework.stereotype.Repository;
 public interface ShippingManagerRepository extends JpaRepository<ShippingManager, UUID>,
     ShippingManagerRepositoryCustom {
 
-  @Query("SELECT MAX(s.deliveryOrder) FROM ShippingManager s WHERE s.type = :type")
-  Optional<Integer> findMaxDeliveryOrderByType(@Param("type") ShippingManagerType type);
+  @Query("SELECT MAX(s.deliveryOrder) FROM ShippingManager s WHERE s.hubId = :hubId")
+  Optional<Integer> findMaxDeliveryOrderByHubId(@Param("hubId") UUID hubId);
+
+  @Query("SELECT MAX(s.deliveryOrder) FROM ShippingManager s WHERE s.hubId IS NULL")
+  Optional<Integer> findMaxDeliveryOrderForHubShipping();
+
+  // 특정 hubId와 deliveryOrder를 가진 ShippingManager 찾기
+  Optional<ShippingManager> findByHubIdAndDeliveryOrder(UUID hubId, int deliveryOrder);
+
+  // hubId가 NULL인 ShippingManager 중 특정 deliveryOrder를 가진 ShippingManager 찾기
+  Optional<ShippingManager> findByHubIdIsNullAndDeliveryOrder(int deliveryOrder);
 }
