@@ -3,9 +3,12 @@ package com.sparta.orderservice.application.service;
 
 import com.sparta.orderservice.application.dto.OrderItemsDto;
 import com.sparta.orderservice.application.dto.SortDto;
+import com.sparta.orderservice.common.CustomException;
+import com.sparta.orderservice.common.GlobalExceptionCode;
 import com.sparta.orderservice.domain.model.SearchDto;
 import com.sparta.orderservice.domain.service.OrderDomainService;
 import com.sparta.orderservice.infrastructure.client.DeliveryClient;
+import com.sparta.orderservice.presentation.advice.GlobalExceptionHandler;
 import com.sparta.orderservice.presentation.requset.DeliveryRequest;
 import com.sparta.orderservice.presentation.requset.OrderItemsRequest;
 import com.sparta.orderservice.presentation.requset.OrderRequest;
@@ -39,28 +42,29 @@ public class OrderService {
     @Transactional
     public ResponseEntity<String> createOrder(OrderRequest orderRequest) {
 
-        // TODO : 허브에 물품 재고가 없는 경우는 주문이 실패해야 합니다.
+        // TODO: item-service
+        // 요청: 공급업체이름, 리스트로 (상품아이디, 상품이름, 재고수량)
+        // 응답 : 공급업체id 공급업체허브id
 
-        // TODO: 공급,수령업체 이름 보내면 id 받아야함.
-        // TODO: List<OrderItemsRequest> orderItemsRequests 보내야함 아마 company-service에..? > productId 받아야함
         String supplierName = "공급업체";
-        String recipientsName = "수령업체";
-//        List<OrderItemsRequest> orderItemsRequests;
 
-        // TODO: company-service : suppliersId,recipientsId,shippingAddress 필요
+        // TODO: company-service
+        // 요청: 수령업체이름
+        // 응답 : 수령업체id 수령업체허브id,수령업체주소
+        String recipientsName = "수령업체";
+
 
         UUID orderId = UUID.randomUUID();
 
-        // 배송생성
-        // TODO: company-service : recipientsId,shippingAddress 필요
+        // TODO: delivery-service
+        // 요청: 공급업체허브id,수령업체허브id,수령업체id,배송주소,주문id
+        // 응답 : 배송id
         DeliveryRequest deliveryRequest = new DeliveryRequest(orderId, UUID.randomUUID(),
             "서울특별시 강남구 역삼동 858");
 
         DeliveryCreatedResponse response = deliveryClient.createDelivery(deliveryRequest);
 
 
-        // 주문생성
-        //     Order order = orderDomainService.createOrder(orderRequest,response.getId());
         Order order = orderDomainService.createOrder(orderId, orderRequest, response.getId());
         jpaOrderRepository.save(order);
 
@@ -86,6 +90,8 @@ public class OrderService {
         Order order = findOrder(orderId);
 
         order = orderDomainService.updateOrder(order, req);
+
+        // TODO: 주문 수정하기 위한 stock 필요
 
         List<OrderItemsDto> list = getOrderItemsDtoList(order);
 
@@ -146,7 +152,7 @@ public class OrderService {
 
     public Order findOrder(UUID orderId) {
         Order order = jpaOrderRepository.findById(orderId)
-            .orElseThrow(() -> new IllegalArgumentException("주문 아이디가 없습니다."));
+            .orElseThrow(() -> new CustomException(GlobalExceptionCode.INVALID_ORDER));
 
         return order;
     }

@@ -2,6 +2,8 @@ package com.sparta.orderservice.presentation.controller;
 
 import com.sparta.orderservice.application.dto.SortDto;
 import com.sparta.orderservice.application.service.OrderService;
+import com.sparta.orderservice.common.CustomException;
+import com.sparta.orderservice.common.GlobalExceptionCode;
 import com.sparta.orderservice.domain.model.SearchDto;
 import com.sparta.orderservice.presentation.requset.OrderRequest;
 import com.sparta.orderservice.presentation.requset.UpdateOrderRequest;

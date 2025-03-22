@@ -35,7 +35,12 @@ public class DeliveryService {
     @Transactional
     public ResponseEntity<DeliveryCreatedResponse> createDelivery(DeliveryRequest req) {
 
-        // TODO: id 전부 hub-service에서 api로 받아야함.
+
+
+        // TODO: hub-service
+        // 요청: 공급업체허브id,수령업체허브id
+        // 응답 : 거리,시간
+
         Delivery delivery = initTestDelivery(req.getOrderId(), req.getShippingAddress(),
             DeliveryType.WAITING);
 

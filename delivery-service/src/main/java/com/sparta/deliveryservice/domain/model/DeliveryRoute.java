@@ -56,12 +56,12 @@ public class DeliveryRoute extends BaseEntity {
     private DeliveryRouteType deliveryStatus;
 
     @Column(nullable = false)
-    private int sequence;
+    private int deliveryOrder;
 
     public DeliveryRoute(UUID departureHubId, UUID destinationHubId, UUID deliveryId,
         UUID shippingManagerId, String shippingAddress,
         Long estimatedDistance, LocalDateTime estimatedTime, Long actualDistance,
-        LocalDateTime actualTime, DeliveryRouteType deliveryStatus, int sequence) {
+        LocalDateTime actualTime, DeliveryRouteType deliveryStatus, int deliveryOrder) {
         this.departureHubId = departureHubId;
         this.destinationHubId = destinationHubId;
         this.deliveryId = deliveryId;
@@ -72,7 +72,7 @@ public class DeliveryRoute extends BaseEntity {
         this.actualDistance = actualDistance;
         this.actualTime = actualTime;
         this.deliveryStatus = deliveryStatus;
-        this.sequence = sequence;
+        this.deliveryOrder = deliveryOrder;
     }
 
 

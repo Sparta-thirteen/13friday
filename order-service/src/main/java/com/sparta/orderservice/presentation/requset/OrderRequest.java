@@ -17,7 +17,7 @@ public class OrderRequest {
     @NotEmpty
     private UUID recipientsId;
     @NotEmpty
-    private String requestDetails;
+    private String requestDetails;          // TODO: 이거빼고 다 삭제
     @NotEmpty
     private List<OrderItemsRequest> orderItemsRequests;
 

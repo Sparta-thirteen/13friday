@@ -1,14 +1,12 @@
 package com.sparta.deliveryservice.application.service;
 
 
-import com.sparta.deliveryservice.domain.model.Delivery;
 import com.sparta.deliveryservice.domain.model.DeliveryRoute;
 import com.sparta.deliveryservice.domain.model.DeliveryRouteType;
 import com.sparta.deliveryservice.domain.model.SearchDto;
 import com.sparta.deliveryservice.domain.model.SortDto;
 import com.sparta.deliveryservice.domain.service.DeliveryRouteDomainService;
 import com.sparta.deliveryservice.infrastructure.repository.JpaDeliveryRouteRepository;
-import com.sparta.deliveryservice.presentation.request.UpdateDeliveryRequest;
 import com.sparta.deliveryservice.presentation.response.DeliveryRouteResponse;
 import java.util.List;
 import java.util.UUID;
@@ -32,7 +30,20 @@ public class DeliveryRouteService {
     // 배송경로 생성
     @Transactional
     public ResponseEntity<String> createDeliveryRoute() {
-        // TODO : delivery-service 에서 API로 데이터 받기, 모든 배송경로 로직 구성
+
+        // TODO: deliveryService
+        // 요청으로 받아옴: 공급업체허브id,수령업체허브id,배송id,배송주소
+
+
+        // TODO: 순번주는 로직
+
+
+        // TODO: shippingmanager-service
+        // 요청: 배송허브id,배송순번
+        // 응답 : 배송업체담당자id
+
+
+
         DeliveryRoute deliveryRoute = DeliveryRoute.testDeliveryRoute(
             DeliveryRouteType.COMPANY_DELIVERED, 0);
         jpaDeliveryRouteRepository.save(deliveryRoute);
@@ -59,7 +70,7 @@ public class DeliveryRouteService {
             route.getDeliveryId(), route.getShippingManagerId(), route.getShippingAddress(),
             route.getEstimatedDistance(),
             route.getEstimatedTime(), route.getActualDistance(), route.getActualTime(),
-            route.getDeliveryStatus(), route.getSequence());
+            route.getDeliveryStatus(), route.getDeliveryOrder());
         return ResponseEntity.ok(response);
     }
 
@@ -85,14 +96,10 @@ public class DeliveryRouteService {
                 route.getDeliveryId(), route.getShippingManagerId(), route.getShippingAddress(),
                 route.getEstimatedDistance(),
                 route.getEstimatedTime(), route.getActualDistance(), route.getActualTime(),
-                route.getDeliveryStatus(), route.getSequence())).toList();
+                route.getDeliveryStatus(), route.getDeliveryOrder())).toList();
 
         return ResponseEntity.ok(response);
     }
-
-
-
-
 
 
 
@@ -114,7 +121,7 @@ public class DeliveryRouteService {
                 route.getDeliveryId(), route.getShippingManagerId(), route.getShippingAddress(),
                 route.getEstimatedDistance(),
                 route.getEstimatedTime(), route.getActualDistance(), route.getActualTime(),
-                route.getDeliveryStatus(), route.getSequence())).toList();
+                route.getDeliveryStatus(), route.getDeliveryOrder())).toList();
 
         return ResponseEntity.ok(response);
     }
@@ -131,7 +138,7 @@ public class DeliveryRouteService {
                 route.getDeliveryId(), route.getShippingManagerId(), route.getShippingAddress(),
                 route.getEstimatedDistance(),
                 route.getEstimatedTime(), route.getActualDistance(), route.getActualTime(),
-                route.getDeliveryStatus(), route.getSequence())).toList();
+                route.getDeliveryStatus(), route.getDeliveryOrder())).toList();
     }
 
 //    // 배송경로 수정
