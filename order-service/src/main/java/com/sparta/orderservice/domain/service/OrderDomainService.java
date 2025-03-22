@@ -7,11 +7,7 @@ import com.sparta.orderservice.infrastructure.repository.JpaOrderRepository;
 import com.sparta.orderservice.presentation.requset.OrderItemsRequest;
 import com.sparta.orderservice.presentation.requset.OrderRequest;
 import com.sparta.orderservice.presentation.requset.UpdateOrderRequest;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -26,13 +22,13 @@ public class OrderDomainService {
 
     private final JpaOrderRepository jpaOrderRepository;
 
-    public Order createOrder(OrderRequest req) {
+    public Order createOrder(UUID orderId,OrderRequest req,UUID deliveryId) {
 
         // Order 엔티티 생성
-        Order order = new Order(req.getSuppliersId(), req.getRecipientsId(), req.getDeliveryId(),
+        Order order = new Order(orderId,req.getSuppliersId(), req.getRecipientsId(), deliveryId,
             req.getRequestDetails());
 
-        // TODO: 재고 비교 값 필요
+        // TODO: 재고 비교 값 필요 .. 근데 이거는 hub에서 할 일이지 여기서 하는건 아니지 않나..?
         int stockQuantity = 10000;
         for (OrderItemsRequest request : req.getOrderItemsRequests()) {
             OrderItems orderItems = new OrderItems(request.getProductId(), request.getName(),

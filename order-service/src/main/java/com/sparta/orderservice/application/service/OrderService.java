@@ -2,16 +2,20 @@ package com.sparta.orderservice.application.service;
 
 
 import com.sparta.orderservice.application.dto.OrderItemsDto;
-import com.sparta.orderservice.domain.model.OrderItems;
+import com.sparta.orderservice.application.dto.SortDto;
 import com.sparta.orderservice.domain.model.SearchDto;
 import com.sparta.orderservice.domain.service.OrderDomainService;
+import com.sparta.orderservice.infrastructure.client.DeliveryClient;
+import com.sparta.orderservice.presentation.requset.DeliveryRequest;
+import com.sparta.orderservice.presentation.requset.OrderItemsRequest;
 import com.sparta.orderservice.presentation.requset.OrderRequest;
 import com.sparta.orderservice.domain.model.Order;
 import com.sparta.orderservice.infrastructure.repository.JpaOrderRepository;
 import com.sparta.orderservice.presentation.requset.UpdateOrderRequest;
+import com.sparta.orderservice.presentation.response.DeliveryCreatedResponse;
 import com.sparta.orderservice.presentation.response.OrderResponse;
 import com.sparta.orderservice.presentation.response.UpdateOrderResponse;
-import java.util.ArrayList;
+import jakarta.validation.constraints.NotEmpty;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -29,16 +33,35 @@ public class OrderService {
 
     private final JpaOrderRepository jpaOrderRepository;
     private final OrderDomainService orderDomainService;
+    private final DeliveryClient deliveryClient;
 
     // 주문 생성
     @Transactional
-    public ResponseEntity<String> createOrder(OrderRequest req) {
-
-        Order order = orderDomainService.createOrder(req);
+    public ResponseEntity<String> createOrder(OrderRequest orderRequest) {
 
         // TODO : 허브에 물품 재고가 없는 경우는 주문이 실패해야 합니다.
-        // TODO : 배송도 같이 생성되어야 합니다.
 
+        // TODO: 공급,수령업체 이름 보내면 id 받아야함.
+        // TODO: List<OrderItemsRequest> orderItemsRequests 보내야함 아마 company-service에..? > productId 받아야함
+        String supplierName = "공급업체";
+        String recipientsName = "수령업체";
+//        List<OrderItemsRequest> orderItemsRequests;
+
+        // TODO: company-service : suppliersId,recipientsId,shippingAddress 필요
+
+        UUID orderId = UUID.randomUUID();
+
+        // 배송생성
+        // TODO: company-service : recipientsId,shippingAddress 필요
+        DeliveryRequest deliveryRequest = new DeliveryRequest(orderId, UUID.randomUUID(),
+            "서울특별시 강남구 역삼동 858");
+
+        DeliveryCreatedResponse response = deliveryClient.createDelivery(deliveryRequest);
+
+
+        // 주문생성
+        //     Order order = orderDomainService.createOrder(orderRequest,response.getId());
+        Order order = orderDomainService.createOrder(orderId, orderRequest, response.getId());
         jpaOrderRepository.save(order);
 
         return ResponseEntity.ok("주문 생성 완료");
@@ -86,13 +109,19 @@ public class OrderService {
 
     // 주문 전체 조회
     @Transactional(readOnly = true)
-    public List<OrderResponse> getOrders(int page, int size, String sortBy, String direction) {
+    public List<OrderResponse> getOrders(SortDto sortDto) {
 
-        Sort sort = direction.equalsIgnoreCase("asc")
-            ? Sort.by(sortBy).ascending()
-            : Sort.by(sortBy).descending();
+        Sort sort = sortDto.getDirection().equalsIgnoreCase("asc")
+            ? Sort.by(sortDto.getSortBy()).ascending()
+            : Sort.by(sortDto.getSortBy()).descending();
 
-        Pageable pageable = PageRequest.of(page, size, sort);
+
+        int pageSize =
+            (sortDto.getSize() == 10 || sortDto.getSize()== 30 || sortDto.getSize()== 50)
+                ? sortDto.getSize(): 10;
+
+
+        Pageable pageable = PageRequest.of(pageSize, sortDto.getSize(), sort);
 
         Page<Order> orderPage = jpaOrderRepository.findByIsDeletedFalse(pageable);
 

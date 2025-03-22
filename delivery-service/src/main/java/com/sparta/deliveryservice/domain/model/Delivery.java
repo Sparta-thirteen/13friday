@@ -28,9 +28,9 @@ public class Delivery extends BaseEntity {
     @Column(nullable = false)
     private UUID destinationHubId;
     @Column(nullable = false)
-    private UUID shippingManagerId;
+    private UUID recipientsId;
     @Column(nullable = false)
-    private UUID shippingManagerSlackId;
+    private UUID recipientsSlackId;
     @Column(nullable = false)
     private UUID companyDeliveryManagerId;
     @Column(nullable = false)
@@ -39,14 +39,16 @@ public class Delivery extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private DeliveryType deliveryStatus;
+    @Column(nullable = false)
+    private UUID orderId;
 
-
-    public Delivery(UUID departureHubId, UUID destinationHubId, UUID shippingManagerId, UUID shippingManagerSlackId, UUID companyDeliveryManagerId, String shippingAddress, DeliveryType deliveryStatus) {
+    public Delivery(UUID departureHubId, UUID destinationHubId, UUID recipientsId, UUID recipientsSlackId, UUID companyDeliveryManagerId,UUID orderId, String shippingAddress, DeliveryType deliveryStatus) {
         this.departureHubId =departureHubId;
         this.destinationHubId =destinationHubId;
-        this.shippingManagerId = shippingManagerId;
-        this.shippingManagerSlackId =shippingManagerSlackId;
+        this.recipientsId = recipientsId;
+        this.recipientsSlackId =recipientsSlackId;
         this.companyDeliveryManagerId = companyDeliveryManagerId;
+        this.orderId = orderId;
         this.shippingAddress =shippingAddress;
         this.deliveryStatus =deliveryStatus;
     }
@@ -55,6 +57,7 @@ public class Delivery extends BaseEntity {
     public void updateDelivery(UpdateDeliveryRequest req) {
         this.deliveryStatus = req.getDelivery_status();
     }
+
 }
 
 

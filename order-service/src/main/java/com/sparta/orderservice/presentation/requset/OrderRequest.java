@@ -17,7 +17,6 @@ public class OrderRequest {
     @NotEmpty
     private UUID recipientsId;
     @NotEmpty
-    private UUID deliveryId;
     private String requestDetails;
     @NotEmpty
     private List<OrderItemsRequest> orderItemsRequests;

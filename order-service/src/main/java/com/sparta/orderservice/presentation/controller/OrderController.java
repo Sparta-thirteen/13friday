@@ -1,5 +1,6 @@
 package com.sparta.orderservice.presentation.controller;
 
+import com.sparta.orderservice.application.dto.SortDto;
 import com.sparta.orderservice.application.service.OrderService;
 import com.sparta.orderservice.domain.model.SearchDto;
 import com.sparta.orderservice.presentation.requset.OrderRequest;
@@ -33,6 +34,10 @@ public class OrderController {
     @PostMapping
     public ResponseEntity<String> createOrder(@RequestBody OrderRequest req) {
 
+
+      // TODO:  request로 공급,수령 업체 이름, details, 아이템(이름,수량) 으로 수정
+
+
         return orderService.createOrder(req);
     }
 
@@ -65,7 +70,8 @@ public class OrderController {
         @RequestParam(defaultValue = "createdAt") String sortBy,
         @RequestParam(defaultValue = "asc") String direction
     ) {
-        List<OrderResponse> orders = orderService.getOrders(page, size, sortBy, direction);
+        SortDto sortDto = new SortDto(page, size, sortBy, direction);
+        List<OrderResponse> orders = orderService.getOrders(sortDto);
         return ResponseEntity.ok(orders);
     }
 

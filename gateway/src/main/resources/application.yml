@@ -20,6 +20,16 @@ spring:
             - Path=/api/users/**, /api/courier/**, /api/auth/**
 
 
+        - id: order-service
+          uri: lb://order-service
+          predicates:
+            - Path=/api/orders/**
+
+        - id: delivery-service
+          uri: lb://delivery-service
+          predicates:
+            - Path=/api/deliveries/**
+
 server:
   port: 19091
 

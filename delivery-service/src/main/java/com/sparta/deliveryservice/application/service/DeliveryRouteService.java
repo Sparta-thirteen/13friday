@@ -32,7 +32,7 @@ public class DeliveryRouteService {
     // 배송경로 생성
     @Transactional
     public ResponseEntity<String> createDeliveryRoute() {
-        // TODO : 외부API로 데이터 받기, 모든 배송경로 로직 구성
+        // TODO : delivery-service 에서 API로 데이터 받기, 모든 배송경로 로직 구성
         DeliveryRoute deliveryRoute = DeliveryRoute.testDeliveryRoute(
             DeliveryRouteType.COMPANY_DELIVERED, 0);
         jpaDeliveryRouteRepository.save(deliveryRoute);
@@ -89,6 +89,12 @@ public class DeliveryRouteService {
 
         return ResponseEntity.ok(response);
     }
+
+
+
+
+
+
 
     // 모든 배송 경로 조회
     @Transactional(readOnly = true)

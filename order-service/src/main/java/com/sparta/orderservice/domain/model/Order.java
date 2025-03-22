@@ -27,18 +27,19 @@ import lombok.RequiredArgsConstructor;
 public class Order extends BaseEntity{
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     private UUID suppliersId;
     private UUID recipientsId;
     private UUID deliveryId;
     private int totalStock;
+
     private String requestDetails;
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItems> orderItems = new ArrayList<>();
 
-    public Order(UUID suppliersId, UUID recipientsId, UUID deliveryId, String requestDetails) {
+    public Order(UUID orderId,UUID suppliersId, UUID recipientsId, UUID deliveryId, String requestDetails) {
+        this.id = orderId;
         this.suppliersId = suppliersId;
         this.recipientsId = recipientsId;
         this.deliveryId = deliveryId;
