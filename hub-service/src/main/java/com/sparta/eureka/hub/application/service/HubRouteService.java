@@ -33,26 +33,42 @@ public class HubRouteService {
     private String apiKey;
 
     @Transactional
-    public HubRouteDto.ResponseDto createHubRoute(HubRouteDto.CreateDto request) {
+    public HubRouteDto.ResponseDto createHubRoute(String role, HubRouteDto.CreateDto request) {
         Hub departHub = findHub(request.getDepartHubId());
         Hub arriveHub = findHub(request.getArriveHubId());
 
+        if(role.equals("MASTER")){
         HubRoute hubRoute = hubRouteRepository.save(hubRouteMapper.createDtoToHubRoute(departHub, arriveHub));
-        calculateRouteData(request.getDepartHubId(), request.getArriveHubId(), hubRoute);
+        calculateRouteData(departHub.getHubId(), arriveHub.getHubId(), hubRoute);
 
         return hubRouteMapper.hubRouteToResponseDto(hubRoute);
+        } else {
+            throw new BusinessLogicException(ErrorCode.UNAUTHORIZED);
+        }
     }
 
     @Transactional
-    public HubRouteDto.ResponseDto updateHubRoute(UUID hubRouteId, HubRouteDto.UpdateDto request) {
+    public HubRouteDto.ResponseDto updateHubRoute(String role, UUID hubRouteId, HubRouteDto.UpdateDto request) {
         HubRoute hubRoute = findHubRoute(hubRouteId);
-        HubRoute updateHubRoute = hubRouteMapper.updateDtoToHubRoute(request);
 
-        calculateRouteData(request.getDepartHubId(), request.getArriveHubId(), updateHubRoute);
+        if(role.equals("MASTER")) {
+            Hub departHub = findHub(request.getDepartHubId());
+            Hub arriveHub = findHub(request.getArriveHubId());
+            HubRoute updateHubRoute = hubRouteMapper.updateDtoToHubRoute(request);
+            System.out.println("update hub route: " + departHub.getHubId());
 
-        hubRoute.update(updateHubRoute);
+            updateHubRoute.update(departHub, arriveHub);
+            hubRoute.update(departHub, arriveHub);
 
-        return hubRouteMapper.hubRouteToResponseDto(hubRoute);
+            calculateRouteData(
+                    departHub.getHubId(),
+                    arriveHub.getHubId(),
+                    hubRoute);
+
+            return hubRouteMapper.hubRouteToResponseDto(hubRoute);
+        } else {
+            throw new BusinessLogicException(ErrorCode.UNAUTHORIZED);
+        }
     }
 
     public Page<HubRouteDto.ResponseDto> getHubRoutes(int page, int size) {
@@ -83,9 +99,14 @@ public class HubRouteService {
     }
 
     @Transactional
-    public void deleteHubRoute(UUID hubRouteId) {
-        HubRoute hubRoute = findHubRoute(hubRouteId);
-        hubRoute.delete();
+    public void deleteHubRoute(String userId, String role, UUID hubRouteId) {
+
+        if(role.equals("MASTER")) {
+            HubRoute hubRoute = findHubRoute(hubRouteId);
+            hubRoute.delete(Long.parseLong(userId));
+        } else {
+            throw new BusinessLogicException(ErrorCode.UNAUTHORIZED);
+        }
     }
 
     public OpenRouteServiceResponse calculateDistance(UUID departHubId, UUID arriveHubId) {

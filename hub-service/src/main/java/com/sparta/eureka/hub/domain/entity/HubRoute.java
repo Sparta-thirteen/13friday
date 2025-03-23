@@ -47,15 +47,14 @@ public class HubRoute extends Auditable {
         this.distance = distance;
     }
 
-    public void update(HubRoute hubRoute) {
-        this.departHub = hubRoute.getDepartHub();
-        this.arriveHub = hubRoute.getArriveHub();
-//        this.setUpdatedBy();
+    public void update(Hub departHub, Hub arriveHub) {
+        this.departHub = departHub;
+        this.arriveHub =arriveHub;
     }
 
-    public void delete() {
+    public void delete(Long userId) {
         this.setDeletedAt(LocalDateTime.now());
         this.setDeleted(true);
-//        this.setDeletedBy();
+        this.setDeletedBy(userId);
     }
 }

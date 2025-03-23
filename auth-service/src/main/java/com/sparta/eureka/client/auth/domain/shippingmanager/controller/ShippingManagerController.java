@@ -2,6 +2,7 @@ package com.sparta.eureka.client.auth.domain.shippingmanager.controller;
 
 import com.sparta.eureka.client.auth.common.dto.BaseResponse;
 import com.sparta.eureka.client.auth.domain.shippingmanager.dto.request.CreateShippingManagerRequestDto;
+import com.sparta.eureka.client.auth.domain.shippingmanager.dto.request.DeliveryRequestDto;
 import com.sparta.eureka.client.auth.domain.shippingmanager.dto.response.SearchShippingManagerResponseDto;
 import com.sparta.eureka.client.auth.domain.shippingmanager.dto.response.ShippingManagerResponseDto;
 import com.sparta.eureka.client.auth.domain.shippingmanager.service.ShippingManagerService;
@@ -15,7 +16,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -68,14 +68,12 @@ public class ShippingManagerController {
         .body(BaseResponse.success("특정 배송담당자 조회 성공", shippingManagerResponseDto));
   }
 
-  @PatchMapping("/{id}")
-  public ResponseEntity<BaseResponse> updateShippingManager(
-      @PathVariable("id") UUID shippingManagerId,
-      @RequestHeader("X-User-Id") String userId,
-      @RequestHeader("X-Role") String role
-  ){
-    shippingManagerService.updateShippingManager(shippingManagerId,userId, role);
-    return ResponseEntity.status(HttpStatus.OK).body(BaseResponse.success("배송순번 변경 성공"));
+  @GetMapping("/delivery")
+  public ResponseEntity<BaseResponse<ShippingManagerResponseDto>> getSearchShippingManagers(
+      @RequestBody DeliveryRequestDto deliveryRequestDto){
+    ShippingManagerResponseDto shippingManagerResponseDto = shippingManagerService.getShippingManagerByDeliveryOrder(
+        deliveryRequestDto);
+    return ResponseEntity.status(HttpStatus.OK).body(BaseResponse.success("다음 배송담당자 조회 성공", shippingManagerResponseDto));
   }
 
   @DeleteMapping("/{id}")
@@ -86,6 +84,5 @@ public class ShippingManagerController {
   ){
     shippingManagerService.deleteShippingManager(shippingManagerId, userId, role);
     return ResponseEntity.status(HttpStatus.OK).body(BaseResponse.success("배송담당자 삭제 성공"));
-
   }
 }

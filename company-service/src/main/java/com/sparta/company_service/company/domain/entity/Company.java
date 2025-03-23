@@ -30,6 +30,8 @@ public class Company extends TimeStamped {
 
   private UUID hubId;
 
+  private Long userId;
+
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
   private CompanyType type;
@@ -44,5 +46,9 @@ public class Company extends TimeStamped {
     this.type = requestDto.getType();
     this.name = requestDto.getName();
     this.address = requestDto.getAddress();
+  }
+
+  public void updateUser(String userId) {
+    this.userId = Long.parseLong(userId);
   }
 }
