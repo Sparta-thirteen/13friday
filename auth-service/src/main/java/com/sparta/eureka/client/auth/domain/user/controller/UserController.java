@@ -6,6 +6,7 @@ import com.sparta.eureka.client.auth.domain.user.dto.response.SearchUserResponse
 import com.sparta.eureka.client.auth.domain.user.dto.response.UserResponseDto;
 import com.sparta.eureka.client.auth.domain.user.service.UserService;
 import java.time.LocalDate;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -58,8 +59,9 @@ public class UserController {
   public ResponseEntity<BaseResponse<UserResponseDto>> updateUser(
       @PathVariable Long id,
       @RequestHeader("X-Role") String role,
+      @RequestParam(required = false) UUID hubID,
       @RequestBody UserRoleUpdateRequestDto userRoleUpdateRequestDto){
-    UserResponseDto userResponseDto = userService.updateUserRole(id, role, userRoleUpdateRequestDto);
+    UserResponseDto userResponseDto = userService.updateUserRole(id, role, hubID, userRoleUpdateRequestDto);
     return ResponseEntity.status(HttpStatus.OK).body(BaseResponse.success("회원 권한 변경 성공",userResponseDto));
   }
 
@@ -71,4 +73,6 @@ public class UserController {
     userService.deleteUser(userId, role, id);
     return ResponseEntity.status(HttpStatus.OK).body(BaseResponse.success("회원 삭제 성공"));
   }
+
+
 }
