@@ -3,7 +3,7 @@ package com.sparta.eureka.client.auth.domain.user.service;
 import com.sparta.eureka.client.auth.common.exception.ApiBusinessException;
 import com.sparta.eureka.client.auth.common.client.CompanyClient;
 import com.sparta.eureka.client.auth.common.client.HubClient;
-import com.sparta.eureka.client.auth.domain.user.dto.request.CompanyRequestDto;
+import com.sparta.eureka.client.auth.common.client.dto.CompanyRequestDto;
 import com.sparta.eureka.client.auth.common.client.dto.HubRequestDto;
 import com.sparta.eureka.client.auth.domain.user.dto.request.UserRoleUpdateRequestDto;
 import com.sparta.eureka.client.auth.domain.user.dto.response.PageInfoDto;
@@ -101,7 +101,7 @@ public class UserService {
     if(user.getRole().isHubManager()){
       hubClient.updateHub(role, id, new HubRequestDto(uuid));
     }else if(userRoleUpdateRequestDto.getRole().isCompanyManager()){
-      companyClient.updateCompany(role, id, new CompanyRequestDto(uuid));
+      companyClient.updateCompany(role, uuid, new CompanyRequestDto(id));
     }
 
     return UserResponseDto.fromEntity(user);

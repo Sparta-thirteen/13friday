@@ -16,4 +16,8 @@ public class HubRequestDto {
   private String address;
   private BigDecimal lat;
   private BigDecimal lon;
+
+  public HubRequestDto(UUID hubId){
+    this.hubId = hubId;
+  }
 }

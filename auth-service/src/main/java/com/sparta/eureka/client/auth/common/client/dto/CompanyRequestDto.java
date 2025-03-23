@@ -1,6 +1,5 @@
-package com.sparta.eureka.client.auth.domain.user.dto.request;
+package com.sparta.eureka.client.auth.common.client.dto;
 
-import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,5 +8,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CompanyRequestDto {
-  private UUID companyId;
+  private Long userId;
 }

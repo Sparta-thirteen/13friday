@@ -55,7 +55,7 @@ public class UserController {
     return ResponseEntity.status(HttpStatus.OK).body(BaseResponse.success("회원 목록 조회 성공", searchUserResponseDto));
   }
 
-  @PatchMapping("/{id}/")
+  @PatchMapping("/{id}")
   public ResponseEntity<BaseResponse<UserResponseDto>> updateUser(
       @PathVariable Long id,
       @RequestHeader("X-Role") String role,
@@ -73,4 +73,6 @@ public class UserController {
     userService.deleteUser(userId, role, id);
     return ResponseEntity.status(HttpStatus.OK).body(BaseResponse.success("회원 삭제 성공"));
   }
+
+
 }
