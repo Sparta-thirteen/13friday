@@ -1,6 +1,8 @@
 package com.sparta.company_service.company.application.service;
 
 import com.sparta.company_service.common.global.GlobalException;
+import com.sparta.company_service.common.infrastructure.client.HubClient;
+import com.sparta.company_service.common.infrastructure.dto.HubDto;
 import com.sparta.company_service.company.application.dto.CompanyRequestDto;
 import com.sparta.company_service.company.application.dto.CompanyResponseDto;
 import com.sparta.company_service.company.domain.entity.Company;
@@ -21,11 +23,13 @@ public class CompanyService {
 
   private final CompanyRepository companyRepository;
   private final ProductRepository productRepository;
+  private final HubClient hubClient;
 
   @Transactional
-  public void createCompany(CompanyRequestDto requestDto) {
-    // todo: user 권한 검증 로직
-    // todo: 허브 id 검증 로직
+  public void createCompany(String userId, String role, CompanyRequestDto requestDto) {
+    HubDto.ResponseDto hubResponse = hubClient.getHub(requestDto.getHubId()).getBody();
+    createdDeletedRoleCheck(Long.parseLong(userId), role, hubResponse.getUserId());
+
     Company company = requestDto.toEntity();
     companyRepository.save(company);
   }
@@ -49,16 +53,24 @@ public class CompanyService {
   }
 
   @Transactional
-  public void updateCompany(UUID companyId, CompanyRequestDto requestDto) {
-    // todo: user 권한 검증 로직, hubId 검증 로직
+  public void updateCompany(String userId, String role, UUID companyId,
+      CompanyRequestDto requestDto) {
     Company company = findCompany(companyId);
+
+    HubDto.ResponseDto hubResponse = hubClient.getHub(requestDto.getHubId()).getBody();
+    updatedRoleCheck(Long.parseLong(userId), role, hubResponse.getUserId(), company.getUserId());
+
     company.update(requestDto);
   }
 
   @Transactional
-  public void deleteCompany(UUID companyId) {
-    // todo: user 권한 검증 로직
+  public void deleteCompany(String userId, String role, UUID companyId) {
     Company company = findCompany(companyId);
+
+    UUID hubId = company.getHubId();
+    HubDto.ResponseDto hubResponse = hubClient.getHub(hubId).getBody();
+    createdDeletedRoleCheck(Long.parseLong(userId), role, hubResponse.getUserId());
+
     productRepository.softDeleteByCompanyId(companyId, LocalDateTime.now());
     company.softDelete();
   }
@@ -72,5 +84,28 @@ public class CompanyService {
     }
 
     return company;
+  }
+
+  private void createdDeletedRoleCheck(Long userId, String role, Long hubUserId) {
+    if (role.equals("COMPANYMANAGER")) {
+      throw new GlobalException(HttpStatus.FORBIDDEN, "권한이 없습니다.");
+    }
+    roleCheck(userId, role, hubUserId);
+  }
+
+  private void updatedRoleCheck(Long userId, String role, Long hubUserId, Long companyUserId) {
+    if (role.equals("COMPANYMANAGER") && !userId.equals(companyUserId)) {
+      throw new GlobalException(HttpStatus.FORBIDDEN, "업체 담당자가 아닙니다.");
+    }
+    roleCheck(userId, role, hubUserId);
+  }
+
+  private void roleCheck(Long userId, String role, Long hubUserId) {
+    if (role.equals("SHIPPINGMANAGER")) {
+      throw new GlobalException(HttpStatus.FORBIDDEN, "권한이 없습니다.");
+    }
+    if (role.equals("HUBMANAGER") && !userId.equals(hubUserId)) {
+      throw new GlobalException(HttpStatus.FORBIDDEN, "허브 담당자가 아닙니다.");
+    }
   }
 }
