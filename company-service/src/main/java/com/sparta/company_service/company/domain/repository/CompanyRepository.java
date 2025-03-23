@@ -1,6 +1,7 @@
 package com.sparta.company_service.company.domain.repository;
 
 import com.sparta.company_service.company.domain.entity.Company;
+import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,4 +17,6 @@ public interface CompanyRepository extends JpaRepository<Company, UUID> {
   Page<Company> findAllByName(String keyword, Pageable pageable);
 
   Page<Company> findByDeletedAtIsNull(Pageable pageable);
+
+  Optional<Company> findByName(String name);
 }
