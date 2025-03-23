@@ -25,10 +25,15 @@ public class HubDto {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class UpdateDto {
-        @NotBlank
         private String hubName;
-        @NotBlank
         private String address;
+    }
+
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class UpdateUserDto {
+        private UUID hubId;
     }
 
     @Getter
@@ -37,6 +42,7 @@ public class HubDto {
     @NoArgsConstructor
     public static class ResponseDto {
         private UUID hubId;
+        private Long userId;
         private String hubName;
         private String address;
         private BigDecimal lat;

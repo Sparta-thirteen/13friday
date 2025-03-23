@@ -33,6 +33,7 @@ class HubControllerTest {
     @Test
     void createHubTest() {
         //given
+        String role = "MASTER";
         HubDto.CreateDto request = new HubDto.CreateDto(
                 "서울특별시 센터",
                 "서울특별시 송파구 송파대로 55"
@@ -46,8 +47,8 @@ class HubControllerTest {
         );
 
         //when
-        when(hubService.createHub(request)).thenReturn(response);
-        ResponseEntity<HubDto.ResponseDto> result = hubController.createHub(request);
+        when(hubService.createHub(role, request)).thenReturn(response);
+        ResponseEntity<HubDto.ResponseDto> result = hubController.createHub(role, request);
 
         //then
         assertEquals(HttpStatus.CREATED, result.getStatusCode());
@@ -57,6 +58,7 @@ class HubControllerTest {
     @Test
     void updateHub() {
         //given
+        String role = "MASTER";
         UUID hubId = UUID.randomUUID();
         HubDto.UpdateDto request = new HubDto.UpdateDto(
                 "경기 북부 센터",
@@ -71,8 +73,8 @@ class HubControllerTest {
         );
 
         //when
-        when(hubService.updateHub(hubId, request)).thenReturn(response);
-        ResponseEntity<HubDto.ResponseDto> result = hubController.updateHub(hubId, request);
+        when(hubService.updateHub(role, hubId, request)).thenReturn(response);
+        ResponseEntity<HubDto.ResponseDto> result = hubController.updateHub(role, hubId, request);
 
         //then
         assertEquals(HttpStatus.OK, result.getStatusCode());
