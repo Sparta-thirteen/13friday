@@ -13,7 +13,6 @@ public class UpdateOrderRequest {
 
     private String requestDetails;
     @NotEmpty
-    @Schema(hidden = true)
     private List<OrderItemsRequest> orderItemsRequests;
 
 }

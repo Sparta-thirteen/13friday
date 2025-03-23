@@ -14,14 +14,19 @@ import lombok.NoArgsConstructor;
 public class OrderRequest {
 
     @NotEmpty
+    private String name;
+    @NotEmpty
+    private String email;
+    @NotEmpty
     private UUID suppliersId;
     @NotEmpty
     private UUID recipientsId;
     @NotEmpty
     private String requestDetails;          // TODO: 이거빼고 다 삭제
     @NotEmpty
-    @Schema(hidden = true)
     private List<OrderItemsRequest> orderItemsRequests;
+
+
 
 }
 

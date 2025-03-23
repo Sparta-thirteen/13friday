@@ -28,7 +28,7 @@ public class OrderDomainService {
             .sum();
 
         // Order 엔티티 생성
-        Order order = new Order(orderId,req.getSuppliersId(), req.getRecipientsId(), deliveryId,totalStock,
+        Order order = new Order(orderId,req.getName(),req.getEmail(),req.getSuppliersId(), req.getRecipientsId(), deliveryId,totalStock,
             req.getRequestDetails());
 
         return order;

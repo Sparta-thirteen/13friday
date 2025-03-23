@@ -7,10 +7,12 @@ import com.sparta.orderservice.common.GlobalExceptionCode;
 import com.sparta.orderservice.domain.model.SearchDto;
 import com.sparta.orderservice.presentation.requset.OrderRequest;
 import com.sparta.orderservice.presentation.requset.UpdateOrderRequest;
+import com.sparta.orderservice.presentation.response.OrderInternalResponse;
 import com.sparta.orderservice.presentation.response.OrderResponse;
 import com.sparta.orderservice.presentation.response.UpdateOrderResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.ws.rs.Path;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -40,9 +42,7 @@ public class OrderController {
     @Operation(summary = "주문 생성")
     public ResponseEntity<String> createOrder(@RequestBody OrderRequest req) {
 
-
-      // TODO:  request로 공급,수령 업체 이름, details, 아이템(이름,수량) 으로 수정
-
+        // TODO:  request로 공급,수령 업체 이름, details, 아이템(이름,수량) 으로 수정
 
         return orderService.createOrder(req);
     }
@@ -96,6 +96,12 @@ public class OrderController {
         return ResponseEntity.ok(orders);
     }
 
+
+    @GetMapping("/internal/{orderId}")
+    public OrderInternalResponse getOrdersInternal(@PathVariable UUID orderId) {
+
+        return orderService.getOrderInternal(orderId);
+    }
 
 }
 

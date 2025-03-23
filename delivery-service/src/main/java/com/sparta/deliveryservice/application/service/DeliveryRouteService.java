@@ -1,13 +1,19 @@
 package com.sparta.deliveryservice.application.service;
 
 
+import com.sparta.deliveryservice.application.dto.DeliveryInfoDto;
 import com.sparta.deliveryservice.application.dto.DeliveryRouteDto;
+import com.sparta.deliveryservice.application.dto.DeliveryRoutesHubIdDto;
+import com.sparta.deliveryservice.common.CustomException;
+import com.sparta.deliveryservice.common.GlobalExceptionCode;
+import com.sparta.deliveryservice.domain.model.Delivery;
 import com.sparta.deliveryservice.domain.model.DeliveryRoute;
 import com.sparta.deliveryservice.domain.model.DeliveryRouteType;
 import com.sparta.deliveryservice.domain.model.SearchDto;
 import com.sparta.deliveryservice.domain.model.SortDto;
 import com.sparta.deliveryservice.domain.service.DeliveryRouteDomainService;
 import com.sparta.deliveryservice.infrastructure.repository.JpaDeliveryRouteRepository;
+import com.sparta.deliveryservice.presentation.response.DeliveryInternalResponse;
 import com.sparta.deliveryservice.presentation.response.DeliveryRouteResponse;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -33,38 +39,10 @@ public class DeliveryRouteService {
     private final DeliveryRouteDomainService deliveryRouteDomainService;
     private final StringRedisTemplate redisTemplate;
 
-//
-//    // 배송경로 생성
-//    @Transactional
-//    public ResponseEntity<String> createDeliveryRoute() {
-//
-////        1	대전 허브 → 부산 허브	허브 배송 담당자	✅ 생성
-////        2	부산 허브 → 수령 업체	업체 배송 담당자	✅ 생성
-//
-////        0	HUB_WAITING	(null) → 공급허브	X (배송 전)
-////        1	HUB_PROGRESS	공급허브 → 수령허브	허브배송
-////        2	HUB_DELIVERED	수령허브 도착 상태용	X
-////        3	COMPANY_PROGRESS	수령허브 → 수령업체	업체배송
-////        4	COMPANY_DELIVERED	수령업체 도착 상태용	X
-//
-//        // TODO: deliveryService
-//        // 요청으로 받아옴: 공급업체허브id,수령업체허브id,배송id,배송주소
-//
-//        // TODO: 순번주는 로직
-//
-//        // TODO: shippingmanager-service
-//        // 요청: 배송허브id,배송순번
-//        // 응답 : 배송업체담당자id
-//
-//        DeliveryRoute deliveryRoute = DeliveryRoute.testDeliveryRoute(
-//            DeliveryRouteType.COMPANY_DELIVERED, 0);
-//        jpaDeliveryRouteRepository.save(deliveryRoute);
-//        return ResponseEntity.ok("배송경로 생성 완료");
-//    }
-
 
     // 배송경로생성
-    public void createDeliveryRoutes(UUID deliveryId, UUID departureHubId, UUID destinationHubId,
+    public DeliveryRoutesHubIdDto createDeliveryRoutes(UUID deliveryId, UUID departureHubId,
+        UUID destinationHubId,
         String shippingAddress) {
 
         // TODO: deliveryServic 요청으로 받아옴: 공급업체허브id,수령업체허브id,배송id,배송주소
@@ -106,6 +84,7 @@ public class DeliveryRouteService {
             createDeliveryRouteByType(routDto, shippingManagerId, type, deliveryOrder);
         }
 
+        return new DeliveryRoutesHubIdDto(shippingManagerId);
     }
 
     // 배송경로 삭제
@@ -232,27 +211,37 @@ public class DeliveryRouteService {
             type,
             deliveryOrder
         );
-
         jpaDeliveryRouteRepository.save(deliveryRoute);
-
     }
-
 
     private int getNextDeliveryOrder(UUID hubId, String role) {
         String key = generateRedisKey(hubId, role);
         ValueOperations<String, String> ops = redisTemplate.opsForValue();
 
-        Long currentValue = ops.increment(key); // 기존값 없으면 1부터 시작
-        int next = (int) ((currentValue - 1) % 10); // 순번은 0부터 시작되도
-        log.info("check: "+next);
+        Long currentValue = ops.increment(key);
+        int next = (int) ((currentValue - 1) % 10);
         return next;
     }
 
-
-    private String generateRedisKey(UUID hubId, String role) {
+    public String generateRedisKey(UUID hubId, String role) {
         String id = (hubId != null) ? hubId.toString() : "common";
-
         return String.format("delivery:order:%s:%s", id, role);
+    }
+
+    public DeliveryRoute findDeliveryRoute(DeliveryInfoDto dto) {
+        return jpaDeliveryRouteRepository
+            .findByDeliveryIdAndDeliveryStatus(dto.getDeliveryId(), DeliveryRouteType.HUB_WAITING)
+            .orElseThrow(() -> new IllegalArgumentException("해당 조건에 맞는 배송경로가 없습니다."));
+    }
+
+    @Transactional(readOnly = true)
+    public DeliveryInternalResponse getDeliveryInfo(DeliveryInfoDto dto) {
+
+        DeliveryRoute deliveryRoute = findDeliveryRoute(dto);
+
+        return new DeliveryInternalResponse(deliveryRoute.getDepartureHubId(),
+            deliveryRoute.getDestinationHubId(), deliveryRoute.getShippingManagerId()
+        );
     }
 
 

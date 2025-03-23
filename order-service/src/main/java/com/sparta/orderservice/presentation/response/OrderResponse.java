@@ -23,7 +23,6 @@ public class OrderResponse {
     private int totalStock;
     private String requestDetails;
 
-    @Schema(hidden = true)
     private List<OrderItemsDto> orderItems;
 
 }

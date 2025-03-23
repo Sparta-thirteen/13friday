@@ -1,7 +1,9 @@
 package com.sparta.deliveryservice.application.service;
 
 
+import com.sparta.deliveryservice.application.dto.DeliveryInfoDto;
 import com.sparta.deliveryservice.domain.model.Delivery;
+import com.sparta.deliveryservice.domain.model.DeliveryRouteType;
 import com.sparta.deliveryservice.domain.model.DeliveryType;
 import com.sparta.deliveryservice.domain.model.SearchDto;
 import com.sparta.deliveryservice.domain.model.SortDto;
@@ -10,11 +12,13 @@ import com.sparta.deliveryservice.infrastructure.repository.JpaDeliveryRepositor
 import com.sparta.deliveryservice.presentation.request.DeliveryRequest;
 import com.sparta.deliveryservice.presentation.request.UpdateDeliveryRequest;
 import com.sparta.deliveryservice.presentation.response.DeliveryCreatedResponse;
+import com.sparta.deliveryservice.presentation.response.DeliveryInternalResponse;
 import com.sparta.deliveryservice.presentation.response.DeliveryResponse;
 
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -26,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class DeliveryService {
 
     private final JpaDeliveryRepository jpaDeliveryRepository;
@@ -36,8 +41,6 @@ public class DeliveryService {
     @Transactional
     public ResponseEntity<DeliveryCreatedResponse> createDelivery(DeliveryRequest req) {
 
-
-
         // TODO: hub-service
         // 요청: 공급업체허브id,수령업체허브id
         // 응답 : 거리,시간
@@ -47,7 +50,8 @@ public class DeliveryService {
 
         jpaDeliveryRepository.save(delivery);
 
-        deliveryRouteService.createDeliveryRoutes(UUID.randomUUID(),UUID.fromString("024c5663-7538-4421-9e97-109bea28d1c6"),UUID.fromString("49a40c61-d672-4f6a-9edf-d8f2e05440c4"),"인천 백범로123");
+        // 배송경로기록 생성
+        deliveryRouteService.createDeliveryRoutes(delivery.getId(),UUID.fromString("024c5663-7538-4421-9e97-109bea28d1c6"),UUID.fromString("49a40c61-d672-4f6a-9edf-d8f2e05440c4"),"인천 백범로123");
 
         DeliveryCreatedResponse response = new DeliveryCreatedResponse(delivery.getId());
         return ResponseEntity.ok(response);
@@ -87,7 +91,6 @@ public class DeliveryService {
         isDeletedDelivery(delivery);
 
         // TODO: id 전부 외부 api로 받아야함.
-
         return new DeliveryResponse(delivery.getDepartureHubId(), delivery.getDestinationHubId(),
             delivery.getRecipientsId(), delivery.getRecipientsSlackId(),
             delivery.getCompanyDeliveryManagerId(), delivery.getOrderId(),
@@ -120,7 +123,6 @@ public class DeliveryService {
                 delivery.getDeliveryStatus())).toList();
     }
 
-
     // 배송 전체 조회
     @Transactional(readOnly = true)
     public List<DeliveryResponse> getDeliveries(SortDto sortDto) {
@@ -148,7 +150,6 @@ public class DeliveryService {
     // 배송 검색
     @Transactional(readOnly = true)
     public List<DeliveryResponse> searchDeliveries(SearchDto searchDto) {
-        // TODO : 리팩토링
         Page<Delivery> deliveryPage = deliveryDomainService.searchDeliveries(searchDto);
 
         return deliveryPage.getContent().stream()
@@ -172,7 +173,6 @@ public class DeliveryService {
         }
     }
 
-
     private Delivery initTestDelivery(UUID orderId, String shippingAddress,
         DeliveryType deliveryStatus) {
         UUID departureHubId = UUID.randomUUID();
@@ -184,4 +184,5 @@ public class DeliveryService {
         return new Delivery(departureHubId, destinationHubId, recipientsId, recipientsSlackId,
             companyDeliveryManagerId, orderId, shippingAddress, deliveryStatus);
     }
+
 }

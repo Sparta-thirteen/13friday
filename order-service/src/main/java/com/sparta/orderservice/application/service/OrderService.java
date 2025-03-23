@@ -1,6 +1,7 @@
 package com.sparta.orderservice.application.service;
 
 
+import com.sparta.orderservice.application.dto.DeliveryInfoDto;
 import com.sparta.orderservice.application.dto.OrderItemsDto;
 import com.sparta.orderservice.application.dto.SortDto;
 import com.sparta.orderservice.common.CustomException;
@@ -10,7 +11,6 @@ import com.sparta.orderservice.domain.model.SearchDto;
 import com.sparta.orderservice.domain.service.OrderDomainService;
 import com.sparta.orderservice.infrastructure.client.DeliveryClient;
 import com.sparta.orderservice.infrastructure.repository.JpaOrderItemsRepository;
-import com.sparta.orderservice.presentation.advice.GlobalExceptionHandler;
 import com.sparta.orderservice.presentation.requset.DeliveryRequest;
 import com.sparta.orderservice.presentation.requset.OrderItemsRequest;
 import com.sparta.orderservice.presentation.requset.OrderRequest;
@@ -18,9 +18,10 @@ import com.sparta.orderservice.domain.model.Order;
 import com.sparta.orderservice.infrastructure.repository.JpaOrderRepository;
 import com.sparta.orderservice.presentation.requset.UpdateOrderRequest;
 import com.sparta.orderservice.presentation.response.DeliveryCreatedResponse;
+import com.sparta.orderservice.presentation.response.DeliveryInternalResponse;
+import com.sparta.orderservice.presentation.response.OrderInternalResponse;
 import com.sparta.orderservice.presentation.response.OrderResponse;
 import com.sparta.orderservice.presentation.response.UpdateOrderResponse;
-import jakarta.validation.constraints.NotEmpty;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -187,5 +188,16 @@ public class OrderService {
             .stream()
             .map(item -> new OrderItemsDto(item.getId(), item.getName(), item.getStock()))
             .toList();
+    }
+
+    public OrderInternalResponse getOrderInternal(UUID orderId) {
+        Order order = findOrder(orderId);
+        List<OrderItemsDto> orderItemsDtoList = getOrderItemsDtoList(orderId);
+        DeliveryInfoDto dto = new DeliveryInfoDto(orderId,order.getDeliveryId());
+        log.info(dto.getOrderId().toString());
+        DeliveryInternalResponse response  = deliveryClient.getDeliveryInfo(dto);
+
+
+        return new OrderInternalResponse(order.getName(),order.getEmail(),orderItemsDtoList,order.getRequestDetails(),response.getDepartHubId(),response.getArriveHubId(),response.getHubUserId());
     }
 }

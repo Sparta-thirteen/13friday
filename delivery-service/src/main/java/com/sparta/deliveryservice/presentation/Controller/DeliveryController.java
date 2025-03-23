@@ -1,11 +1,13 @@
 package com.sparta.deliveryservice.presentation.Controller;
 
+import com.sparta.deliveryservice.application.dto.DeliveryInfoDto;
 import com.sparta.deliveryservice.application.service.DeliveryService;
 import com.sparta.deliveryservice.domain.model.SearchDto;
 import com.sparta.deliveryservice.domain.model.SortDto;
 import com.sparta.deliveryservice.presentation.request.DeliveryRequest;
 import com.sparta.deliveryservice.presentation.request.UpdateDeliveryRequest;
 import com.sparta.deliveryservice.presentation.response.DeliveryCreatedResponse;
+import com.sparta.deliveryservice.presentation.response.DeliveryInternalResponse;
 import com.sparta.deliveryservice.presentation.response.DeliveryResponse;
 import com.sparta.deliveryservice.presentation.response.UpdateDeliveryResponse;
 import java.util.List;
@@ -61,14 +63,14 @@ public class DeliveryController {
     }
 
     @GetMapping("/order/{orderId}")
-    public ResponseEntity<List<DeliveryResponse>>getDeliveryByOrder(@PathVariable UUID orderId,
+    public ResponseEntity<List<DeliveryResponse>> getDeliveryByOrder(@PathVariable UUID orderId,
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "createdAt") String sortBy,
         @RequestParam(defaultValue = "asc") String direction,
         @RequestParam(defaultValue = "10") int size
     ) {
         SortDto sortDto = new SortDto(page, size, sortBy, direction);
-        List<DeliveryResponse> deliveries = deliveryService.getDeliveryByOrder(orderId,sortDto);
+        List<DeliveryResponse> deliveries = deliveryService.getDeliveryByOrder(orderId, sortDto);
         return ResponseEntity.ok(deliveries);
     }
 
@@ -98,6 +100,5 @@ public class DeliveryController {
         List<DeliveryResponse> deliveries = deliveryService.searchDeliveries(searchDto);
         return ResponseEntity.ok(deliveries);
     }
-
 
 }
