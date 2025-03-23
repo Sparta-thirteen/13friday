@@ -27,28 +27,20 @@ public class HubService {
     private final GeocodingService geocodingService;
 
     public HubDto.ResponseDto createHub(String role, HubDto.CreateDto request) {
-        if(role.equals("MASTER")) {
-            Hub hub = hubRepository.save(hubMapper.createDtoToHub(request));
+        checkMasterRole(role);
+        Hub hub = hubRepository.save(hubMapper.createDtoToHub(request));
 
-            return hubMapper.hubToResponseDto(hub);
-        } else {
-            throw new BusinessLogicException(ErrorCode.UNAUTHORIZED);
-        }
+        return hubMapper.hubToResponseDto(hub);
     }
-
-
-
+    
     @Transactional
     public HubDto.ResponseDto updateHub(String role, UUID hubId, HubDto.UpdateDto request) {
+        checkMasterRole(role);
         Hub hub = findHub(hubId);
-        if(role.equals("MASTER")) {
-            Hub updateHub = hubMapper.updateDtoToHub(request);
-            hub.update(updateHub.getHubName(), updateHub.getAddress());
+        Hub updateHub = hubMapper.updateDtoToHub(request);
+        hub.update(updateHub.getHubName(), updateHub.getAddress());
 
-            return hubMapper.hubToResponseDto(hub);
-        } else {
-            throw new BusinessLogicException(ErrorCode.UNAUTHORIZED);
-        }
+        return hubMapper.hubToResponseDto(hub);
     }
 
     public Page<HubDto.ResponseDto> getHubs(int page, int size) {
@@ -79,14 +71,12 @@ public class HubService {
 
     @Transactional
     public HubDto.ResponseDto addHubAuth(String role, Long userId, HubDto.UpdateUserDto request) {
+        checkMasterRole(role);
         Hub hub = findHub(request.getHubId());
-        if(role.equals("MASTER")) {
-            hub.updateUserId(userId);
+        hub.updateUserId(userId);
 
-            return hubMapper.hubToResponseDto(hub);
-        } else {
-            throw new BusinessLogicException(ErrorCode.UNAUTHORIZED);
-        }
+        return hubMapper.hubToResponseDto(hub);
+       
     }
 
     public HubDto.ResponseDto getHubByManager(String userId) {
@@ -99,12 +89,9 @@ public class HubService {
 
     @Transactional
     public void deleteHub(String userId, String role, UUID hubId) {
-        if(role.equals("MASTER")) {
-            Hub hub = findHub(hubId);
-            hub.delete(Long.parseLong(userId));
-        } else {
-            throw new BusinessLogicException(ErrorCode.UNAUTHORIZED);
-        }
+        checkMasterRole(role);
+        Hub hub = findHub(hubId);
+        hub.delete(Long.parseLong(userId));
     }
 
     public Hub findHub(UUID hubId) {
@@ -115,16 +102,19 @@ public class HubService {
 
     @Transactional
     public void updateHubCoordinates(String role, UUID hubId) {
+        checkMasterRole(role);
         Hub hub = findHub(hubId);
-        if(role.equals("MASTER")) {
-            Coordinates coordinates = geocodingService.getCoordinatesFromAddress(hub.getAddress());
 
-            hub.latAndLon(
-                    BigDecimal.valueOf(coordinates.getLat()),
-                    BigDecimal.valueOf(coordinates.getLon())
-            );
+        Coordinates coordinates = geocodingService.getCoordinatesFromAddress(hub.getAddress());
 
-        } else {
+        hub.latAndLon(
+                BigDecimal.valueOf(coordinates.getLat()),
+                BigDecimal.valueOf(coordinates.getLon())
+        );
+    }
+
+    public void checkMasterRole(String role) {
+        if (!role.equals("MASTER")) {
             throw new BusinessLogicException(ErrorCode.UNAUTHORIZED);
         }
     }
