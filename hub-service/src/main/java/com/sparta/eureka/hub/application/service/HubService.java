@@ -13,9 +13,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -25,6 +27,7 @@ public class HubService {
     private final HubRepository hubRepository;
     private final HubMapper hubMapper;
     private final GeocodingService geocodingService;
+    private final RedisTemplate<String, Object> redisTemplate;
 
     public HubDto.ResponseDto createHub(String role, HubDto.CreateDto request) {
         checkMasterRole(role);
@@ -51,9 +54,18 @@ public class HubService {
     }
 
     public HubDto.ResponseDto getHub(UUID hubId) {
+        String cacheKey = "hub_" + hubId;
+
+        HubDto.ResponseDto cachedHub = (HubDto.ResponseDto) redisTemplate.opsForValue().get(cacheKey);
+
+        if (cachedHub != null) {
+            return cachedHub;
+        }
         Hub hub = findHub(hubId);
         if(!hub.isDeleted()) {
-            return hubMapper.hubToResponseDto(hub);
+            HubDto.ResponseDto response = hubMapper.hubToResponseDto(hub);
+            redisTemplate.opsForValue().set(cacheKey, response, Duration.ofMinutes(10));
+            return response;
         } else {
             throw new BusinessLogicException(ErrorCode.HUB_NOT_FOUND);
         }
