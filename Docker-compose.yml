@@ -51,6 +51,7 @@ services:
       - "19093:19093"
     depends_on:
       - hub-db
+      - redis
       - eureka-server
 
   hub-db:
@@ -59,9 +60,17 @@ services:
     ports:
       - "5433:5432"
     environment:
-      - POSTGRES_USER=root
-      - POSTGRES_PASSWORD=1234
+      - POSTGRES_USER={HUB_DB_USERNAME}
+      - POSTGRES_PASSWORD={HUB_DB_PASSWORD}
       - POSTGRES_DB=13friday_hub
+
+  redis:
+    image: redis:latest
+    container_name: hub-redis
+    ports:
+      - "6379:6379"
+    restart: always
+
 
   order-service:
     build:
