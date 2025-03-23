@@ -1,7 +1,6 @@
 package com.sparta.orderservice.domain.service;
 
 import com.sparta.orderservice.domain.model.Order;
-import com.sparta.orderservice.domain.model.OrderItems;
 import com.sparta.orderservice.domain.model.SearchDto;
 import com.sparta.orderservice.infrastructure.repository.JpaOrderRepository;
 import com.sparta.orderservice.presentation.requset.OrderItemsRequest;

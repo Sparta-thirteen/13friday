@@ -42,13 +42,11 @@ public class DeliveryRoute extends BaseEntity {
     @Column(nullable = false)
     private Long estimatedDistance;
 
-    @Column(nullable = false)
     private LocalDateTime estimatedTime;
 
     @Column(nullable = false)
     private Long actualDistance;
 
-    @Column(nullable = false)
     private LocalDateTime actualTime;
 
     @Column(nullable = false)
@@ -77,8 +75,5 @@ public class DeliveryRoute extends BaseEntity {
 
 
 
-    public static DeliveryRoute testDeliveryRoute(DeliveryRouteType deliveryStatus, int sequence) {
-       return new DeliveryRoute(UUID.randomUUID(),UUID.randomUUID(),UUID.randomUUID(),UUID.randomUUID(),"강남구 123",150L,LocalDateTime.now().plusDays(2),148L,LocalDateTime.now().plusDays(2).plusHours(1),deliveryStatus,sequence);
-    }
 
 }

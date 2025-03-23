@@ -29,9 +29,15 @@ public class DeliveryRouteController {
     private final DeliveryRouteService deliveryRouteService;
 
 
-    @PostMapping
-    public ResponseEntity<String> createDeliveryRoute() {
-        return deliveryRouteService.createDeliveryRoute();
+//    @PostMapping
+//    public ResponseEntity<String> createDeliveryRoute() {
+//        return deliveryRouteService.createDeliveryRoute();
+//    }
+
+    @PostMapping("/redis")
+    public ResponseEntity<String> createDeliveryRoutes() {
+      deliveryRouteService.createDeliveryRoutes(UUID.randomUUID(),UUID.fromString("024c5663-7538-4421-9e97-109bea28d1c6"),UUID.fromString("49a40c61-d672-4f6a-9edf-d8f2e05440c4"),"인천 백범로123");
+      return ResponseEntity.ok("성공!!");
     }
 
 

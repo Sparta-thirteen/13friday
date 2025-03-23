@@ -30,6 +30,7 @@ public class DeliveryService {
 
     private final JpaDeliveryRepository jpaDeliveryRepository;
     private final DeliveryDomainService deliveryDomainService;
+    private final DeliveryRouteService deliveryRouteService;
 
     // 배송 생성
     @Transactional
@@ -45,6 +46,9 @@ public class DeliveryService {
             DeliveryType.WAITING);
 
         jpaDeliveryRepository.save(delivery);
+
+        deliveryRouteService.createDeliveryRoutes(UUID.randomUUID(),UUID.fromString("024c5663-7538-4421-9e97-109bea28d1c6"),UUID.fromString("49a40c61-d672-4f6a-9edf-d8f2e05440c4"),"인천 백범로123");
+
         DeliveryCreatedResponse response = new DeliveryCreatedResponse(delivery.getId());
         return ResponseEntity.ok(response);
     }
