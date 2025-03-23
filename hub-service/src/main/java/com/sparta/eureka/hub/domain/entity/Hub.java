@@ -47,8 +47,6 @@ public class Hub extends Auditable {
     public void update(String hubName, String address) {
         this.hubName = hubName;
         this.address = address;
-        this.setUpdatedAt(LocalDateTime.now());
-//        this.setUpdatedBy();
     }
 
     public void latAndLon (BigDecimal lat, BigDecimal lon) {
@@ -56,10 +54,14 @@ public class Hub extends Auditable {
         this.lon = lon;
     }
 
-    public void delete() {
+    public void updateUserId(Long userId) {
+        this.hubUserId = userId;
+    }
+
+    public void delete(Long userId) {
         this.setDeletedAt(LocalDateTime.now());
-//        this.setDeletedBy();
         this.setDeleted(true);
+        this.setDeletedBy(userId);
     }
 
 }
