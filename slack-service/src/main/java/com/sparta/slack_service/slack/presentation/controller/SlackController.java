@@ -35,6 +35,13 @@ public class SlackController {
     return ResponseEntity.ok().body("Slack 메시지 전송 완료");
   }
 
+  @PostMapping("/order/{orderId}")
+  public ResponseEntity<?> sendOrderMessage(@PathVariable UUID orderId)
+      throws IOException, SlackApiException {
+    slackService.sendOrderMessage(orderId);
+    return ResponseEntity.ok().body("Slack 주문 메시지 전송 완료");
+  }
+
   @GetMapping("/{slackId}")
   public ResponseEntity<SlackResponseDto> getMessage(
       @RequestHeader("X-Role") String role, @PathVariable UUID slackId) {

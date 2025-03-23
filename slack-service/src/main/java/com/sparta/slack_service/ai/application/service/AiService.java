@@ -3,7 +3,6 @@ package com.sparta.slack_service.ai.application.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sparta.slack_service.ai.application.dto.AiRequestDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
@@ -20,15 +19,10 @@ public class AiService {
 
   private final WebClient webClient;
 
-  public String getShippingDeadline(AiRequestDto requestDto) throws JsonProcessingException {
-    // 프롬프트 생성
-    String prompt = String.format(
-        "발송지 : %s, 도착지 : %s, 요청사항 : %s 기반으로 최종 발송 시한을 알려주세요. 날짜와 시간만 답변으로 주세요 (30자 이내)",
-        requestDto.getSendHub(), requestDto.getReceiveHub(), requestDto.getRequestMessage()
-    );
-
+  public String getShippingDeadline(String prompt) throws JsonProcessingException {
     // 요청 JSON 데이터 생성
-    String requestBody = "{ \"contents\": [{ \"parts\": [{ \"text\": \"" + prompt + "\" }] }] }";
+    String request = prompt + "\n위 내용을 기반으로 최종 발송 시한을 계산해주세요. (날짜와 시간만 30자 이내로 답변)";
+    String requestBody = "{ \"contents\": [{ \"parts\": [{ \"text\": \"" + request + "\" }] }] }";
 
     // WebClient를 사용해 요청
     String response = webClient.post()
