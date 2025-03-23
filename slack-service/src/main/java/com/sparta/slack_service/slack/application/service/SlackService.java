@@ -72,26 +72,30 @@ public class SlackService {
   }
 
   @Transactional(readOnly = true)
-  public SlackResponseDto getMessage(UUID slackId) {
+  public SlackResponseDto getMessage(String role, UUID slackId) {
+    roleCheck(role);
     Slacks slacks = findSlacks(slackId);
     return SlackResponseDto.toDto(slacks);
   }
 
   @Transactional(readOnly = true)
-  public Page<SlackResponseDto> getMessages(Pageable pageable) {
+  public Page<SlackResponseDto> getMessages(String role, Pageable pageable) {
+    roleCheck(role);
     return slackRepository.findAllByDeletedAtIsNull(pageable)
         .map(SlackResponseDto::toDto);
   }
 
   @Transactional(readOnly = true)
-  public Page<SlackResponseDto> searchMessage(String keyword, Pageable pageable) {
+  public Page<SlackResponseDto> searchMessage(String role, String keyword, Pageable pageable) {
+    roleCheck(role);
     return slackRepository.findAllByMessage(keyword, pageable)
         .map(SlackResponseDto::toDto);
   }
 
   @Transactional
-  public void updateMessage(UUID slackId, SlackRequestDto requestDto)
+  public void updateMessage(String role, UUID slackId, SlackRequestDto requestDto)
       throws IOException, SlackApiException {
+    roleCheck(role);
     Slacks slacks = findSlacks(slackId);
 
     ChatUpdateResponse response = slack.methods(slackToken).chatUpdate(
@@ -106,7 +110,8 @@ public class SlackService {
   }
 
   @Transactional
-  public void deleteMessage(UUID slackId) throws IOException, SlackApiException {
+  public void deleteMessage(String role, UUID slackId) throws IOException, SlackApiException {
+    roleCheck(role);
     Slacks slacks = findSlacks(slackId);
 
     ChatDeleteResponse response = slack.methods(slackToken).chatDelete(
@@ -152,6 +157,12 @@ public class SlackService {
     }
 
     return slacks;
+  }
+
+  private void roleCheck(String role) {
+    if (!role.equals("MASTER")) {
+      throw new GlobalException(HttpStatus.FORBIDDEN, "권한이 없습니다");
+    }
   }
 
   private <T> void validateSlackResponse(T response) {
