@@ -16,6 +16,7 @@ public class CompanyResponseDto {
 
   private UUID companyId;
   private UUID hubId;
+  private Long userId;
   private CompanyType type;
   private String name;
   private String address;
@@ -24,6 +25,7 @@ public class CompanyResponseDto {
     return CompanyResponseDto.builder()
         .companyId(company.getId())
         .hubId(company.getHubId())
+        .userId(company.getUserId())
         .type(company.getType())
         .name(company.getName())
         .address(company.getAddress())

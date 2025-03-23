@@ -3,6 +3,8 @@ package com.sparta.eureka.hub.infrastructure.mapper;
 import com.sparta.eureka.hub.application.dto.hub.HubDto;
 import com.sparta.eureka.hub.domain.entity.Hub;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
 public interface HubMapper {

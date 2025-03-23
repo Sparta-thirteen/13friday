@@ -3,6 +3,7 @@ package com.sparta.company_service.product.domain.repository;
 
 import com.sparta.company_service.product.domain.entity.Product;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -27,4 +28,6 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
       + "WHERE p.companyId = :companyId")
   void softDeleteByCompanyId(@Param("companyId") UUID companyId,
       @Param("deletedAt") LocalDateTime deletedAt);
+
+  List<Product> findByIdIn(List<UUID> productIdList);
 }

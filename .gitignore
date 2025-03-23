@@ -31,3 +31,5 @@ out/
 
 ### database volum ###
 db_data/
+
+application-local.yml

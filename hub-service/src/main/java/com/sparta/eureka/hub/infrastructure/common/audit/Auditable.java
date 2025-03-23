@@ -40,5 +40,6 @@ public class Auditable {
     @Column(name = "deleted_by")
     private Long deletedBy;
 
+    @Column(name = "isDeleted")
     private boolean isDeleted  = false;
 }

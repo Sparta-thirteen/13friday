@@ -1,4 +1,4 @@
-package com.sparta.eureka.hub.infrastructure.queryDSL;
+package com.sparta.eureka.hub.infrastructure.queryDSL.hubRepository;
 
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.jpa.impl.JPAQuery;
@@ -24,7 +24,8 @@ public class HubRepositoryImpl implements HubRepositoryCustom {
         JPAQuery<Hub> query = queryFactory
                 .selectFrom(hub)
                 .where(
-                        hub.hubName.likeIgnoreCase("%" + keyword + "%")
+                        hub.hubName.likeIgnoreCase("%" + keyword + "%"),
+                        hub.isDeleted.isFalse()
                 )
                 .orderBy(getOrderSpecifier(isDesc))
                 .offset(pageable.getOffset())
@@ -33,7 +34,7 @@ public class HubRepositoryImpl implements HubRepositoryCustom {
         List<Hub> hubs = query.fetch();
 
         long total = query.fetchCount();
-        System.out.println("Query: " + query);
+
         return new PageImpl<>(hubs, pageable, total);
     }
 

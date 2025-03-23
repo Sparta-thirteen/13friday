@@ -22,13 +22,18 @@ public class Hub extends Auditable {
     @GeneratedValue
     private UUID hubId;
 
+    private Long hubUserId;
+
     @Column(nullable = false, unique = true)
     private String hubName;
 
     @Column(nullable = false, unique = true)
     private String address;
 
+    @Column(precision = 9, scale = 6)
     private BigDecimal lat;
+
+    @Column(precision = 9, scale = 6)
     private BigDecimal lon;
 
     public static Hub create(String hubName, String address) {
@@ -36,16 +41,12 @@ public class Hub extends Auditable {
         return Hub.builder()
                 .hubName(hubName)
                 .address(address)
-                .lat(null)
-                .lon(null)
                 .build();
     }
 
     public void update(String hubName, String address) {
         this.hubName = hubName;
         this.address = address;
-        this.setUpdatedAt(LocalDateTime.now());
-//        this.setUpdatedBy();
     }
 
     public void latAndLon (BigDecimal lat, BigDecimal lon) {
@@ -53,10 +54,14 @@ public class Hub extends Auditable {
         this.lon = lon;
     }
 
-    public void delete() {
+    public void updateUserId(Long userId) {
+        this.hubUserId = userId;
+    }
+
+    public void delete(Long userId) {
         this.setDeletedAt(LocalDateTime.now());
-//        this.setDeletedBy();
         this.setDeleted(true);
+        this.setDeletedBy(userId);
     }
 
 }

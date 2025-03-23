@@ -3,10 +3,11 @@ package com.sparta.eureka.hub.application.service;
 import com.sparta.eureka.hub.application.dto.hub.HubDto;
 import com.sparta.eureka.hub.domain.entity.Hub;
 import com.sparta.eureka.hub.domain.repository.HubRepository;
+import com.sparta.eureka.hub.infrastructure.common.exception.BusinessLogicException;
+import com.sparta.eureka.hub.infrastructure.common.exception.ErrorCode;
 import com.sparta.eureka.hub.infrastructure.geocoding.Coordinates;
 import com.sparta.eureka.hub.infrastructure.geocoding.GeocodingService;
 import com.sparta.eureka.hub.infrastructure.mapper.HubMapper;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -25,62 +26,46 @@ public class HubService {
     private final HubMapper hubMapper;
     private final GeocodingService geocodingService;
 
-    public HubDto.ResponseDto createHub(HubDto.CreateDto request) {
-        Hub hub = hubRepository.save(hubMapper.createDtoToHub(request));
+    public HubDto.ResponseDto createHub(String role, HubDto.CreateDto request) {
+        if(role.equals("MASTER")) {
+            Hub hub = hubRepository.save(hubMapper.createDtoToHub(request));
 
-        return hubMapper.hubToResponseDto(hub);
+            return hubMapper.hubToResponseDto(hub);
+        } else {
+            throw new BusinessLogicException(ErrorCode.UNAUTHORIZED);
+        }
     }
 
 
 
     @Transactional
-    public HubDto.ResponseDto updateHub(UUID hubId, HubDto.UpdateDto request) {
+    public HubDto.ResponseDto updateHub(String role, UUID hubId, HubDto.UpdateDto request) {
         Hub hub = findHub(hubId);
-        Hub updatedHub = hubMapper.updateDtoToHub(request);
+        if(role.equals("MASTER")) {
+            Hub updateHub = hubMapper.updateDtoToHub(request);
+            hub.update(updateHub.getHubName(), updateHub.getAddress());
 
-        hub.update(updatedHub.getHubName(), updatedHub.getAddress());
-
-        return hubMapper.hubToResponseDto(hub);
+            return hubMapper.hubToResponseDto(hub);
+        } else {
+            throw new BusinessLogicException(ErrorCode.UNAUTHORIZED);
+        }
     }
 
-    public Page<HubDto.ResponseDto> getHubs(int  size, int page) {
+    public Page<HubDto.ResponseDto> getHubs(int page, int size) {
         Pageable pageable = PageRequest.of(page - 1, size);
-        Page<Hub> hub = hubRepository.findAll(pageable);
+        Page<Hub> hub = hubRepository.findAllByIsDeletedFalse(pageable);
 
         return hub.map(hubMapper::hubToResponseDto);
     }
 
     public HubDto.ResponseDto getHub(UUID hubId) {
         Hub hub = findHub(hubId);
-
-        return hubMapper.hubToResponseDto(hub);
+        if(!hub.isDeleted()) {
+            return hubMapper.hubToResponseDto(hub);
+        } else {
+            throw new BusinessLogicException(ErrorCode.HUB_NOT_FOUND);
+        }
     }
-
-    @Transactional
-    public void deleteHub(UUID hubId) {
-        Hub hub = findHub(hubId);
-        hub.delete();
-    }
-
-    public Hub findHub(UUID hubId) {
-        Optional<Hub> hub = hubRepository.findById(hubId);
-        return hub.orElseThrow(() ->
-                new EntityNotFoundException("Hub with id " + hubId + " not found"));
-    }
-
-    public void updateHubCoordinates(UUID hubId) {
-        Hub hub = findHub(hubId);
-
-        Coordinates coordinates = geocodingService.getCoordinatesFromAddress(hub.getAddress());
-
-        hub.latAndLon(
-                BigDecimal.valueOf(coordinates.getLat()),
-                BigDecimal.valueOf(coordinates.getLon())
-        );
-
-        hubRepository.save(hub);
-    }
-
 
     public Page<HubDto.ResponseDto> searchHubs(int size,
                                                int page,
@@ -90,5 +75,57 @@ public class HubService {
         Page<Hub> hubs = hubRepository.searchByKeyword(keyword, isDesc, pageable);
 
         return hubs.map(hubMapper::hubToResponseDto);
+    }
+
+    @Transactional
+    public HubDto.ResponseDto addHubAuth(String role, Long userId, HubDto.UpdateUserDto request) {
+        Hub hub = findHub(request.getHubId());
+        if(role.equals("MASTER")) {
+            hub.updateUserId(userId);
+
+            return hubMapper.hubToResponseDto(hub);
+        } else {
+            throw new BusinessLogicException(ErrorCode.UNAUTHORIZED);
+        }
+    }
+
+    public HubDto.ResponseDto getHubByManager(String userId) {
+        long managerId = Long.parseLong(userId);
+        Hub hub = hubRepository.findByHubUserId(managerId)
+                .orElseThrow(() -> new BusinessLogicException(ErrorCode.MANAGER_NOT_FOUND));
+
+        return hubMapper.hubToResponseDto(hub);
+    }
+
+    @Transactional
+    public void deleteHub(String userId, String role, UUID hubId) {
+        if(role.equals("MASTER")) {
+            Hub hub = findHub(hubId);
+            hub.delete(Long.parseLong(userId));
+        } else {
+            throw new BusinessLogicException(ErrorCode.UNAUTHORIZED);
+        }
+    }
+
+    public Hub findHub(UUID hubId) {
+        Optional<Hub> hub = hubRepository.findById(hubId);
+
+        return hub.orElseThrow(() -> new BusinessLogicException(ErrorCode.HUB_NOT_FOUND));
+    }
+
+    @Transactional
+    public void updateHubCoordinates(String role, UUID hubId) {
+        Hub hub = findHub(hubId);
+        if(role.equals("MASTER")) {
+            Coordinates coordinates = geocodingService.getCoordinatesFromAddress(hub.getAddress());
+
+            hub.latAndLon(
+                    BigDecimal.valueOf(coordinates.getLat()),
+                    BigDecimal.valueOf(coordinates.getLon())
+            );
+
+        } else {
+            throw new BusinessLogicException(ErrorCode.UNAUTHORIZED);
+        }
     }
 }
