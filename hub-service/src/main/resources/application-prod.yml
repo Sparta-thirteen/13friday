@@ -17,6 +17,18 @@ spring:
         format_sql: true
         show_sql: true
 
+  data:
+    redis:
+      host: 13friday_hub-route
+      port: 6379
+      timeout: 6000ms
+      lettuce:
+        pool:
+          max-active: 10
+          max-idle: 5
+          min-idle: 1
+          max-wait: 1000ms
+
 server:
   port: 19093
 

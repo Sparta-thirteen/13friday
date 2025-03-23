@@ -13,9 +13,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -25,30 +27,23 @@ public class HubService {
     private final HubRepository hubRepository;
     private final HubMapper hubMapper;
     private final GeocodingService geocodingService;
+    private final RedisTemplate<String, Object> redisTemplate;
 
     public HubDto.ResponseDto createHub(String role, HubDto.CreateDto request) {
-        if(role.equals("MASTER")) {
-            Hub hub = hubRepository.save(hubMapper.createDtoToHub(request));
+        checkMasterRole(role);
+        Hub hub = hubRepository.save(hubMapper.createDtoToHub(request));
 
-            return hubMapper.hubToResponseDto(hub);
-        } else {
-            throw new BusinessLogicException(ErrorCode.UNAUTHORIZED);
-        }
+        return hubMapper.hubToResponseDto(hub);
     }
-
-
-
+    
     @Transactional
     public HubDto.ResponseDto updateHub(String role, UUID hubId, HubDto.UpdateDto request) {
+        checkMasterRole(role);
         Hub hub = findHub(hubId);
-        if(role.equals("MASTER")) {
-            Hub updateHub = hubMapper.updateDtoToHub(request);
-            hub.update(updateHub.getHubName(), updateHub.getAddress());
+        Hub updateHub = hubMapper.updateDtoToHub(request);
+        hub.update(updateHub.getHubName(), updateHub.getAddress());
 
-            return hubMapper.hubToResponseDto(hub);
-        } else {
-            throw new BusinessLogicException(ErrorCode.UNAUTHORIZED);
-        }
+        return hubMapper.hubToResponseDto(hub);
     }
 
     public Page<HubDto.ResponseDto> getHubs(int page, int size) {
@@ -59,9 +54,18 @@ public class HubService {
     }
 
     public HubDto.ResponseDto getHub(UUID hubId) {
+        String cacheKey = "hub_" + hubId;
+
+        HubDto.ResponseDto cachedHub = (HubDto.ResponseDto) redisTemplate.opsForValue().get(cacheKey);
+
+        if (cachedHub != null) {
+            return cachedHub;
+        }
         Hub hub = findHub(hubId);
         if(!hub.isDeleted()) {
-            return hubMapper.hubToResponseDto(hub);
+            HubDto.ResponseDto response = hubMapper.hubToResponseDto(hub);
+            redisTemplate.opsForValue().set(cacheKey, response, Duration.ofMinutes(10));
+            return response;
         } else {
             throw new BusinessLogicException(ErrorCode.HUB_NOT_FOUND);
         }
@@ -79,14 +83,12 @@ public class HubService {
 
     @Transactional
     public HubDto.ResponseDto addHubAuth(String role, Long userId, HubDto.UpdateUserDto request) {
+        checkMasterRole(role);
         Hub hub = findHub(request.getHubId());
-        if(role.equals("MASTER")) {
-            hub.updateUserId(userId);
+        hub.updateUserId(userId);
 
-            return hubMapper.hubToResponseDto(hub);
-        } else {
-            throw new BusinessLogicException(ErrorCode.UNAUTHORIZED);
-        }
+        return hubMapper.hubToResponseDto(hub);
+       
     }
 
     public HubDto.ResponseDto getHubByManager(String userId) {
@@ -99,12 +101,9 @@ public class HubService {
 
     @Transactional
     public void deleteHub(String userId, String role, UUID hubId) {
-        if(role.equals("MASTER")) {
-            Hub hub = findHub(hubId);
-            hub.delete(Long.parseLong(userId));
-        } else {
-            throw new BusinessLogicException(ErrorCode.UNAUTHORIZED);
-        }
+        checkMasterRole(role);
+        Hub hub = findHub(hubId);
+        hub.delete(Long.parseLong(userId));
     }
 
     public Hub findHub(UUID hubId) {
@@ -115,16 +114,19 @@ public class HubService {
 
     @Transactional
     public void updateHubCoordinates(String role, UUID hubId) {
+        checkMasterRole(role);
         Hub hub = findHub(hubId);
-        if(role.equals("MASTER")) {
-            Coordinates coordinates = geocodingService.getCoordinatesFromAddress(hub.getAddress());
 
-            hub.latAndLon(
-                    BigDecimal.valueOf(coordinates.getLat()),
-                    BigDecimal.valueOf(coordinates.getLon())
-            );
+        Coordinates coordinates = geocodingService.getCoordinatesFromAddress(hub.getAddress());
 
-        } else {
+        hub.latAndLon(
+                BigDecimal.valueOf(coordinates.getLat()),
+                BigDecimal.valueOf(coordinates.getLon())
+        );
+    }
+
+    public void checkMasterRole(String role) {
+        if (!role.equals("MASTER")) {
             throw new BusinessLogicException(ErrorCode.UNAUTHORIZED);
         }
     }
