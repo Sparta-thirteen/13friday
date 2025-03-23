@@ -51,20 +51,23 @@ public class SlackService {
   private final Slack slack = Slack.getInstance();
 
   public void sendMessage(SlackRequestDto requestDto) throws IOException, SlackApiException {
-    // Slack 사용자 이메일로 사용자 ID 조회
-    String slackUserId = getSlackUserId(requestDto.getReceiverEmail());
+    // userId로 slackId 조회
+    Long receiverId = requestDto.getReceiverId();
+    UserResponseDto userResponse = userClient.getUser(receiverId, receiverId.toString(), "MASTER")
+        .getBody().getData();
 
     // 사용자와 DM 채널 생성
-    String dmChannelId = getDmChannelId(slackUserId);
+    String dmChannelId = getDmChannelId(userResponse.getSlackId());
 
     // DM 채널 ID를 사용해 메시지 전송
-    ChatPostMessageResponse response = createChatPostMessage(dmChannelId, requestDto.getMessage());
+    String slackMsg = requestDto.getMessage();
+    ChatPostMessageResponse response = createChatPostMessage(dmChannelId, slackMsg);
 
     // response 검증
     validateSlackResponse(response);
 
     // DB에 저장
-    Slacks slacks = Slacks.toEntity();
+    Slacks slacks = Slacks.toEntity(receiverId, dmChannelId, slackMsg, response.getTs());
     slackRepository.save(slacks);
   }
 
@@ -157,6 +160,7 @@ public class SlackService {
     );
   }
 
+  // Slack 사용자 이메일로 사용자 ID 조회
   private String getSlackUserId(String email) throws IOException, SlackApiException {
     UsersLookupByEmailResponse response = slack.methods(slackToken).usersLookupByEmail(
         UsersLookupByEmailRequest.builder().email(email).build()

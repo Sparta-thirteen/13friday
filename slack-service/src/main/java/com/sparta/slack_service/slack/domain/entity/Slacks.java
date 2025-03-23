@@ -41,6 +41,15 @@ public class Slacks extends TimeStamped {
     this.message = requestDto.getMessage();
   }
 
+  public static Slacks toEntity(Long receiverId, String channelId, String message, String sentAt) {
+    return Slacks.builder()
+        .receiverId(receiverId)
+        .channelId(channelId)
+        .message(message)
+        .sentAt(sentAt)
+        .build();
+  }
+
   public static Slacks toEntityByOrder(
       Long receiverId, UUID orderId, String channelId, String message, String sentAt) {
     return Slacks.builder()
