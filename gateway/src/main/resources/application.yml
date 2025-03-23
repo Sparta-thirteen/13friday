@@ -18,7 +18,22 @@ spring:
           uri: lb://auth-service
           predicates:
             - Path=/api/users/**, /api/courier/**, /api/auth/**
+        - id: hub-service
+          uri: lb://hub-service
+          predicates:
+            - Path=/api/hub/**, /hub-service/swagger-ui/**, /hub-service/v3/api-docs/**
 
+springdoc:
+  api-docs:
+    enabled: true
+    path: /v3/api-docs
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui/
+    url: /v3/api-docs
+    urls:
+      - url: /hub-service/v3/api-docs
+        name: "hub-service"
 
         - id: order-service
           uri: lb://order-service
