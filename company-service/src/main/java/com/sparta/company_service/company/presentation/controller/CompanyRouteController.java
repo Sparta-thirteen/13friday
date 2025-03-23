@@ -1,7 +1,6 @@
 package com.sparta.company_service.company.presentation.controller;
 
-import com.sparta.company_service.company.application.dto.CompanyOrderRequestDto;
-import com.sparta.company_service.company.application.dto.CompanyOrderResponseDto;
+import com.sparta.company_service.company.application.dto.CompanyResponseDto;
 import com.sparta.company_service.company.application.service.CompanyRouteService;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -27,8 +26,13 @@ public class CompanyRouteController {
     companyRouteService.updateCompanyUser(userId, role, companyId);
   }
 
-  @GetMapping("/orders")
-  public CompanyOrderResponseDto getCompanyByName(CompanyOrderRequestDto requestDto) {
-    return companyRouteService.getCompanyByName(requestDto);
+  @GetMapping("/{companyId}")
+  public CompanyResponseDto getCompany(@PathVariable UUID companyId) {
+    return companyRouteService.getCompany(companyId);
+  }
+
+  @GetMapping("/name/{companyName}")
+  public CompanyResponseDto getCompanyByName(@PathVariable String companyName) {
+    return companyRouteService.getCompanyByName(companyName);
   }
 }

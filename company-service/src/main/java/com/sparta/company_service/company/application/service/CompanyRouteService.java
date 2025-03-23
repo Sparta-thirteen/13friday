@@ -1,8 +1,7 @@
 package com.sparta.company_service.company.application.service;
 
 import com.sparta.company_service.common.global.GlobalException;
-import com.sparta.company_service.company.application.dto.CompanyOrderRequestDto;
-import com.sparta.company_service.company.application.dto.CompanyOrderResponseDto;
+import com.sparta.company_service.company.application.dto.CompanyResponseDto;
 import com.sparta.company_service.company.domain.entity.Company;
 import com.sparta.company_service.company.domain.repository.CompanyRepository;
 import java.util.UUID;
@@ -26,9 +25,15 @@ public class CompanyRouteService {
   }
 
   @Transactional(readOnly = true)
-  public CompanyOrderResponseDto getCompanyByName(CompanyOrderRequestDto requestDto) {
-    Company company = findCompanyByName(requestDto.getCompanyName());
-    return CompanyOrderResponseDto.toDto(company);
+  public CompanyResponseDto getCompany(UUID companyId) {
+    Company company = findCompany(companyId);
+    return CompanyResponseDto.toDto(company);
+  }
+
+  @Transactional(readOnly = true)
+  public CompanyResponseDto getCompanyByName(String name) {
+    Company company = findCompanyByName(name);
+    return CompanyResponseDto.toDto(company);
   }
 
   private void roleCheck(String role) {
