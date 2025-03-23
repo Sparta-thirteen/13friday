@@ -5,9 +5,11 @@ import com.sparta.orderservice.application.dto.OrderItemsDto;
 import com.sparta.orderservice.application.dto.SortDto;
 import com.sparta.orderservice.common.CustomException;
 import com.sparta.orderservice.common.GlobalExceptionCode;
+import com.sparta.orderservice.domain.model.OrderItems;
 import com.sparta.orderservice.domain.model.SearchDto;
 import com.sparta.orderservice.domain.service.OrderDomainService;
 import com.sparta.orderservice.infrastructure.client.DeliveryClient;
+import com.sparta.orderservice.infrastructure.repository.JpaOrderItemsRepository;
 import com.sparta.orderservice.presentation.advice.GlobalExceptionHandler;
 import com.sparta.orderservice.presentation.requset.DeliveryRequest;
 import com.sparta.orderservice.presentation.requset.OrderItemsRequest;
@@ -20,8 +22,11 @@ import com.sparta.orderservice.presentation.response.OrderResponse;
 import com.sparta.orderservice.presentation.response.UpdateOrderResponse;
 import jakarta.validation.constraints.NotEmpty;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -32,11 +37,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class OrderService {
 
     private final JpaOrderRepository jpaOrderRepository;
     private final OrderDomainService orderDomainService;
     private final DeliveryClient deliveryClient;
+    private final JpaOrderItemsRepository jpaOrderItemsRepository;
 
     // 주문 생성
     @Transactional
@@ -53,7 +60,6 @@ public class OrderService {
         // 응답 : 수령업체id 수령업체허브id,수령업체주소
         String recipientsName = "수령업체";
 
-
         UUID orderId = UUID.randomUUID();
 
         // TODO: delivery-service
@@ -64,9 +70,15 @@ public class OrderService {
 
         DeliveryCreatedResponse response = deliveryClient.createDelivery(deliveryRequest);
 
-
         Order order = orderDomainService.createOrder(orderId, orderRequest, response.getId());
         jpaOrderRepository.save(order);
+
+        //  주문 아이템 저장
+        List<OrderItems> items = orderRequest.getOrderItemsRequests().stream()
+            .map(req -> new OrderItems(req.getProductId(), req.getName(), req.getStock(), orderId))
+            .toList();
+
+        jpaOrderItemsRepository.saveAll(items);
 
         return ResponseEntity.ok("주문 생성 완료");
     }
@@ -89,11 +101,26 @@ public class OrderService {
 
         Order order = findOrder(orderId);
 
+        // 1. 기존 아이템 불러오기
+        List<OrderItems> existingItems = jpaOrderItemsRepository.findAllByOrderId(orderId);
+        Map<UUID, OrderItems> itemMap = existingItems.stream()
+            .collect(Collectors.toMap(OrderItems::getId, i -> i));
+
+        // 2. 요청된 아이템 수량/이름 업데이트
+        for (OrderItemsRequest updateReq : req.getOrderItemsRequests()) {
+            if (itemMap.containsKey(updateReq.getProductId())) {
+                itemMap.get(updateReq.getProductId())
+                    .updateOrderItem(updateReq.getName(), updateReq.getStock());
+            }
+        }
+
+        log.info(existingItems.get(0).getName()+" "+existingItems.get(0).getStock());
+
+
+        // 3. 도메인 서비스에게 주문 정보 수정 위임
         order = orderDomainService.updateOrder(order, req);
 
-        // TODO: 주문 수정하기 위한 stock 필요
-
-        List<OrderItemsDto> list = getOrderItemsDtoList(order);
+        List<OrderItemsDto> list = getOrderItemsDtoList(order.getId());
 
         return new UpdateOrderResponse(order.getTotalStock(), order.getRequestDetails(),
             list);
@@ -106,7 +133,7 @@ public class OrderService {
 
         Order order = findOrder(orderId);
 
-        List<OrderItemsDto> list = getOrderItemsDtoList(order);
+        List<OrderItemsDto> list = getOrderItemsDtoList(orderId);
 
         return new OrderResponse(order.getSuppliersId(), order.getRecipientsId(),
             order.getDeliveryId(), order.getTotalStock(), order.getRequestDetails(), list);
@@ -121,20 +148,18 @@ public class OrderService {
             ? Sort.by(sortDto.getSortBy()).ascending()
             : Sort.by(sortDto.getSortBy()).descending();
 
-
         int pageSize =
-            (sortDto.getSize() == 10 || sortDto.getSize()== 30 || sortDto.getSize()== 50)
-                ? sortDto.getSize(): 10;
+            (sortDto.getSize() == 10 || sortDto.getSize() == 30 || sortDto.getSize() == 50)
+                ? sortDto.getSize() : 10;
 
-
-        Pageable pageable = PageRequest.of(pageSize, sortDto.getSize(), sort);
+        Pageable pageable = PageRequest.of(sortDto.getPage(), pageSize, sort);
 
         Page<Order> orderPage = jpaOrderRepository.findByIsDeletedFalse(pageable);
 
         return orderPage.getContent().stream()
             .map(order -> new OrderResponse(order.getSuppliersId(), order.getRecipientsId(),
                 order.getDeliveryId(), order.getTotalStock(), order.getRequestDetails(),
-                getOrderItemsDtoList(order))).toList();
+                getOrderItemsDtoList(order.getId()))).toList();
     }
 
     // TODO : 리팩토링
@@ -147,7 +172,7 @@ public class OrderService {
         return orderPage.getContent().stream()
             .map(order -> new OrderResponse(order.getSuppliersId(), order.getRecipientsId(),
                 order.getDeliveryId(), order.getTotalStock(), order.getRequestDetails(),
-                getOrderItemsDtoList(order))).toList();
+                getOrderItemsDtoList(order.getId()))).toList();
     }
 
     public Order findOrder(UUID orderId) {
@@ -157,8 +182,9 @@ public class OrderService {
         return order;
     }
 
-    public List<OrderItemsDto> getOrderItemsDtoList(Order order) {
-        return order.getOrderItems().stream()
+    public List<OrderItemsDto> getOrderItemsDtoList(UUID orderId) {
+        return jpaOrderItemsRepository.findAllByOrderId(orderId)
+            .stream()
             .map(item -> new OrderItemsDto(item.getId(), item.getName(), item.getStock()))
             .toList();
     }
