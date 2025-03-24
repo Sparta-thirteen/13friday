@@ -41,4 +41,8 @@ public class Product extends TimeStamped {
     this.name = requestDto.getName();
     this.stock = requestDto.getStock();
   }
+
+  public void updateStock(int stock) {
+    this.stock -= stock;
+  }
 }
