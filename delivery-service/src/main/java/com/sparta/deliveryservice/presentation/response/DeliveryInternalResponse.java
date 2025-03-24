@@ -9,5 +9,5 @@ import lombok.Getter;
 public class DeliveryInternalResponse {
     private UUID departHubId;
     private UUID arriveHubId;
-    private UUID hubUserId;
+    private Long hubUserId;
 }

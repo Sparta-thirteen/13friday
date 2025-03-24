@@ -23,12 +23,12 @@ public class DeliveryRouteDto {
     private String shippingAddress;
     @NotBlank
     private Long estimatedDistance;
-    private LocalDateTime estimatedTime;
+    private Long estimatedTime;
     @NotBlank
     private Long actualDistance;
-    private LocalDateTime actualTime;
+    private Long actualTime;
 
-    public DeliveryRouteDto(UUID departureHubId,UUID destinationHubId,UUID deliveryId,String shippingAddress,Long estimatedDistance,LocalDateTime estimatedTime, Long actualDistance,LocalDateTime actualTime) {
+    public DeliveryRouteDto(UUID departureHubId,UUID destinationHubId,UUID deliveryId,String shippingAddress,Long estimatedDistance,Long estimatedTime, Long actualDistance,Long actualTime) {
         this.departureHubId = departureHubId;
         this.destinationHubId =destinationHubId;
         this.deliveryId =deliveryId;
@@ -39,7 +39,7 @@ public class DeliveryRouteDto {
     this.actualTime =actualTime;
     }
 
-    public void setDeliveryRouteDto(Long estimatedDistance, LocalDateTime estimatedTime, Long actualDistance, LocalDateTime actualTime) {
+    public void setDeliveryRouteDto(Long estimatedDistance, Long estimatedTime, Long actualDistance, Long actualTime) {
         this.estimatedDistance = estimatedDistance;
         this.estimatedTime = estimatedTime;
         this.actualDistance = actualDistance;

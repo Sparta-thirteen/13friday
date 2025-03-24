@@ -19,7 +19,6 @@ public class UpdateOrderResponse {
     private int totalStock;
     private String requestDetails;
     @NotEmpty
-    @Schema(hidden = true)
     private List<OrderItemsDto> orderItemsRequests;
 
 }

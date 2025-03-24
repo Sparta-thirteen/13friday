@@ -2,8 +2,13 @@ package com.sparta.deliveryservice.application.service;
 
 
 import com.sparta.deliveryservice.application.dto.DeliveryInfoDto;
+import com.sparta.deliveryservice.application.dto.DeliveryRequestDto;
 import com.sparta.deliveryservice.application.dto.DeliveryRouteDto;
+import com.sparta.deliveryservice.application.dto.DeliveryRoutesDto;
 import com.sparta.deliveryservice.application.dto.DeliveryRoutesHubIdDto;
+import com.sparta.deliveryservice.application.dto.HubRouteDto;
+import com.sparta.deliveryservice.application.dto.HubRouteDto.CreateDto;
+import com.sparta.deliveryservice.application.dto.ShippingManagerResponseDto;
 import com.sparta.deliveryservice.common.CustomException;
 import com.sparta.deliveryservice.common.GlobalExceptionCode;
 import com.sparta.deliveryservice.domain.model.Delivery;
@@ -12,6 +17,8 @@ import com.sparta.deliveryservice.domain.model.DeliveryRouteType;
 import com.sparta.deliveryservice.domain.model.SearchDto;
 import com.sparta.deliveryservice.domain.model.SortDto;
 import com.sparta.deliveryservice.domain.service.DeliveryRouteDomainService;
+import com.sparta.deliveryservice.infrastructure.client.HubClient;
+import com.sparta.deliveryservice.infrastructure.client.ShippingManagerClient;
 import com.sparta.deliveryservice.infrastructure.repository.JpaDeliveryRouteRepository;
 import com.sparta.deliveryservice.presentation.response.DeliveryInternalResponse;
 import com.sparta.deliveryservice.presentation.response.DeliveryRouteResponse;
@@ -29,6 +36,8 @@ import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 
 @Service
 @RequiredArgsConstructor
@@ -38,19 +47,26 @@ public class DeliveryRouteService {
     private final JpaDeliveryRouteRepository jpaDeliveryRouteRepository;
     private final DeliveryRouteDomainService deliveryRouteDomainService;
     private final StringRedisTemplate redisTemplate;
+    private final HubClient hubClient;
+    private final ShippingManagerClient shippingManagerClient;
 
 
     // 배송경로생성
-    public DeliveryRoutesHubIdDto createDeliveryRoutes(UUID deliveryId, UUID departureHubId,
+    DeliveryRoutesDto createDeliveryRoutes(UUID deliveryId, UUID departureHubId,
         UUID destinationHubId,
         String shippingAddress) {
 
-        // TODO: deliveryServic 요청으로 받아옴: 공급업체허브id,수령업체허브id,배송id,배송주소
+        // 허브 서비스 통신
+        HubRouteDto.CreateDto createDto = new CreateDto(departureHubId, destinationHubId);
+        String role = "MASTER";
+        HubRouteDto.ResponseDto responseDto = hubClient.createHubRoute(role, createDto);
 
-        // TODO: hub-service 에서 받아와야함. -> 응답 : 거리,시간
+        DeliveryRouteDto dto = new DeliveryRouteDto(departureHubId, destinationHubId,
+            deliveryId, shippingAddress, responseDto.getDistance().longValue(),
+            responseDto.getEstimatedTime(), responseDto.getDistance().longValue(),
+            responseDto.getEstimatedTime());
 
         // TODO: shippingmanager-service -> null,배송순번 / 허브배송담당자 id
-
         // 허브 배송 상태
         List<DeliveryRouteType> hubTypes = List.of(
             DeliveryRouteType.HUB_WAITING,
@@ -59,14 +75,17 @@ public class DeliveryRouteService {
         );
 
         int deliveryOrder = getNextDeliveryOrder(null, "HUB_MANAGER");
-        UUID shippingManagerId = UUID.randomUUID(); // TODO: 실제 서비스 호출로 변경
+//        UUID shippingManagerId = UUID.randomUUID(); // TODO: 실제 서비스 호출로 변경
 
-        DeliveryRouteDto dto = new DeliveryRouteDto(departureHubId, destinationHubId,
-            deliveryId, shippingAddress, 1000L, LocalDateTime.now(), 1000L,
-            LocalDateTime.now());
+        DeliveryRequestDto deliveryRequestDto = new DeliveryRequestDto(destinationHubId,
+            deliveryOrder);
+        ShippingManagerResponseDto shippingManagerDto = shippingManagerClient.getSearchShippingManagers(
+            deliveryRequestDto);
+
         for (DeliveryRouteType type : hubTypes) {
             DeliveryRouteDto routDto = type.createDtoFromBase(dto);
-            createDeliveryRouteByType(routDto, shippingManagerId, type, deliveryOrder);
+            createDeliveryRouteByType(routDto, shippingManagerDto.getShippingManagerId(), type,
+                deliveryOrder, shippingManagerDto.getUserId());
         }
 
         // TODO: shippingmanager-service -> 출발지허브id,배송순번 / 업체배송담당자 id
@@ -77,14 +96,16 @@ public class DeliveryRouteService {
         );
 
         deliveryOrder = getNextDeliveryOrder(destinationHubId, "COMPANY_MANAGER");
-        shippingManagerId = UUID.randomUUID(); // TODO: 실제 서비스 호출로 변경
+        shippingManagerDto = shippingManagerClient.getSearchShippingManagers(deliveryRequestDto);
 
         for (DeliveryRouteType type : companyTypes) {
             DeliveryRouteDto routDto = type.createDtoFromBase(dto);
-            createDeliveryRouteByType(routDto, shippingManagerId, type, deliveryOrder);
+            createDeliveryRouteByType(routDto, shippingManagerDto.getShippingManagerId(), type,
+                deliveryOrder, shippingManagerDto.getUserId());
         }
 
-        return new DeliveryRoutesHubIdDto(shippingManagerId);
+        return new DeliveryRoutesDto(shippingManagerDto.getSlackId(),
+            shippingManagerDto.getShippingManagerId());
     }
 
     // 배송경로 삭제
@@ -192,11 +213,11 @@ public class DeliveryRouteService {
 
     private void createDeliveryRouteByType(DeliveryRouteDto dto, UUID shippingManagerId,
         DeliveryRouteType type,
-        int deliveryOrder) {
+        int deliveryOrder, Long hubDeliveryUserId) {
         DeliveryRoute deliveryRoute;
-        if (type.equals(DeliveryRouteType.HUB_WAITING)) {
-            dto.setDeliveryRouteDto(0L, null, 0L, null);
-        }
+//        if (type.equals(DeliveryRouteType.HUB_WAITING)) {
+//            dto.setDeliveryRouteDto(0L, null, 0L, null);
+//        }
 
         deliveryRoute = new DeliveryRoute(
             dto.getDepartureHubId(),
@@ -209,7 +230,8 @@ public class DeliveryRouteService {
             dto.getActualDistance(),
             dto.getActualTime(),
             type,
-            deliveryOrder
+            deliveryOrder,
+            hubDeliveryUserId
         );
         jpaDeliveryRouteRepository.save(deliveryRoute);
     }
@@ -240,7 +262,7 @@ public class DeliveryRouteService {
         DeliveryRoute deliveryRoute = findDeliveryRoute(dto);
 
         return new DeliveryInternalResponse(deliveryRoute.getDepartureHubId(),
-            deliveryRoute.getDestinationHubId(), deliveryRoute.getShippingManagerId()
+            deliveryRoute.getDestinationHubId(), deliveryRoute.getHubDeliveryUserId()
         );
     }
 

@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -42,25 +43,26 @@ public class OrderController {
     @Operation(summary = "주문 생성")
     public ResponseEntity<String> createOrder(@RequestBody OrderRequest req) {
 
-        // TODO:  request로 공급,수령 업체 이름, details, 아이템(이름,수량) 으로 수정
-
         return orderService.createOrder(req);
     }
 
 
     // TODO: 유저아이디 필요
     @DeleteMapping("/{orderId}")
-    public ResponseEntity<String> deleteOrder(@PathVariable UUID orderId) {
+    public ResponseEntity<String> deleteOrder(@RequestHeader("X-User-Id") String userId,
+        @RequestHeader("X-Role") String role,
+        @PathVariable UUID orderId) {
 
-        return orderService.cancelOrder(orderId, 1L);
+        return orderService.cancelOrder(orderId, userId, role);
     }
 
 
     @PatchMapping("/{orderId}")
-    public UpdateOrderResponse updateOrder(@PathVariable UUID orderId,
+    public UpdateOrderResponse updateOrder(@RequestHeader("X-User-Id") String userId,
+        @RequestHeader("X-Role") String role, @PathVariable UUID orderId,
         @RequestBody UpdateOrderRequest req) {
 
-        return orderService.updateOrder(orderId, req);
+        return orderService.updateOrder(orderId, req, role);
     }
 
     @GetMapping("/{orderId}")
