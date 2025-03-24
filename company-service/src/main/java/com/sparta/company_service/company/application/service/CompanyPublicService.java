@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class CompanyRouteService {
+public class CompanyPublicService {
 
   private final CompanyRepository companyRepository;
 

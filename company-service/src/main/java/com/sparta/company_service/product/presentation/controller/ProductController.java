@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -26,8 +27,11 @@ public class ProductController {
   private final ProductService productService;
 
   @PostMapping
-  public ResponseEntity<?> createProduct(@RequestBody ProductRequestDto requestDto) {
-    productService.createProduct(requestDto);
+  public ResponseEntity<?> createProduct(
+      @RequestHeader("X-User-Id") String userId,
+      @RequestHeader("X-Role") String role,
+      @RequestBody ProductRequestDto requestDto) {
+    productService.createProduct(userId, role, requestDto);
     return ResponseEntity.status(HttpStatus.CREATED).body("상품 생성 성공");
   }
 
@@ -51,15 +55,21 @@ public class ProductController {
   }
 
   @PatchMapping("/{productId}")
-  public ResponseEntity<?> updateProduct(@PathVariable UUID productId,
+  public ResponseEntity<?> updateProduct(
+      @RequestHeader("X-User-Id") String userId,
+      @RequestHeader("X-Role") String role,
+      @PathVariable UUID productId,
       @RequestBody ProductRequestDto requestDto) {
-    productService.updateProduct(productId, requestDto);
+    productService.updateProduct(userId, role, productId, requestDto);
     return ResponseEntity.status(HttpStatus.OK).body("상품 수정 성공");
   }
 
   @DeleteMapping("/{productId}")
-  public ResponseEntity<?> deleteProduct(@PathVariable UUID productId) {
-    productService.deleteProduct(productId);
+  public ResponseEntity<?> deleteProduct(
+      @RequestHeader("X-User-Id") String userId,
+      @RequestHeader("X-Role") String role,
+      @PathVariable UUID productId) {
+    productService.deleteProduct(userId, role, productId);
     return ResponseEntity.status(HttpStatus.OK).body("상품 삭제 성공");
   }
 }
