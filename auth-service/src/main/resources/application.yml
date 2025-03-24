@@ -1,9 +1,9 @@
 spring:
   application:
     name: auth-service
-  config:
-    activate:
-      on-profile: local
+#  config:
+#    activate:
+#      on-profile: local
   datasource:
     url: jdbc:postgresql://13friday-auth-db:5432/13friday_auth
     username: myuser
@@ -33,3 +33,12 @@ server:
 service:
   jwt:
     secret-key: ${JWT_SECRET}
+
+springdoc:
+  api-docs:
+    enabled: true
+    path: auth-service/v3/api-docs
+  swagger-ui:
+    enabled: true
+    path: /auth-service/
+    url: /auth-service/v3/api-docs
