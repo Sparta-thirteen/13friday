@@ -62,13 +62,14 @@ public class HubService {
             return cachedHub;
         }
         Hub hub = findHub(hubId);
-        if(!hub.isDeleted()) {
-            HubDto.ResponseDto response = hubMapper.hubToResponseDto(hub);
-            redisTemplate.opsForValue().set(cacheKey, response, Duration.ofMinutes(10));
-            return response;
-        } else {
-            throw new BusinessLogicException(ErrorCode.HUB_NOT_FOUND);
+
+        if(hub.isDeleted()) {
+            throw new BusinessLogicException(ErrorCode.HUB_ALREADY_DELETED);
         }
+
+        HubDto.ResponseDto response = hubMapper.hubToResponseDto(hub);
+        redisTemplate.opsForValue().set(cacheKey, response, Duration.ofMinutes(10));
+        return response;
     }
 
     public Page<HubDto.ResponseDto> searchHubs(int size,
@@ -99,10 +100,15 @@ public class HubService {
         return hubMapper.hubToResponseDto(hub);
     }
 
-    @Transactional
+    @Transactional(rollbackOn = BusinessLogicException.class)
     public void deleteHub(String userId, String role, UUID hubId) {
         checkMasterRole(role);
         Hub hub = findHub(hubId);
+
+        if (hub.isDeleted()) {
+            throw new BusinessLogicException(ErrorCode.HUB_ALREADY_DELETED);
+        }
+
         hub.delete(Long.parseLong(userId));
     }
 

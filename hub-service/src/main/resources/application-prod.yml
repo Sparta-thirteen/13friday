@@ -10,7 +10,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: update #none 으로 설정시 테이블이 없으면 초기데이터 생성과정에서 에러 발생 우려
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     properties:
       hibernate:
