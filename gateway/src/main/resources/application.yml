@@ -26,6 +26,14 @@ spring:
           uri: lb://slack-service
           predicates:
             - Path=/api/slack/**, /slack-service/swagger-ui/**, /slack-service/v3/api-docs/**
+        - id: order-service
+          uri: lb://order-service
+          predicates:
+            - Path=/api/orders/**
+        - id: delivery-service
+          uri: lb://delivery-service
+          predicates:
+            - Path=/api/deliveries/**
 
 springdoc:
   api-docs:
@@ -43,16 +51,6 @@ springdoc:
       - url: /slack-service/v3/api-docs
         name: "slack-service"
 
-        - id: order-service
-          uri: lb://order-service
-          predicates:
-            - Path=/api/orders/**
-
-        - id: delivery-service
-          uri: lb://delivery-service
-          predicates:
-            - Path=/api/deliveries/**
-
 server:
   port: 19091
 
@@ -62,7 +60,6 @@ eureka:
       defaultZone: http://eureka-server:19090/eureka/
     register-with-eureka: true
     fetch-registry: true
-
 
 service:
   jwt:
