@@ -26,6 +26,15 @@ spring:
           uri: lb://slack-service
           predicates:
             - Path=/api/slack/**, /slack-service/swagger-ui/**, /slack-service/v3/api-docs/**
+        - id: order-service
+          uri: lb://order-service
+          predicates:
+            - Path=/api/orders/**,/order-service/swagger-ui/**, /order-service/v3/api-docs/**
+
+        - id: delivery-service
+          uri: lb://delivery-service
+          predicates:
+            - Path=/api/deliveries/**,/delivery-service/swagger-ui/**,/delivery-service/v3/api-docs/**
 
 springdoc:
   api-docs:
@@ -42,16 +51,10 @@ springdoc:
         name: "company-service"
       - url: /slack-service/v3/api-docs
         name: "slack-service"
-
-        - id: order-service
-          uri: lb://order-service
-          predicates:
-            - Path=/api/orders/**
-
-        - id: delivery-service
-          uri: lb://delivery-service
-          predicates:
-            - Path=/api/deliveries/**
+      - url: /order-service/v3/api-docs
+        name: "order-service"
+      - url: /delivery-service/v3/api-docs
+        name: "delivery-service"
 
 server:
   port: 19091
