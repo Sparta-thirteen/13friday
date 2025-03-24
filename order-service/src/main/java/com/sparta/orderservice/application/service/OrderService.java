@@ -73,10 +73,14 @@ public class OrderService {
             supplier.getCompanyId(), recipient.getCompanyId());
         jpaOrderRepository.save(order);
 
+
         //  주문 아이템 저장
+        companyClient.updateProductStock(req.getOrderItemsRequests());
+
         List<OrderItems> items = req.getOrderItemsRequests().stream()
             .map(r -> new OrderItems(r.getProductId(), r.getName(), r.getStock(), orderId))
             .toList();
+
 
         jpaOrderItemsRepository.saveAll(items);
 
