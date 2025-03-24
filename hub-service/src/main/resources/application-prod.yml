@@ -10,7 +10,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: update #none 으로 설정시 테이블이 없으면 초기데이터 생성과정에서 에러 발생 우려
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     properties:
       hibernate:
@@ -19,7 +19,7 @@ spring:
 
   data:
     redis:
-      host: 13friday_hub-route
+      host: 13friday_hub
       port: 6379
       timeout: 6000ms
       lettuce:
@@ -38,5 +38,13 @@ eureka:
       defaultZone: http://eureka-server:19090/eureka/
     register-with-eureka: true
 
+springdoc:
+  api-docs:
+    enabled: true
+    path: /hub-service/v3/api-docs
+  swagger-ui:
+    enabled: true
+    path: /hub-service/
+    url: /hub-service/v3/api-docs
 
 open-route-api-key: ${OPEN-ROUTE-API-KEY}

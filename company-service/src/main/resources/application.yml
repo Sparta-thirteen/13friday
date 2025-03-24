@@ -4,8 +4,8 @@ spring:
 
   datasource:
     url: jdbc:postgresql://company-db:5432/13friday_company
-    username: myuser
-    password: mypassword
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -25,3 +25,11 @@ eureka:
     service-url:
       defaultZone: http://eureka-server:19090/eureka/
     register-with-eureka: true
+
+management:
+  zipkin:
+    tracing:
+      endpoint: "http://zipkin:9411/api/v2/spans"
+  tracing:
+    sampling:
+      probability: 1.0

@@ -17,6 +17,14 @@ services:
     depends_on:
       - eureka-server
 
+  zipkin:
+    image: openzipkin/zipkin:latest
+    container_name: zipkin
+    ports:
+      - "9411:9411"
+    environment:
+      - STORAGE_TYPE=mem
+
   auth-service:
     build:
       context: ./auth-service
@@ -55,6 +63,10 @@ services:
       - hub-db
       - redis
       - eureka-server
+    environment:
+      - OPEN_ROUTE_API_KEY=${OPEN-ROUTE-API-KEY}
+    env_file:
+      - .env
 
   hub-db:
     image: postgres
@@ -62,9 +74,11 @@ services:
     ports:
       - "5433:5432"
     environment:
-      - POSTGRES_USER={HUB_DB_USERNAME}
-      - POSTGRES_PASSWORD={HUB_DB_PASSWORD}
+      - POSTGRES_USER=${HUB_DB_USERNAME}
+      - POSTGRES_PASSWORD=${HUB_DB_PASSWORD}
       - POSTGRES_DB=13friday_hub
+    env_file:
+      - .env
 
   redis:
     image: redis:latest
@@ -139,6 +153,8 @@ services:
     container_name: 13friday-company-service
     volumes:
       - ./company-service:/app/company-service
+    env_file:
+      - .env
     ports:
       - "19096:19096"
     depends_on:

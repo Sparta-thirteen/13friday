@@ -1,11 +1,13 @@
 package com.sparta.company_service.product.presentation.controller;
 
+import com.sparta.company_service.common.infrastructure.dto.OrderItemsRequest;
 import com.sparta.company_service.product.application.dto.ProductOrderRequestDto;
 import com.sparta.company_service.product.application.dto.ProductOrderResponseDto;
 import com.sparta.company_service.product.application.service.ProductPublicService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,5 +23,10 @@ public class ProductPublicController {
   public List<ProductOrderResponseDto> getProductList(
       @RequestBody ProductOrderRequestDto requestDto) {
     return productPublicService.getProduct(requestDto);
+  }
+
+  @PatchMapping("/orders")
+  public void updateProductStock(@RequestBody List<OrderItemsRequest> requestDto) {
+    productPublicService.updateProductStock(requestDto);
   }
 }
