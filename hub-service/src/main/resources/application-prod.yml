@@ -38,5 +38,13 @@ eureka:
       defaultZone: http://eureka-server:19090/eureka/
     register-with-eureka: true
 
+springdoc:
+  api-docs:
+    enabled: true
+    path: /hub-service/v3/api-docs
+  swagger-ui:
+    enabled: true
+    path: /hub-service/
+    url: /hub-service/v3/api-docs
 
 open-route-api-key: ${OPEN-ROUTE-API-KEY}
