@@ -25,6 +25,14 @@ spring:
       host: delivery-redis   # 또는 실제 Redis 서버 주소 (ex. redis, 192.168.x.x 등)
       port: 6379
 
+management:
+  zipkin:
+    tracing:
+      endpoint: "http://zipkin:9411/api/v2/spans"
+  tracing:
+    sampling:
+      probability: 1.0
+
 server:
   port: 19095
 
