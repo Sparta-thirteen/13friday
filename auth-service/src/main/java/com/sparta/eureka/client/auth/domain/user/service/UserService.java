@@ -84,6 +84,11 @@ public class UserService {
       throw new ApiBusinessException(UserExceptionCode.USER_NOT_AUTHORITY);
     }
 
+    if(user.getDeletedAt() != null){
+      log.info("삭제된 유저 입니다.");
+      throw new ApiBusinessException(UserExceptionCode.USER_NOT_FOUND);
+    }
+
     return UserResponseDto.fromEntity(user);
   }
 
@@ -96,7 +101,10 @@ public class UserService {
     }
     User user = userRepository.findById(id)
         .orElseThrow(()->new ApiBusinessException(UserExceptionCode.USER_NOT_FOUND));
-
+    if(user.getDeletedAt() != null){
+      log.info("삭제된 유저 입니다.");
+      throw new ApiBusinessException(UserExceptionCode.USER_NOT_FOUND);
+    }
     user.updateRole(userRoleUpdateRequestDto.getRole());
     if(user.getRole().isHubManager()){
       hubClient.updateHub(role, id, new HubRequestDto(uuid));
