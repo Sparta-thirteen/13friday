@@ -55,6 +55,10 @@ services:
       - hub-db
       - redis
       - eureka-server
+    environment:
+      - OPEN_ROUTE_API_KEY={OPEN-ROUTE-API-KEY}
+    env_file:
+      - .env
 
   hub-db:
     image: postgres
@@ -65,6 +69,8 @@ services:
       - POSTGRES_USER={HUB_DB_USERNAME}
       - POSTGRES_PASSWORD={HUB_DB_PASSWORD}
       - POSTGRES_DB=13friday_hub
+    env_file:
+      - .env
 
   redis:
     image: redis:latest
