@@ -19,7 +19,7 @@ spring:
 
   data:
     redis:
-      host: 13friday_hub
+      host: hub-redis
       port: 6379
       timeout: 6000ms
       lettuce:
