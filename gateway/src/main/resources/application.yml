@@ -35,6 +35,16 @@ springdoc:
       - url: /hub-service/v3/api-docs
         name: "hub-service"
 
+        - id: order-service
+          uri: lb://order-service
+          predicates:
+            - Path=/api/orders/**
+
+        - id: delivery-service
+          uri: lb://delivery-service
+          predicates:
+            - Path=/api/deliveries/**
+
 server:
   port: 19091
 

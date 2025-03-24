@@ -25,22 +25,25 @@ public class OrderItems extends BaseEntity {
 
     private String name;
     private int stock;
+    private UUID orderId;
 
-    @ManyToOne(fetch= FetchType.LAZY)
-    @JoinColumn(name = "order_id",nullable = false)
-    private Order order;
 
-    public OrderItems(UUID id,String name, int stock) {
+//    @ManyToOne(fetch= FetchType.LAZY)
+//    @JoinColumn(name = "order_id",nullable = false)
+//    private Order order;
+
+    public OrderItems(UUID id,String name, int stock,UUID orderId) {
         this.id =id;
         this.name = name;
         this.stock =stock;
+        this.orderId = orderId;
     }
 
-    public void setOrder(Order order) {
-        this.order =order;
-        order.getOrderItems().add(this);
-
-    }
+//    public void setOrder(Order order) {
+//        this.orde =order;
+//        order.getOrderItems().add(this);
+//
+//    }
 
     public void updateOrderItem(String name,int stock){
         this.name = name;

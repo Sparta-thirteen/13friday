@@ -1,5 +1,4 @@
-package com.sparta.deliveryservice.presentation.request;
-
+package com.sparta.orderservice.presentation.requset;
 
 
 import jakarta.validation.constraints.NotBlank;
@@ -10,20 +9,12 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class DeliveryRequest {
-
-
     @NotBlank
     private UUID orderId;
     @NotBlank
     private UUID recipientsId;
     @NotBlank
     private String shippingAddress;
-
-//
-//    @Enumerated(EnumType.STRING)
-//    private DeliveryType deliveryStatus;
-
-
 
 
 }

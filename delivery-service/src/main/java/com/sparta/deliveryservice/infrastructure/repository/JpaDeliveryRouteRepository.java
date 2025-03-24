@@ -2,6 +2,8 @@ package com.sparta.deliveryservice.infrastructure.repository;
 
 import com.sparta.deliveryservice.domain.model.Delivery;
 import com.sparta.deliveryservice.domain.model.DeliveryRoute;
+import com.sparta.deliveryservice.domain.model.DeliveryRouteType;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
@@ -18,6 +20,7 @@ public interface JpaDeliveryRouteRepository extends JpaRepository<DeliveryRoute,
     Page<DeliveryRoute> findByDeliveryIdAndIsDeletedFalse(UUID deliveryId,Pageable pageable);
     Page<DeliveryRoute>  findByShippingAddressAndIsDeletedFalse(String keyword, Pageable pageable);
     Page<DeliveryRoute>  findByShippingAddressContainingIgnoreCaseAndIsDeletedFalse(String keyword, Pageable pageable);
+    Optional<DeliveryRoute> findByDeliveryIdAndDeliveryStatus(UUID deliveryId, DeliveryRouteType deliveryStatus);
 
 
 }

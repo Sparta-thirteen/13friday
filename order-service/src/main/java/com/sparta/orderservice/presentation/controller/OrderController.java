@@ -1,11 +1,18 @@
 package com.sparta.orderservice.presentation.controller;
 
+import com.sparta.orderservice.application.dto.SortDto;
 import com.sparta.orderservice.application.service.OrderService;
+import com.sparta.orderservice.common.CustomException;
+import com.sparta.orderservice.common.GlobalExceptionCode;
 import com.sparta.orderservice.domain.model.SearchDto;
 import com.sparta.orderservice.presentation.requset.OrderRequest;
 import com.sparta.orderservice.presentation.requset.UpdateOrderRequest;
+import com.sparta.orderservice.presentation.response.OrderInternalResponse;
 import com.sparta.orderservice.presentation.response.OrderResponse;
 import com.sparta.orderservice.presentation.response.UpdateOrderResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.ws.rs.Path;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -25,13 +32,17 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/orders")
 @RequiredArgsConstructor
+@Tag(name = "Order", description = "주문 API")
 public class OrderController {
 
 
     private final OrderService orderService;
 
     @PostMapping
+    @Operation(summary = "주문 생성")
     public ResponseEntity<String> createOrder(@RequestBody OrderRequest req) {
+
+        // TODO:  request로 공급,수령 업체 이름, details, 아이템(이름,수량) 으로 수정
 
         return orderService.createOrder(req);
     }
@@ -65,7 +76,8 @@ public class OrderController {
         @RequestParam(defaultValue = "createdAt") String sortBy,
         @RequestParam(defaultValue = "asc") String direction
     ) {
-        List<OrderResponse> orders = orderService.getOrders(page, size, sortBy, direction);
+        SortDto sortDto = new SortDto(page, size, sortBy, direction);
+        List<OrderResponse> orders = orderService.getOrders(sortDto);
         return ResponseEntity.ok(orders);
     }
 
@@ -84,6 +96,12 @@ public class OrderController {
         return ResponseEntity.ok(orders);
     }
 
+
+    @GetMapping("/internal/{orderId}")
+    public OrderInternalResponse getOrdersInternal(@PathVariable UUID orderId) {
+
+        return orderService.getOrderInternal(orderId);
+    }
 
 }
 
