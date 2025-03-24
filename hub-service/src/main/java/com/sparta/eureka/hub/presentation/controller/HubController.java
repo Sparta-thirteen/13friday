@@ -1,6 +1,7 @@
 package com.sparta.eureka.hub.presentation.controller;
 
 import com.sparta.eureka.hub.application.dto.hub.HubDto;
+import com.sparta.eureka.hub.application.service.HubDataService;
 import com.sparta.eureka.hub.application.service.HubService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -15,6 +16,14 @@ import java.util.UUID;
 @RequestMapping("/api/hub")
 public class HubController {
     private final HubService hubService;
+    private final HubDataService hubDataService;
+
+    @PostMapping("/initData")
+    public ResponseEntity<HubDto.ResponseDto> createHubs(@RequestHeader("X-Role") String role) {
+        hubDataService.createInitDataHubs(role);
+
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
 
     @PostMapping
     public ResponseEntity<HubDto.ResponseDto> createHub(@RequestHeader("X-Role") String role,
