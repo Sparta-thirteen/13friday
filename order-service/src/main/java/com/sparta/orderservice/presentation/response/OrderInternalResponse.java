@@ -16,5 +16,5 @@ public class OrderInternalResponse {
    private String requestMessage;
    private UUID departHubId;
    private UUID arriveHubId;
-   private UUID hubUserID;
+   private Long hubUserID;
 }

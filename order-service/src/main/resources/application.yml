@@ -14,13 +14,20 @@ spring:
 
 
 
+
   datasource:
     url: jdbc:postgresql://order-db:5432/13friday_order
     username: ${ORDER_DB_USER}
     password: ${ORDER_DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
-
+management:
+  zipkin:
+    tracing:
+      endpoint: "http://zipkin:9411/api/v2/spans"
+  tracing:
+    sampling:
+      probability: 1.0
 
 server:
   port: 19094

@@ -1,7 +1,7 @@
 package com.sparta.deliveryservice.presentation.request;
 
 
-
+import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotBlank;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -17,11 +17,11 @@ public class DeliveryRequest {
     @NotBlank
     private UUID recipientsId;
     @NotBlank
+    private UUID departureHubId;
+    @NotBlank
+    private UUID destinationHubId;
+    @NotBlank
     private String shippingAddress;
-
-//
-//    @Enumerated(EnumType.STRING)
-//    private DeliveryType deliveryStatus;
 
 
 

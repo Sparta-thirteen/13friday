@@ -87,6 +87,13 @@ services:
       - "6379:6379"
     restart: always
 
+  delivery-redis:
+    image: redis:latest
+    container_name: delivery-redis
+    ports:
+      - "6380:6379"   # 외부에 열리는 포트는 다르게, 내부 Redis는 기본 포트 사용
+    restart: always
+
 
   order-service:
     build:
@@ -122,6 +129,7 @@ services:
       - "19095:19095"
     depends_on:
       - delivery-db
+      - delivery-redis
       - eureka-server
     env_file:
       - .env

@@ -14,15 +14,13 @@ import lombok.NoArgsConstructor;
 public class OrderRequest {
 
     @NotEmpty
-    private String name;
+    private String suppliersName;
     @NotEmpty
     private String email;
     @NotEmpty
-    private UUID suppliersId;
+    private String recipientsName;
     @NotEmpty
-    private UUID recipientsId;
-    @NotEmpty
-    private String requestDetails;          // TODO: 이거빼고 다 삭제
+    private String requestDetails;
     @NotEmpty
     private List<OrderItemsRequest> orderItemsRequests;
 
