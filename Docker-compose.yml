@@ -64,7 +64,7 @@ services:
       - redis
       - eureka-server
     environment:
-      - OPEN_ROUTE_API_KEY=${OPEN-ROUTE-API-KEY}
+      - OPEN_ROUTE_API_KEY=${OPEN_ROUTE_API_KEY}
     env_file:
       - .env
 
