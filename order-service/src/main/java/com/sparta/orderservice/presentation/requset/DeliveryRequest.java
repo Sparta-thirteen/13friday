@@ -14,7 +14,13 @@ public class DeliveryRequest {
     @NotBlank
     private UUID recipientsId;
     @NotBlank
+    private UUID departureHubId;
+    @NotBlank
+    private UUID destinationHubId;
+    @NotBlank
     private String shippingAddress;
+
+
 
 
 }

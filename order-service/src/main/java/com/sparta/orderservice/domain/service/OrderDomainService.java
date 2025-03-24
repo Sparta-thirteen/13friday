@@ -21,14 +21,14 @@ public class OrderDomainService {
 
     private final JpaOrderRepository jpaOrderRepository;
 
-    public Order createOrder(UUID orderId,OrderRequest req,UUID deliveryId) {
+    public Order createOrder(UUID orderId,OrderRequest req,UUID deliveryId,UUID supplierId,UUID recipientId) {
 
         int totalStock = req.getOrderItemsRequests().stream()
             .mapToInt(OrderItemsRequest::getStock)
             .sum();
 
         // Order 엔티티 생성
-        Order order = new Order(orderId,req.getName(),req.getEmail(),req.getSuppliersId(), req.getRecipientsId(), deliveryId,totalStock,
+        Order order = new Order(orderId,req.getSuppliersName(),req.getEmail(),supplierId,recipientId, deliveryId,totalStock,
             req.getRequestDetails());
 
         return order;

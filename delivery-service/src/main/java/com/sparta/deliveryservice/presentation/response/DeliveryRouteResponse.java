@@ -30,11 +30,11 @@ public class DeliveryRouteResponse {
     @NotBlank
     private Long estimatedDistance;
     @NotBlank
-    private LocalDateTime estimatedTime;
+    private Long estimatedTime;
     @NotBlank
     private Long actualDistance;
     @NotBlank
-    private LocalDateTime actualTime;
+    private Long actualTime;
     @NotBlank
     @Enumerated(EnumType.STRING)
     private DeliveryRouteType deliveryStatus;

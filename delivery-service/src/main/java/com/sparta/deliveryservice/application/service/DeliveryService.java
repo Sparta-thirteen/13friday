@@ -2,6 +2,10 @@ package com.sparta.deliveryservice.application.service;
 
 
 import com.sparta.deliveryservice.application.dto.DeliveryInfoDto;
+import com.sparta.deliveryservice.application.dto.DeliveryRouteDto;
+import com.sparta.deliveryservice.application.dto.DeliveryRoutesDto;
+import com.sparta.deliveryservice.common.CustomException;
+import com.sparta.deliveryservice.common.GlobalExceptionCode;
 import com.sparta.deliveryservice.domain.model.Delivery;
 import com.sparta.deliveryservice.domain.model.DeliveryRouteType;
 import com.sparta.deliveryservice.domain.model.DeliveryType;
@@ -39,19 +43,18 @@ public class DeliveryService {
 
     // 배송 생성
     @Transactional
-    public ResponseEntity<DeliveryCreatedResponse> createDelivery(DeliveryRequest req) {
+    public ResponseEntity<DeliveryCreatedResponse> createDelivery(DeliveryRequest req,
+        String role) {
 
-        // TODO: hub-service
-        // 요청: 공급업체허브id,수령업체허브id
-        // 응답 : 거리,시간
 
-        Delivery delivery = initTestDelivery(req.getOrderId(), req.getShippingAddress(),
-            DeliveryType.WAITING);
+        createRoleCheck(role);
 
+        Delivery delivery = new Delivery();
         jpaDeliveryRepository.save(delivery);
 
         // 배송경로기록 생성
-        deliveryRouteService.createDeliveryRoutes(delivery.getId(),UUID.fromString("024c5663-7538-4421-9e97-109bea28d1c6"),UUID.fromString("49a40c61-d672-4f6a-9edf-d8f2e05440c4"),"인천 백범로123");
+        DeliveryRoutesDto dto = deliveryRouteService.createDeliveryRoutes(delivery.getId(),
+            req.getDepartureHubId(), req.getDestinationHubId(), req.getShippingAddress());
 
         DeliveryCreatedResponse response = new DeliveryCreatedResponse(delivery.getId());
         return ResponseEntity.ok(response);
@@ -59,7 +62,9 @@ public class DeliveryService {
 
     // 배송 삭제
     @Transactional
-    public ResponseEntity<String> deleteDelivery(UUID deliveryId) {
+    public ResponseEntity<String> deleteDelivery(UUID deliveryId, String userId, String role) {
+        deleteRoleCheck(role);
+
         Delivery delivery = findDelivery(deliveryId);
         if (delivery.isDeleted()) {
             throw new IllegalArgumentException("삭제된 배송정보입니다.");
@@ -71,7 +76,10 @@ public class DeliveryService {
     // 배송 수정
     @Transactional
     public ResponseEntity<String> updateDelivery(UUID deliveryId,
-        UpdateDeliveryRequest req) {
+        UpdateDeliveryRequest req, String userId, String role) {
+
+        updateRoleCheck(role);
+
         // TODO: id 전부 외부 api로 받아야함.
         Delivery delivery = findDelivery(deliveryId);
 
@@ -106,8 +114,8 @@ public class DeliveryService {
             ? Sort.by(sortDto.getSortBy()).ascending()
             : Sort.by(sortDto.getSortBy()).descending();
         int pageSize =
-            (sortDto.getSize() == 10 || sortDto.getSize()== 30 || sortDto.getSize()== 50)
-                ? sortDto.getSize(): 10;
+            (sortDto.getSize() == 10 || sortDto.getSize() == 30 || sortDto.getSize() == 50)
+                ? sortDto.getSize() : 10;
 
         Pageable pageable = PageRequest.of(pageSize, sortDto.getSize(), sort);
 
@@ -131,8 +139,8 @@ public class DeliveryService {
             : Sort.by(sortDto.getSortBy()).descending();
 
         int pageSize =
-            (sortDto.getSize() == 10 || sortDto.getSize()== 30 || sortDto.getSize()== 50)
-                ? sortDto.getSize(): 10;
+            (sortDto.getSize() == 10 || sortDto.getSize() == 30 || sortDto.getSize() == 50)
+                ? sortDto.getSize() : 10;
 
         Pageable pageable = PageRequest.of(pageSize, sortDto.getSize(), sort);
 
@@ -183,6 +191,28 @@ public class DeliveryService {
 
         return new Delivery(departureHubId, destinationHubId, recipientsId, recipientsSlackId,
             companyDeliveryManagerId, orderId, shippingAddress, deliveryStatus);
+    }
+
+    private void createRoleCheck(String role) {
+        if (!role.equals("MASTER")) {
+            throw new CustomException(GlobalExceptionCode.INVALID_ROLE);
+        }
+    }
+
+
+    private void updateRoleCheck(String role) {
+        if (role.equals("COMPANYMANAGER")) {
+            throw new CustomException(GlobalExceptionCode.INVALID_ROLE);
+        }
+
+    }
+    private void deleteRoleCheck(String role) {
+        if (role.equals("SHIPPINGMANAGER")) {
+            throw new CustomException(GlobalExceptionCode.INVALID_ROLE);
+        }
+        if (role.equals("COMPANYMANAGER")) {
+            throw new CustomException(GlobalExceptionCode.INVALID_ROLE);
+        }
     }
 
 }

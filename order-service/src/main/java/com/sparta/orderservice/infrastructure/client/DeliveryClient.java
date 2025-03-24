@@ -6,7 +6,6 @@ import com.sparta.orderservice.presentation.requset.DeliveryRequest;
 import com.sparta.orderservice.presentation.response.DeliveryCreatedResponse;
 import com.sparta.orderservice.presentation.response.DeliveryInternalResponse;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 

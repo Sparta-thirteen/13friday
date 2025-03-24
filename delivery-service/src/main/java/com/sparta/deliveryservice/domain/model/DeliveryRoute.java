@@ -42,12 +42,12 @@ public class DeliveryRoute extends BaseEntity {
     @Column(nullable = false)
     private Long estimatedDistance;
 
-    private LocalDateTime estimatedTime;
+    private Long estimatedTime;
 
     @Column(nullable = false)
     private Long actualDistance;
 
-    private LocalDateTime actualTime;
+    private Long actualTime;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
@@ -56,10 +56,14 @@ public class DeliveryRoute extends BaseEntity {
     @Column(nullable = false)
     private int deliveryOrder;
 
+    @Column(nullable = false)
+    private Long hubDeliveryUserId;
+
     public DeliveryRoute(UUID departureHubId, UUID destinationHubId, UUID deliveryId,
         UUID shippingManagerId, String shippingAddress,
-        Long estimatedDistance, LocalDateTime estimatedTime, Long actualDistance,
-        LocalDateTime actualTime, DeliveryRouteType deliveryStatus, int deliveryOrder) {
+        Long estimatedDistance, Long estimatedTime, Long actualDistance,
+        Long actualTime, DeliveryRouteType deliveryStatus, int deliveryOrder,
+        Long hubDeliveryUserId) {
         this.departureHubId = departureHubId;
         this.destinationHubId = destinationHubId;
         this.deliveryId = deliveryId;
@@ -71,9 +75,8 @@ public class DeliveryRoute extends BaseEntity {
         this.actualTime = actualTime;
         this.deliveryStatus = deliveryStatus;
         this.deliveryOrder = deliveryOrder;
+        this.hubDeliveryUserId = hubDeliveryUserId;
     }
-
-
 
 
 }
