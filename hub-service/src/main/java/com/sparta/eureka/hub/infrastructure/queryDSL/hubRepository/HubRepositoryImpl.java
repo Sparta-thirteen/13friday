@@ -20,7 +20,11 @@ public class HubRepositoryImpl implements HubRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Page<Hub> searchByKeyword(String keyword,boolean isDesc, Pageable pageable) {
+    public Page<Hub> searchByKeyword(String keyword, boolean isDesc, Pageable pageable) {
+        int size = pageable.getPageSize();
+        if (size != 10 && size != 30 && size != 50) {
+            size = 10;
+        }
         JPAQuery<Hub> query = queryFactory
                 .selectFrom(hub)
                 .where(
@@ -29,7 +33,7 @@ public class HubRepositoryImpl implements HubRepositoryCustom {
                 )
                 .orderBy(getOrderSpecifier(isDesc))
                 .offset(pageable.getOffset())
-                .limit(pageable.getPageSize());
+                .limit(size);
 
         List<Hub> hubs = query.fetch();
 

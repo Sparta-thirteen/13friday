@@ -22,6 +22,11 @@ public class HubRouteRepositoryImpl implements HubRouteRepositoryCustom {
 
     @Override
     public Page<HubRoute> searchHubRoutes(String keyword, boolean isDesc, Pageable pageable) {
+        int size = pageable.getPageSize();
+        if (size != 10 && size != 30 && size != 50) {
+            size = 10;
+        }
+
         JPAQuery<HubRoute> query = queryFactory
                 .selectFrom(hubRoute)
                 .join(hubRoute.departHub, hub)
@@ -32,7 +37,7 @@ public class HubRouteRepositoryImpl implements HubRouteRepositoryCustom {
                 )
                 .orderBy(getOrderSpecifier(isDesc))
                 .offset(pageable.getOffset())
-                .limit(pageable.getPageSize());
+                .limit(size);
 
         List<HubRoute> hubRoutes = query.fetch();
 
