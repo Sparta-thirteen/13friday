@@ -47,4 +47,4 @@ springdoc:
     path: /hub-service/
     url: /hub-service/v3/api-docs
 
-open-route-api-key: ${OPEN-ROUTE-API-KEY}
+open-route-api-key: ${OPEN_ROUTE_API_KEY}
