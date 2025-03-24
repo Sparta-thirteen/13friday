@@ -20,11 +20,13 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ShippingManagerService {
@@ -131,6 +133,11 @@ public class ShippingManagerService {
     ShippingManager shippingManager = shippingManagerRepository.findById(shippingManagerId)
         .orElseThrow(() -> new ApiBusinessException(UserExceptionCode.USER_NOT_FOUND));
 
+    // 삭제된 배송담당자인지 확인
+    if(shippingManager.getDeletedAt() != null){
+      log.info("삭제된 배송 담당자");
+      throw new ApiBusinessException(UserExceptionCode.USER_NOT_FOUND);
+    }
     // Master는 모든 배송담당자 조회 가능
     if (userRole.isMaster()) {
       return ShippingManagerResponseDto.fromEntity(shippingManager);
@@ -139,7 +146,7 @@ public class ShippingManagerService {
     // HubManager는 자신의 hubId에 속한 배송담당자만 조회 가능
     UUID userHubId = shippingManager.getHubId();
     if (userRole.isHubManager()) {
-      if (!shippingManager.getHubId().equals(userHubId)) {
+      if (shippingManagerId != userHubId) {
         throw new ApiBusinessException(UserExceptionCode.USER_NOT_AUTHORITY);
       }
       return ShippingManagerResponseDto.fromEntity(shippingManager);
@@ -194,11 +201,21 @@ public class ShippingManagerService {
     if(deliveryRequestDto.getHubId() == null){
       ShippingManager shippingManager = shippingManagerRepository.findByHubIdIsNullAndDeliveryOrder(
           deliveryRequestDto.getDeliveryOrder()).orElseThrow(() -> new ApiBusinessException(UserExceptionCode.USER_NOT_FOUND));
+      // 삭제된 배송담당자인지 확인
+      if(shippingManager.getDeletedAt() != null){
+        log.info("삭제된 배송 담당자");
+        throw new ApiBusinessException(UserExceptionCode.USER_NOT_FOUND);
+      }
       return ShippingManagerResponseDto.fromEntity(shippingManager);
     } else{
       //요청에 hubId가 있으면
       ShippingManager shippingManager = shippingManagerRepository.findByHubIdAndDeliveryOrder(
           deliveryRequestDto.getHubId(), deliveryRequestDto.getDeliveryOrder()).orElseThrow(() -> new ApiBusinessException(UserExceptionCode.USER_NOT_FOUND));
+      // 삭제된 배송담당자인지 확인
+      if(shippingManager.getDeletedAt() != null){
+        log.info("삭제된 배송 담당자");
+        throw new ApiBusinessException(UserExceptionCode.USER_NOT_FOUND);
+      }
       return ShippingManagerResponseDto.fromEntity(shippingManager);
     }
   }
