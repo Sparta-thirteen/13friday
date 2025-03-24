@@ -55,6 +55,10 @@ services:
       - hub-db
       - redis
       - eureka-server
+    environment:
+      - OPEN_ROUTE_API_KEY=${OPEN-ROUTE-API-KEY}
+    env_file:
+      - .env
 
   hub-db:
     image: postgres
@@ -62,9 +66,11 @@ services:
     ports:
       - "5433:5432"
     environment:
-      - POSTGRES_USER={HUB_DB_USERNAME}
-      - POSTGRES_PASSWORD={HUB_DB_PASSWORD}
+      - POSTGRES_USER=${HUB_DB_USERNAME}
+      - POSTGRES_PASSWORD=${HUB_DB_PASSWORD}
       - POSTGRES_DB=13friday_hub
+    env_file:
+      - .env
 
   redis:
     image: redis:latest
