@@ -13,12 +13,45 @@ spring:
         - id: company-service
           uri: lb://company-service
           predicates:
-            - Path=/api/companies/**
+            - Path=/api/companies/**, /api/products/**, /company-service/swagger-ui/**, /company-service/v3/api-docs/**, /product-service/swagger-ui/**, /product-service/v3/api-docs/**
         - id: auth-service
           uri: lb://auth-service
           predicates:
             - Path=/api/users/**, /api/courier/**, /api/auth/**
+        - id: hub-service
+          uri: lb://hub-service
+          predicates:
+            - Path=/api/hub/**, /hub-service/swagger-ui/**, /hub-service/v3/api-docs/**
+        - id: slack-service
+          uri: lb://slack-service
+          predicates:
+            - Path=/api/slack/**, /slack-service/swagger-ui/**, /slack-service/v3/api-docs/**
 
+springdoc:
+  api-docs:
+    enabled: true
+    path: /v3/api-docs
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui/
+    url: /v3/api-docs
+    urls:
+      - url: /hub-service/v3/api-docs
+        name: "hub-service"
+      - url: /company-service/v3/api-docs
+        name: "company-service"
+      - url: /slack-service/v3/api-docs
+        name: "slack-service"
+
+        - id: order-service
+          uri: lb://order-service
+          predicates:
+            - Path=/api/orders/**
+
+        - id: delivery-service
+          uri: lb://delivery-service
+          predicates:
+            - Path=/api/deliveries/**
 
 server:
   port: 19091

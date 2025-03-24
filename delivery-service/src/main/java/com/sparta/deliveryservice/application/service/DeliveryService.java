@@ -1,19 +1,24 @@
 package com.sparta.deliveryservice.application.service;
 
 
-import com.sparta.deliveryservice.domain.model.BaseEntity;
+import com.sparta.deliveryservice.application.dto.DeliveryInfoDto;
 import com.sparta.deliveryservice.domain.model.Delivery;
+import com.sparta.deliveryservice.domain.model.DeliveryRouteType;
+import com.sparta.deliveryservice.domain.model.DeliveryType;
 import com.sparta.deliveryservice.domain.model.SearchDto;
 import com.sparta.deliveryservice.domain.model.SortDto;
 import com.sparta.deliveryservice.domain.service.DeliveryDomainService;
 import com.sparta.deliveryservice.infrastructure.repository.JpaDeliveryRepository;
 import com.sparta.deliveryservice.presentation.request.DeliveryRequest;
 import com.sparta.deliveryservice.presentation.request.UpdateDeliveryRequest;
+import com.sparta.deliveryservice.presentation.response.DeliveryCreatedResponse;
+import com.sparta.deliveryservice.presentation.response.DeliveryInternalResponse;
 import com.sparta.deliveryservice.presentation.response.DeliveryResponse;
-import com.sparta.deliveryservice.presentation.response.UpdateDeliveryResponse;
+
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -21,27 +26,35 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class DeliveryService {
 
     private final JpaDeliveryRepository jpaDeliveryRepository;
     private final DeliveryDomainService deliveryDomainService;
+    private final DeliveryRouteService deliveryRouteService;
 
     // 배송 생성
     @Transactional
-    public ResponseEntity<String> createDelivery(DeliveryRequest req) {
-        // TODO: id 전부 외부 api로 받아야함.
-        Delivery delivery = new Delivery(req.getDepartureHubId(), req.getDestinationHubId(),
-            req.getShippingManagerId(), req.getShippingManagerSlackId(),
-            req.getCompanyDeliveryManagerId(), req.getShippingAddress(),
-            req.getDeliveryStatus());
+    public ResponseEntity<DeliveryCreatedResponse> createDelivery(DeliveryRequest req) {
+
+        // TODO: hub-service
+        // 요청: 공급업체허브id,수령업체허브id
+        // 응답 : 거리,시간
+
+        Delivery delivery = initTestDelivery(req.getOrderId(), req.getShippingAddress(),
+            DeliveryType.WAITING);
 
         jpaDeliveryRepository.save(delivery);
-        return ResponseEntity.ok("배송 생성 완료");
+
+        // 배송경로기록 생성
+        deliveryRouteService.createDeliveryRoutes(delivery.getId(),UUID.fromString("024c5663-7538-4421-9e97-109bea28d1c6"),UUID.fromString("49a40c61-d672-4f6a-9edf-d8f2e05440c4"),"인천 백범로123");
+
+        DeliveryCreatedResponse response = new DeliveryCreatedResponse(delivery.getId());
+        return ResponseEntity.ok(response);
     }
 
     // 배송 삭제
@@ -64,7 +77,6 @@ public class DeliveryService {
 
         isDeletedDelivery(delivery);
 
-
         delivery.updateDelivery(req);
 
         return ResponseEntity.ok("배송 상태 수정 완료 " + req.getDelivery_status());
@@ -79,13 +91,37 @@ public class DeliveryService {
         isDeletedDelivery(delivery);
 
         // TODO: id 전부 외부 api로 받아야함.
-
         return new DeliveryResponse(delivery.getDepartureHubId(), delivery.getDestinationHubId(),
-            delivery.getShippingManagerId(), delivery.getShippingManagerSlackId(),
-            delivery.getCompanyDeliveryManagerId(), delivery.getShippingAddress(),
+            delivery.getRecipientsId(), delivery.getRecipientsSlackId(),
+            delivery.getCompanyDeliveryManagerId(), delivery.getOrderId(),
+            delivery.getShippingAddress(),
             delivery.getDeliveryStatus());
     }
 
+
+    // 주문에 따른 배송조회
+    @Transactional(readOnly = true)
+    public List<DeliveryResponse> getDeliveryByOrder(UUID orderId, SortDto sortDto) {
+        Sort sort = sortDto.getDirection().equalsIgnoreCase("asc")
+            ? Sort.by(sortDto.getSortBy()).ascending()
+            : Sort.by(sortDto.getSortBy()).descending();
+        int pageSize =
+            (sortDto.getSize() == 10 || sortDto.getSize()== 30 || sortDto.getSize()== 50)
+                ? sortDto.getSize(): 10;
+
+        Pageable pageable = PageRequest.of(pageSize, sortDto.getSize(), sort);
+
+        Page<Delivery> deliveryPage = jpaDeliveryRepository.findByOrderIdAndIsDeletedFalse(orderId,
+            pageable);
+
+        return deliveryPage.getContent().stream()
+            .map(delivery -> new DeliveryResponse(delivery.getDepartureHubId(),
+                delivery.getDestinationHubId(),
+                delivery.getRecipientsId(), delivery.getRecipientsSlackId(),
+                delivery.getCompanyDeliveryManagerId(), delivery.getOrderId(),
+                delivery.getShippingAddress(),
+                delivery.getDeliveryStatus())).toList();
+    }
 
     // 배송 전체 조회
     @Transactional(readOnly = true)
@@ -94,29 +130,34 @@ public class DeliveryService {
             ? Sort.by(sortDto.getSortBy()).ascending()
             : Sort.by(sortDto.getSortBy()).descending();
 
-        Pageable pageable = PageRequest.of(sortDto.getPage(),sortDto.getPage(), sort);
+        int pageSize =
+            (sortDto.getSize() == 10 || sortDto.getSize()== 30 || sortDto.getSize()== 50)
+                ? sortDto.getSize(): 10;
+
+        Pageable pageable = PageRequest.of(pageSize, sortDto.getSize(), sort);
 
         Page<Delivery> deliveryPage = jpaDeliveryRepository.findByIsDeletedFalse(pageable);
 
         return deliveryPage.getContent().stream()
             .map(delivery -> new DeliveryResponse(delivery.getDepartureHubId(),
                 delivery.getDestinationHubId(),
-                delivery.getShippingManagerId(), delivery.getShippingManagerSlackId(),
-                delivery.getCompanyDeliveryManagerId(), delivery.getShippingAddress(),
+                delivery.getRecipientsId(), delivery.getRecipientsSlackId(),
+                delivery.getCompanyDeliveryManagerId(), delivery.getOrderId(),
+                delivery.getShippingAddress(),
                 delivery.getDeliveryStatus())).toList();
     }
 
     // 배송 검색
     @Transactional(readOnly = true)
     public List<DeliveryResponse> searchDeliveries(SearchDto searchDto) {
-        // TODO : 리팩토링
         Page<Delivery> deliveryPage = deliveryDomainService.searchDeliveries(searchDto);
 
         return deliveryPage.getContent().stream()
             .map(delivery -> new DeliveryResponse(delivery.getDepartureHubId(),
                 delivery.getDestinationHubId(),
-                delivery.getShippingManagerId(), delivery.getShippingManagerSlackId(),
-                delivery.getCompanyDeliveryManagerId(), delivery.getShippingAddress(),
+                delivery.getRecipientsId(), delivery.getRecipientsSlackId(),
+                delivery.getCompanyDeliveryManagerId(), delivery.getOrderId(),
+                delivery.getShippingAddress(),
                 delivery.getDeliveryStatus())).toList();
     }
 
@@ -130,6 +171,18 @@ public class DeliveryService {
         if (delivery.isDeleted()) {
             throw new IllegalArgumentException("삭제된 배송정보입니다.");
         }
+    }
+
+    private Delivery initTestDelivery(UUID orderId, String shippingAddress,
+        DeliveryType deliveryStatus) {
+        UUID departureHubId = UUID.randomUUID();
+        UUID destinationHubId = UUID.randomUUID();
+        UUID recipientsId = UUID.randomUUID();
+        UUID recipientsSlackId = UUID.randomUUID();
+        UUID companyDeliveryManagerId = UUID.randomUUID();
+
+        return new Delivery(departureHubId, destinationHubId, recipientsId, recipientsSlackId,
+            companyDeliveryManagerId, orderId, shippingAddress, deliveryStatus);
     }
 
 }

@@ -5,7 +5,7 @@ spring:
 #    activate:
 #      on-profile: local
   datasource:
-    url: jdbc:postgresql://13friday-auth-db:5432/13friday_auth
+    url: jdbc:postgresql://auth-db:5432/13friday_auth
     username: myuser
     password: mypassword
 #    url: jdbc:postgresql://localhost:5432/fridayauth

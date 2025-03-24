@@ -1,5 +1,6 @@
 package com.sparta.slack_service.common.global;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.slack.api.methods.SlackApiException;
 import java.io.IOException;
 import java.util.HashMap;
@@ -38,5 +39,11 @@ public class GlobalExceptionHandler {
   public ResponseEntity<String> handleSlackApiException(Exception ex) {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
         .body("Slack API Error: " + ex.getMessage());
+  }
+
+  @ExceptionHandler(JsonProcessingException.class)
+  public ResponseEntity<String> handleJsonProcessingException(JsonProcessingException ex) {
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        .body("JSON Processing Error: " + ex.getMessage());
   }
 }

@@ -1,15 +1,19 @@
 package com.sparta.deliveryservice.presentation.Controller;
 
+import com.sparta.deliveryservice.application.dto.DeliveryInfoDto;
 import com.sparta.deliveryservice.application.service.DeliveryRouteService;
 
+import com.sparta.deliveryservice.domain.model.DeliveryRoute;
 import com.sparta.deliveryservice.domain.model.SearchDto;
 import com.sparta.deliveryservice.domain.model.SortDto;
 
 import com.sparta.deliveryservice.presentation.request.UpdateDeliveryRequest;
+import com.sparta.deliveryservice.presentation.response.DeliveryInternalResponse;
 import com.sparta.deliveryservice.presentation.response.DeliveryRouteResponse;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,14 +28,18 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/delivery-route")
 @RequiredArgsConstructor
+@Slf4j
 public class DeliveryRouteController {
 
     private final DeliveryRouteService deliveryRouteService;
 
 
-    @PostMapping
-    public ResponseEntity<String> createDeliveryRoute() {
-        return deliveryRouteService.createDeliveryRoute();
+    @PostMapping("/redis")
+    public ResponseEntity<String> createDeliveryRoutes() {
+        deliveryRouteService.createDeliveryRoutes(UUID.randomUUID(),
+            UUID.fromString("024c5663-7538-4421-9e97-109bea28d1c6"),
+            UUID.fromString("49a40c61-d672-4f6a-9edf-d8f2e05440c4"), "인천 백범로123");
+        return ResponseEntity.ok("성공!!");
     }
 
 
@@ -39,7 +47,6 @@ public class DeliveryRouteController {
     public ResponseEntity<String> deleteDeliveryRoute(@PathVariable UUID deliveryRouteId) {
         return deliveryRouteService.deleteDeliveryRoute(deliveryRouteId);
     }
-
 
 
     @GetMapping("/{deliveryRouteId}")
@@ -86,6 +93,12 @@ public class DeliveryRouteController {
         List<DeliveryRouteResponse> deliveries = deliveryRouteService.searchDeliveryRoute(
             searchDto);
         return ResponseEntity.ok(deliveries);
+    }
+
+    @PostMapping("/internal")
+    DeliveryInternalResponse getDeliveryInfo(@RequestBody DeliveryInfoDto dto) {
+
+        return deliveryRouteService.getDeliveryInfo(dto);
     }
 
 

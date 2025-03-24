@@ -1,6 +1,8 @@
 package com.sparta.company_service.product.application.service;
 
 import com.sparta.company_service.common.global.GlobalException;
+import com.sparta.company_service.common.infrastructure.client.HubClient;
+import com.sparta.company_service.common.infrastructure.dto.HubDto;
 import com.sparta.company_service.company.application.service.CompanyService;
 import com.sparta.company_service.company.domain.entity.Company;
 import com.sparta.company_service.product.application.dto.ProductRequestDto;
@@ -20,12 +22,14 @@ import org.springframework.transaction.annotation.Transactional;
 public class ProductService {
 
   private final ProductRepository productRepository;
+  private final HubClient hubClient;
   private final CompanyService companyService;
 
   @Transactional
-  public void createProduct(ProductRequestDto requestDto) {
-    // todo: user 권한 검증 로직
+  public void createProduct(String userId, String role, ProductRequestDto requestDto) {
     Company company = companyService.findCompany(requestDto.getCompanyId());
+    createUpdateRoleCheck(Long.parseLong(userId), role, company);
+
     Product product = requestDto.toEntity(company.getHubId());
     productRepository.save(product);
   }
@@ -49,18 +53,19 @@ public class ProductService {
   }
 
   @Transactional
-  public void updateProduct(UUID productId, ProductRequestDto requestDto) {
-    // todo: user 권한 검증 로직
+  public void updateProduct(String userId, String role, UUID productId,
+      ProductRequestDto requestDto) {
     Product product = findProduct(productId);
     Company company = companyService.findCompany(requestDto.getCompanyId());
+    createUpdateRoleCheck(Long.parseLong(userId), role, company);
     UUID hubId = company.getHubId();
     product.update(requestDto, hubId);
   }
 
   @Transactional
-  public void deleteProduct(UUID productId) {
-    // todo: user 권한 검증 로직
+  public void deleteProduct(String userId, String role, UUID productId) {
     Product product = findProduct(productId);
+    deletedRoleCheck(Long.parseLong(userId), role, product);
     product.softDelete();
   }
 
@@ -73,5 +78,37 @@ public class ProductService {
     }
 
     return product;
+  }
+
+  private void createUpdateRoleCheck(Long userId, String role, Company company) {
+    if (role.equals("COMPANYMANAGER") && !userId.equals(company.getUserId())) {
+      throw new GlobalException(HttpStatus.FORBIDDEN, "업체 담당자가 아닙니다.");
+    }
+    roleCheck(userId, role, company);
+  }
+
+  private void deletedRoleCheck(Long userId, String role, Product product) {
+    if (role.equals("COMPANYMANAGER")) {
+      throw new GlobalException(HttpStatus.FORBIDDEN, "권한이 없습니다.");
+    }
+    Company company = companyService.findCompany(product.getCompanyId());
+    roleCheck(userId, role, company);
+  }
+
+  private void roleCheck(Long userId, String role, Company company) {
+    switch (role) {
+      case "MASTER":
+        return;
+      case "SHIPPINGMANAGER":
+        throw new GlobalException(HttpStatus.FORBIDDEN, "권한이 없습니다.");
+      case "HUBMANAGER":
+        UUID hubId = company.getHubId();
+        HubDto.ResponseDto hubResponse = hubClient.getHub(hubId).getBody();
+
+        if (!userId.equals(hubResponse.getUserId())) {
+          throw new GlobalException(HttpStatus.FORBIDDEN, "허브 담당자가 아닙니다.");
+        }
+        break;
+    }
   }
 }
