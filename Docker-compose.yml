@@ -139,6 +139,8 @@ services:
     container_name: 13friday-company-service
     volumes:
       - ./company-service:/app/company-service
+    env_file:
+      - .env
     ports:
       - "19096:19096"
     depends_on:

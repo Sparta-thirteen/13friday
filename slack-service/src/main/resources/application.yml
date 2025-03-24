@@ -4,8 +4,8 @@ spring:
 
   datasource:
     url: jdbc:postgresql://slack-db:5432/13friday_slack
-    username: myuser
-    password: mypassword
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
   jpa:
