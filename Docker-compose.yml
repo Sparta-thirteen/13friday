@@ -17,6 +17,14 @@ services:
     depends_on:
       - eureka-server
 
+  zipkin:
+    image: openzipkin/zipkin:latest
+    container_name: zipkin
+    ports:
+      - "9411:9411"
+    environment:
+      - STORAGE_TYPE=mem
+
   auth-service:
     build:
       context: ./auth-service
