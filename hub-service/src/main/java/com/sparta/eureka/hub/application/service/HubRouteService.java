@@ -37,8 +37,7 @@ public class HubRouteService {
     private String apiKey;
 
     @Transactional
-    public HubRouteDto.ResponseDto createHubRoute(String role, HubRouteDto.CreateDto request) {
-        checkMasterRole(role);
+    public HubRouteDto.ResponseDto createHubRoute(HubRouteDto.CreateDto request) {
         String cacheKey = "hubRoute:" + request.getDepartHubId() + ":" + request.getArriveHubId();
 
         HubRouteDto.ResponseDto cachedRoute = (HubRouteDto.ResponseDto) redisTemplate.opsForValue().get(cacheKey);
@@ -51,9 +50,8 @@ public class HubRouteService {
 
         Optional<HubRoute> existRoute = hubRouteRepository
                 .findByDepartHub_HubIdAndArriveHub_HubId(request.getDepartHubId(), request.getArriveHubId());
-        HubRoute hubRoute;
 
-        hubRoute = existRoute.orElseGet(() -> {
+        HubRoute hubRoute = existRoute.orElseGet(() -> {
             HubRoute newHubRoute = hubRouteMapper.createDtoToHubRoute(departHub, arriveHub);
             return hubRouteRepository.save(newHubRoute);
         });
@@ -97,11 +95,11 @@ public class HubRouteService {
 
     public HubRouteDto.ResponseDto getHubRoute(UUID hubRouteId) {
         HubRoute hubRoute = findHubRoute(hubRouteId);
-        if(!hubRoute.isDeleted()) {
-            return hubRouteMapper.hubRouteToResponseDto(hubRoute);
-        } else {
+        if(hubRoute.isDeleted()) {
             throw new BusinessLogicException(ErrorCode.HUB_ROUTE_NOT_FOUND);
         }
+
+        return hubRouteMapper.hubRouteToResponseDto(hubRoute);
     }
 
     public Page<HubRouteDto.ResponseDto> searchHubRoutes(int page,
@@ -115,12 +113,16 @@ public class HubRouteService {
         return hubRoutes.map(hubRouteMapper::hubRouteToResponseDto);
     }
 
-    @Transactional
+    @Transactional(rollbackOn = BusinessLogicException.class)
     public void deleteHubRoute(String userId, String role, UUID hubRouteId) {
         checkMasterRole(role);
         HubRoute hubRoute = findHubRoute(hubRouteId);
-        hubRoute.delete(Long.parseLong(userId));
 
+        if (hubRoute.isDeleted()) {
+            throw new BusinessLogicException(ErrorCode.HUB_ALREADY_DELETED);
+        }
+
+        hubRoute.delete(Long.parseLong(userId));
     }
 
     public OpenRouteServiceResponse calculateDistance(UUID departHubId, UUID arriveHubId) {
