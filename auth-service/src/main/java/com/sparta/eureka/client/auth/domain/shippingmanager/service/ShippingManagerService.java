@@ -197,26 +197,31 @@ public class ShippingManagerService {
   }
 
   public ShippingManagerResponseDto getShippingManagerByDeliveryOrder(DeliveryRequestDto deliveryRequestDto) {
+    UUID hubId = deliveryRequestDto.getHubId();
+    int deliveryOrder = deliveryRequestDto.getDeliveryOrder();
+
+    ShippingManager shippingManager = findNextAvailableShippingManager(hubId, deliveryOrder);
+
+    return ShippingManagerResponseDto.fromEntity(shippingManager);
+  }
+
+  private ShippingManager findNextAvailableShippingManager(UUID hubId, int deliveryOrder) {
+    Optional<ShippingManager> optionalShippingManager;
     //요청에 hubId가 없으면
-    if(deliveryRequestDto.getHubId() == null){
-      ShippingManager shippingManager = shippingManagerRepository.findByHubIdIsNullAndDeliveryOrder(
-          deliveryRequestDto.getDeliveryOrder()).orElseThrow(() -> new ApiBusinessException(UserExceptionCode.USER_NOT_FOUND));
-      // 삭제된 배송담당자인지 확인
-      if(shippingManager.getDeletedAt() != null){
-        log.info("삭제된 배송 담당자");
-        throw new ApiBusinessException(UserExceptionCode.USER_NOT_FOUND);
-      }
-      return ShippingManagerResponseDto.fromEntity(shippingManager);
-    } else{
-      //요청에 hubId가 있으면
-      ShippingManager shippingManager = shippingManagerRepository.findByHubIdAndDeliveryOrder(
-          deliveryRequestDto.getHubId(), deliveryRequestDto.getDeliveryOrder()).orElseThrow(() -> new ApiBusinessException(UserExceptionCode.USER_NOT_FOUND));
-      // 삭제된 배송담당자인지 확인
-      if(shippingManager.getDeletedAt() != null){
-        log.info("삭제된 배송 담당자");
-        throw new ApiBusinessException(UserExceptionCode.USER_NOT_FOUND);
-      }
-      return ShippingManagerResponseDto.fromEntity(shippingManager);
+    if (hubId == null) {
+      optionalShippingManager = shippingManagerRepository.findByHubIdIsNullAndDeliveryOrder(deliveryOrder);
+    } else { //요청에 hubId가 있으면
+      optionalShippingManager = shippingManagerRepository.findByHubIdAndDeliveryOrder(hubId, deliveryOrder);
     }
+
+    ShippingManager shippingManager = optionalShippingManager.orElseThrow(() ->
+        new ApiBusinessException(UserExceptionCode.USER_NOT_FOUND));
+
+    // 삭제된 사람이라면 다음 deliveryOrder로 재귀적으로 찾기
+    if (shippingManager.getDeletedAt() != null) {
+      return findNextAvailableShippingManager(hubId, deliveryOrder + 1);
+    }
+
+    return shippingManager;
   }
 }
