@@ -42,26 +42,28 @@ public class DeliveryRoute extends BaseEntity {
     @Column(nullable = false)
     private Long estimatedDistance;
 
-    @Column(nullable = false)
-    private LocalDateTime estimatedTime;
+    private Long estimatedTime;
 
     @Column(nullable = false)
     private Long actualDistance;
 
-    @Column(nullable = false)
-    private LocalDateTime actualTime;
+    private Long actualTime;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private DeliveryRouteType deliveryStatus;
 
     @Column(nullable = false)
-    private int sequence;
+    private int deliveryOrder;
+
+    @Column(nullable = false)
+    private Long hubDeliveryUserId;
 
     public DeliveryRoute(UUID departureHubId, UUID destinationHubId, UUID deliveryId,
         UUID shippingManagerId, String shippingAddress,
-        Long estimatedDistance, LocalDateTime estimatedTime, Long actualDistance,
-        LocalDateTime actualTime, DeliveryRouteType deliveryStatus, int sequence) {
+        Long estimatedDistance, Long estimatedTime, Long actualDistance,
+        Long actualTime, DeliveryRouteType deliveryStatus, int deliveryOrder,
+        Long hubDeliveryUserId) {
         this.departureHubId = departureHubId;
         this.destinationHubId = destinationHubId;
         this.deliveryId = deliveryId;
@@ -72,13 +74,9 @@ public class DeliveryRoute extends BaseEntity {
         this.actualDistance = actualDistance;
         this.actualTime = actualTime;
         this.deliveryStatus = deliveryStatus;
-        this.sequence = sequence;
+        this.deliveryOrder = deliveryOrder;
+        this.hubDeliveryUserId = hubDeliveryUserId;
     }
 
-
-
-    public static DeliveryRoute testDeliveryRoute(DeliveryRouteType deliveryStatus, int sequence) {
-       return new DeliveryRoute(UUID.randomUUID(),UUID.randomUUID(),UUID.randomUUID(),UUID.randomUUID(),"강남구 123",150L,LocalDateTime.now().plusDays(2),148L,LocalDateTime.now().plusDays(2).plusHours(1),deliveryStatus,sequence);
-    }
 
 }

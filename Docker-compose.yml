@@ -17,6 +17,14 @@ services:
     depends_on:
       - eureka-server
 
+  zipkin:
+    image: openzipkin/zipkin:latest
+    container_name: zipkin
+    ports:
+      - "9411:9411"
+    environment:
+      - STORAGE_TYPE=mem
+
   auth-service:
     build:
       context: ./auth-service
@@ -53,7 +61,12 @@ services:
       - "19093:19093"
     depends_on:
       - hub-db
+      - redis
       - eureka-server
+    environment:
+      - OPEN_ROUTE_API_KEY=${OPEN_ROUTE_API_KEY}
+    env_file:
+      - .env
 
   hub-db:
     image: postgres
@@ -61,9 +74,26 @@ services:
     ports:
       - "5433:5432"
     environment:
-      - POSTGRES_USER=root
-      - POSTGRES_PASSWORD=1234
+      - POSTGRES_USER=${HUB_DB_USERNAME}
+      - POSTGRES_PASSWORD=${HUB_DB_PASSWORD}
       - POSTGRES_DB=13friday_hub
+    env_file:
+      - .env
+
+  redis:
+    image: redis:latest
+    container_name: hub-redis
+    ports:
+      - "6379:6379"
+    restart: always
+
+  delivery-redis:
+    image: redis:latest
+    container_name: delivery-redis
+    ports:
+      - "6380:6379"   # 외부에 열리는 포트는 다르게, 내부 Redis는 기본 포트 사용
+    restart: always
+
 
   order-service:
     build:
@@ -99,6 +129,7 @@ services:
       - "19095:19095"
     depends_on:
       - delivery-db
+      - delivery-redis
       - eureka-server
     env_file:
       - .env
@@ -122,6 +153,8 @@ services:
     container_name: 13friday-company-service
     volumes:
       - ./company-service:/app/company-service
+    env_file:
+      - .env
     ports:
       - "19096:19096"
     depends_on:

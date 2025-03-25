@@ -25,6 +25,8 @@ public class DeliveryResponse {
     @NotBlank
     private UUID companyDeliveryManagerId;
     @NotBlank
+    private UUID orderId;
+    @NotBlank
     private String shippingAddress;
 
     @Enumerated(EnumType.STRING)

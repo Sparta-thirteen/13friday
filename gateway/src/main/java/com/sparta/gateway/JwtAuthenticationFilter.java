@@ -27,7 +27,7 @@ public class JwtAuthenticationFilter implements GlobalFilter {
   public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
     String path = exchange.getRequest().getURI().getPath();
     //회원가입과 로그인은 jwt없어도 가능해야하므로 해당 엔드포인트면 넘김
-    if(path.equals("/api/auth/signup")||path.equals("/api/auth/login")) {
+    if(path.equals("/api/auth/signup")||path.equals("/api/auth/login") || path.matches(".*/v3/api-docs.*")) {
       return chain.filter(exchange);
     }
     //헤더에서 토큰 꺼내기

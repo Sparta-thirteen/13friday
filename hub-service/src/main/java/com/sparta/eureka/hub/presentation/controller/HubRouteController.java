@@ -17,9 +17,8 @@ public class HubRouteController {
     private final HubRouteService hubRouteService;
 
     @PostMapping
-    public ResponseEntity<HubRouteDto.ResponseDto> createHubRoute(@RequestHeader("X-Role") String role,
-                                                                  @RequestBody HubRouteDto.CreateDto request) {
-        HubRouteDto.ResponseDto response = hubRouteService.createHubRoute(role, request);
+    public ResponseEntity<HubRouteDto.ResponseDto> createHubRoute(@RequestBody HubRouteDto.CreateDto request) {
+        HubRouteDto.ResponseDto response = hubRouteService.createHubRoute(request);
 
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }

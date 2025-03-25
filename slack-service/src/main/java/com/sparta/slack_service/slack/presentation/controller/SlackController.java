@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -34,36 +35,50 @@ public class SlackController {
     return ResponseEntity.ok().body("Slack 메시지 전송 완료");
   }
 
+  @PostMapping("/order/{orderId}")
+  public ResponseEntity<?> sendOrderMessage(@PathVariable UUID orderId)
+      throws IOException, SlackApiException {
+    slackService.sendOrderMessage(orderId);
+    return ResponseEntity.ok().body("Slack 주문 메시지 전송 완료");
+  }
+
   @GetMapping("/{slackId}")
-  public ResponseEntity<SlackResponseDto> getMessage(@PathVariable UUID slackId) {
-    SlackResponseDto responseDto = slackService.getMessage(slackId);
+  public ResponseEntity<SlackResponseDto> getMessage(
+      @RequestHeader("X-Role") String role, @PathVariable UUID slackId) {
+    SlackResponseDto responseDto = slackService.getMessage(role, slackId);
     return ResponseEntity.ok().body(responseDto);
   }
 
   @GetMapping
-  public ResponseEntity<Page<SlackResponseDto>> getMessages(Pageable pageable) {
-    Page<SlackResponseDto> responseDto = slackService.getMessages(pageable);
+  public ResponseEntity<Page<SlackResponseDto>> getMessages(
+      @RequestHeader("X-Role") String role, Pageable pageable) {
+    Page<SlackResponseDto> responseDto = slackService.getMessages(role, pageable);
     return ResponseEntity.ok().body(responseDto);
   }
 
   @GetMapping("/search")
   public ResponseEntity<Page<SlackResponseDto>> searchMessage(
+      @RequestHeader("X-Role") String role,
       @RequestParam String keyword, Pageable pageable) {
-    Page<SlackResponseDto> responseDto = slackService.searchMessage(keyword, pageable);
+    Page<SlackResponseDto> responseDto = slackService.searchMessage(role, keyword, pageable);
     return ResponseEntity.ok().body(responseDto);
   }
 
   @PatchMapping("/{slackId}")
-  public ResponseEntity<?> updateMessage(@PathVariable UUID slackId,
+  public ResponseEntity<?> updateMessage(
+      @RequestHeader("X-Role") String role,
+      @PathVariable UUID slackId,
       @RequestBody SlackRequestDto requestDto) throws IOException, SlackApiException {
-    slackService.updateMessage(slackId, requestDto);
+    slackService.updateMessage(role, slackId, requestDto);
     return ResponseEntity.ok().body("Slack 메시지 수정 완료");
   }
 
   @DeleteMapping("/{slackId}")
-  public ResponseEntity<?> deleteMessage(@PathVariable UUID slackId)
+  public ResponseEntity<?> deleteMessage(
+      @RequestHeader("X-Role") String role,
+      @PathVariable UUID slackId)
       throws IOException, SlackApiException {
-    slackService.deleteMessage(slackId);
+    slackService.deleteMessage(role, slackId);
     return ResponseEntity.ok().body("Slack 메시지 삭제 완료");
   }
 }

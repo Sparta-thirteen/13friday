@@ -1,6 +1,7 @@
 package com.sparta.orderservice.presentation.requset;
 
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import java.util.List;
@@ -13,14 +14,17 @@ import lombok.NoArgsConstructor;
 public class OrderRequest {
 
     @NotEmpty
-    private UUID suppliersId;
+    private String suppliersName;
     @NotEmpty
-    private UUID recipientsId;
+    private String email;
     @NotEmpty
-    private UUID deliveryId;
+    private String recipientsName;
+    @NotEmpty
     private String requestDetails;
     @NotEmpty
     private List<OrderItemsRequest> orderItemsRequests;
+
+
 
 }
 

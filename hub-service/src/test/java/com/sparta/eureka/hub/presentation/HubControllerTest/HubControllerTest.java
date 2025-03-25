@@ -40,6 +40,7 @@ class HubControllerTest {
         );
         HubDto.ResponseDto response = new HubDto.ResponseDto(
                 UUID.randomUUID(),
+                1L,
                 "서울특별시 센터",
                 "서울특별시 송파구 송파대로 55",
                 new BigDecimal("37.4759"),
@@ -66,6 +67,7 @@ class HubControllerTest {
         );
         HubDto.ResponseDto response = new HubDto.ResponseDto(
                 UUID.randomUUID(),
+                1L,
                 "경기 북부 센터",
                 "경기도 고양시 덕양구 권율대로 570",
                 new BigDecimal("37.64054"),
@@ -86,6 +88,7 @@ class HubControllerTest {
         //given
         HubDto.ResponseDto hub1 = new HubDto.ResponseDto(
                 UUID.randomUUID(),
+                1L,
                 "서울특별시 센터",
                 "서울특별시 송파구 송파대로 55",
                 new BigDecimal("37.4759"),
@@ -93,6 +96,7 @@ class HubControllerTest {
         );
         HubDto.ResponseDto hub2 = new HubDto.ResponseDto(
                 UUID.randomUUID(),
+                2L,
                 "경기 북부 센터",
                 "경기도 고양시 덕양구 권율대로 570",
                 new BigDecimal("37.64054"),
@@ -117,6 +121,7 @@ class HubControllerTest {
         UUID hubId = UUID.randomUUID();
         HubDto.ResponseDto response = new HubDto.ResponseDto(
                 UUID.randomUUID(),
+                1L,
                 "서울특별시 센터",
                 "서울특별시 송파구 송파대로 55",
                 new BigDecimal("37.4759"),
