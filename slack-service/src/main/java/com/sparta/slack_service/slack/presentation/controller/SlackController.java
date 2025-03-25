@@ -75,10 +75,11 @@ public class SlackController {
 
   @DeleteMapping("/{slackId}")
   public ResponseEntity<?> deleteMessage(
+      @RequestHeader("X-User-Id") String userId,
       @RequestHeader("X-Role") String role,
       @PathVariable UUID slackId)
       throws IOException, SlackApiException {
-    slackService.deleteMessage(role, slackId);
+    slackService.deleteMessage(userId, role, slackId);
     return ResponseEntity.ok().body("Slack 메시지 삭제 완료");
   }
 }

@@ -136,7 +136,8 @@ public class SlackService {
   }
 
   @Transactional
-  public void deleteMessage(String role, UUID slackId) throws IOException, SlackApiException {
+  public void deleteMessage(String userId, String role, UUID slackId)
+      throws IOException, SlackApiException {
     roleCheck(role);
     Slacks slacks = findSlacks(slackId);
 
@@ -147,7 +148,7 @@ public class SlackService {
             .build()
     );
     validateSlackResponse(response);
-    slacks.softDelete();
+    slacks.softDelete(Long.parseLong(userId));
   }
 
   private ChatPostMessageResponse createChatPostMessage(String dmChannelId, String text)

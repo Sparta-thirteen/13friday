@@ -16,7 +16,9 @@ import com.sparta.eureka.client.auth.domain.user.entity.User;
 import com.sparta.eureka.client.auth.domain.user.exception.UserExceptionCode;
 import com.sparta.eureka.client.auth.domain.user.repository.UserRepository;
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -197,31 +199,64 @@ public class ShippingManagerService {
   }
 
   public ShippingManagerResponseDto getShippingManagerByDeliveryOrder(DeliveryRequestDto deliveryRequestDto) {
+    log.info("shippingManagerSerivce 들어옴");
     UUID hubId = deliveryRequestDto.getHubId();
     int deliveryOrder = deliveryRequestDto.getDeliveryOrder();
-
-    ShippingManager shippingManager = findNextAvailableShippingManager(hubId, deliveryOrder);
-
+    log.info("deliveryOrder : " + deliveryOrder);
+    ShippingManager shippingManager = findNextAvailableShippingManager(hubId, deliveryOrder, new HashSet<>());
+    log.info(shippingManager.getId().toString());
+    log.info(String.valueOf(shippingManager.getDeliveryOrder()));
     return ShippingManagerResponseDto.fromEntity(shippingManager);
   }
 
-  private ShippingManager findNextAvailableShippingManager(UUID hubId, int deliveryOrder) {
-    Optional<ShippingManager> optionalShippingManager;
-    //요청에 hubId가 없으면
-    if (hubId == null) {
-      optionalShippingManager = shippingManagerRepository.findByHubIdIsNullAndDeliveryOrder(deliveryOrder);
-    } else { //요청에 hubId가 있으면
-      optionalShippingManager = shippingManagerRepository.findByHubIdAndDeliveryOrder(hubId, deliveryOrder);
+
+  private ShippingManager findNextAvailableShippingManager(UUID hubId, int deliveryOrder, Set<Integer> visitedOrders) {
+    log.info("가능한 배송담당자 찾기");
+    // 최대 순번 가져오기
+    Integer maxDeliveryOrder = hubId == null
+        ? shippingManagerRepository.findMaxDeliveryOrderByHubIdIsNull().orElse(-1)
+        : shippingManagerRepository.findMaxDeliveryOrderByHubId(hubId).orElse(-1);
+
+    // 유효한 ShippingManager가 아예 없으면 바로 예외 발생
+    if (maxDeliveryOrder == -1) {
+      throw new ApiBusinessException(UserExceptionCode.USER_NOT_FOUND);
     }
+
+    // 순환 방지: 이미 방문한 순번이면 예외 발생
+    if (!visitedOrders.add(deliveryOrder)) {
+      throw new ApiBusinessException(UserExceptionCode.USER_NOT_FOUND); // 모든 순번을 탐색했음
+    }
+
+    // 순번이 최대값 초과하면 0부터 다시 탐색
+    if (deliveryOrder > maxDeliveryOrder) {
+      deliveryOrder = 0;
+      // **초기화 전에 방문 여부 체크 (중복 검사 최적화)**
+      if (!visitedOrders.add(deliveryOrder)) {
+        throw new ApiBusinessException(UserExceptionCode.USER_NOT_FOUND); // 모든 순번 탐색 완료
+      }
+    }
+
+    // ShippingManager 조회
+    Optional<ShippingManager> optionalShippingManager = hubId == null
+        ? shippingManagerRepository.findByHubIdIsNullAndDeliveryOrder(deliveryOrder)
+        : shippingManagerRepository.findByHubIdAndDeliveryOrder(hubId, deliveryOrder);
 
     ShippingManager shippingManager = optionalShippingManager.orElseThrow(() ->
         new ApiBusinessException(UserExceptionCode.USER_NOT_FOUND));
 
-    // 삭제된 사람이라면 다음 deliveryOrder로 재귀적으로 찾기
+    // 삭제된 사람이라면 다음 순번으로 이동
     if (shippingManager.getDeletedAt() != null) {
-      return findNextAvailableShippingManager(hubId, deliveryOrder + 1);
+      int nextDeliveryOrder = (deliveryOrder + 1 > maxDeliveryOrder) ? 0 : deliveryOrder + 1;
+
+      // **재귀 호출 전에 방문 여부 체크 (불필요한 호출 방지)**
+      if (!visitedOrders.add(nextDeliveryOrder)) {
+        throw new ApiBusinessException(UserExceptionCode.USER_NOT_FOUND);
+      }
+
+      return findNextAvailableShippingManager(hubId, nextDeliveryOrder, visitedOrders);
     }
 
     return shippingManager;
   }
+
 }

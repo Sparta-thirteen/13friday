@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,7 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/deliveries")
 @RequiredArgsConstructor
-@Tag(name ="주문 API")
+@Slf4j
 public class DeliveryController {
 
     private final DeliveryService deliveryService;
@@ -39,13 +40,10 @@ public class DeliveryController {
 
 
     @PostMapping
-    @Operation(method="POST",summary="주문 생성")
     public ResponseEntity<DeliveryCreatedResponse> createDelivery(
-        @RequestHeader("X-User-Id") String userId,
-        @RequestHeader("X-Role") String role,
         @RequestBody DeliveryRequest deliveryRequest) {
 
-        return deliveryService.createDelivery(deliveryRequest, role);
+        return deliveryService.createDelivery(deliveryRequest, deliveryRequest.getRole());
     }
 
 

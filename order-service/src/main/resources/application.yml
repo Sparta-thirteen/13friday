@@ -42,8 +42,21 @@ eureka:
 springdoc:
   api-docs:
     enabled: true
-    path: /order-service/v3/api-docs
+    path: /v3/api-docs
   swagger-ui:
     enabled: true
-    path: /slack-service/
-    url: /order-service/v3/api-docs
+    path: /
+    url: /v3/api-docs
+    urls:
+      - url: /hub-service/v3/api-docs
+        name: "hub-service"
+      - url: /company-service/v3/api-docs
+        name: "company-service"
+      - url: /slack-service/v3/api-docs
+        name: "slack-service"
+      - url: /order-service/v3/api-docs
+        name: "order-service"
+      - url: /delivery-service/v3/api-docs
+        name: "delivery-service"
+      - url: /auth-service/v3/api-docs
+        name: "auth-service"

@@ -17,6 +17,9 @@ public interface ShippingManagerRepository extends JpaRepository<ShippingManager
   @Query("SELECT MAX(s.deliveryOrder) FROM ShippingManager s WHERE s.hubId = :hubId")
   Optional<Integer> findMaxDeliveryOrderByHubId(@Param("hubId") UUID hubId);
 
+  @Query("SELECT COALESCE(MAX(s.deliveryOrder), 0) FROM ShippingManager s WHERE s.hubId IS NULL")
+  Optional<Integer> findMaxDeliveryOrderByHubIdIsNull();
+
   @Query("SELECT MAX(s.deliveryOrder) FROM ShippingManager s WHERE s.hubId IS NULL")
   Optional<Integer> findMaxDeliveryOrderForHubShipping();
 
@@ -25,4 +28,6 @@ public interface ShippingManagerRepository extends JpaRepository<ShippingManager
 
   // hubId가 NULL인 ShippingManager 중 특정 deliveryOrder를 가진 ShippingManager 찾기
   Optional<ShippingManager> findByHubIdIsNullAndDeliveryOrder(int deliveryOrder);
+
+
 }

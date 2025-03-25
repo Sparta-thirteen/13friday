@@ -77,6 +77,8 @@ public class DeliveryRoute extends BaseEntity {
         this.deliveryOrder = deliveryOrder;
         this.hubDeliveryUserId = hubDeliveryUserId;
     }
-
+    public void createdByDeliveryRoute(String userName) {
+        this.setCreatedBy(userName);
+    }
 
 }
