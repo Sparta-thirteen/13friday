@@ -22,7 +22,7 @@ spring:
 
   data:
     redis:
-      host: delivery-redis   # 또는 실제 Redis 서버 주소 (ex. redis, 192.168.x.x 등)
+      host: delivery-redis
       port: 6379
 
 management:

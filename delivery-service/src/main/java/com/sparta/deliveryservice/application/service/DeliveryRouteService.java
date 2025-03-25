@@ -77,7 +77,7 @@ public class DeliveryRouteService {
         int deliveryOrder = getNextDeliveryOrder(null, "HUB_MANAGER");
 //        UUID shippingManagerId = UUID.randomUUID(); // TODO: 실제 서비스 호출로 변경
 
-        DeliveryRequestDto deliveryRequestDto = new DeliveryRequestDto(destinationHubId,
+        DeliveryRequestDto deliveryRequestDto = new DeliveryRequestDto(departureHubId,
             deliveryOrder);
         ShippingManagerResponseDto shippingManagerDto = shippingManagerClient.getSearchShippingManagers(
             deliveryRequestDto);
@@ -85,7 +85,7 @@ public class DeliveryRouteService {
         for (DeliveryRouteType type : hubTypes) {
             DeliveryRouteDto routDto = type.createDtoFromBase(dto);
             createDeliveryRouteByType(routDto, shippingManagerDto.getShippingManagerId(), type,
-                deliveryOrder, shippingManagerDto.getUserId(),recipientsName);
+                deliveryOrder, shippingManagerDto.getUserId(), recipientsName);
         }
 
 
@@ -102,7 +102,7 @@ public class DeliveryRouteService {
         for (DeliveryRouteType type : companyTypes) {
             DeliveryRouteDto routDto = type.createDtoFromBase(dto);
             createDeliveryRouteByType(routDto, shippingManagerDto.getShippingManagerId(), type,
-                deliveryOrder, shippingManagerDto.getUserId(),recipientsName);
+                deliveryOrder, shippingManagerDto.getUserId(), recipientsName);
         }
 
         return new DeliveryRoutesDto(shippingManagerDto.getSlackId(),
