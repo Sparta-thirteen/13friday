@@ -82,7 +82,7 @@ public class HubController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PatchMapping("/grant/{userId}")
+    @PostMapping("/grant/{userId}")
     public ResponseEntity<HubDto.ResponseDto> grantHub(@RequestHeader("X-Role") String role,
                                                        @PathVariable Long userId,
                                                        @RequestBody HubDto.UpdateUserDto request) {
