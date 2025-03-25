@@ -9,21 +9,22 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @FeignClient(name = "company-service")
 public interface CompanyClient {
 
 
-    @GetMapping("/api/companies-route/name/{companyName}")
+    @GetMapping("/api/public/companies/name/{companyName}")
     CompanyResponseDto getCompanyByName(@PathVariable String companyName);
 
 
-    @GetMapping("/api/products-route/orders")
+    @GetMapping("/api/public/products/orders")
     List<ProductOrderResponseDto> getProductList(@RequestBody ProductOrderRequestDto requestDto);
 
 
-    @PatchMapping("/api/public/products/orders")
+    @PostMapping("/api/public/products/orders")
      void updateProductStock(@RequestBody List<OrderItemsRequest> requestDto);
 
 }

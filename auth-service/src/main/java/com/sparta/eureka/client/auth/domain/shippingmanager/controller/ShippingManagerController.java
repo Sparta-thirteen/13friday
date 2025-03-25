@@ -9,6 +9,7 @@ import com.sparta.eureka.client.auth.domain.shippingmanager.service.ShippingMana
 import java.time.LocalDate;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 @RequestMapping("/api/courier")
 public class ShippingManagerController {
   private final ShippingManagerService shippingManagerService;
@@ -68,12 +70,17 @@ public class ShippingManagerController {
         .body(BaseResponse.success("특정 배송담당자 조회 성공", shippingManagerResponseDto));
   }
 
-  @GetMapping("/delivery")
-  public ResponseEntity<BaseResponse<ShippingManagerResponseDto>> getSearchShippingManagers(
+  @PostMapping("/delivery")
+  public ResponseEntity<ShippingManagerResponseDto> getSearchShippingManagers(
       @RequestBody DeliveryRequestDto deliveryRequestDto){
     ShippingManagerResponseDto shippingManagerResponseDto = shippingManagerService.getShippingManagerByDeliveryOrder(
         deliveryRequestDto);
-    return ResponseEntity.status(HttpStatus.OK).body(BaseResponse.success("다음 배송담당자 조회 성공", shippingManagerResponseDto));
+
+    log.info(shippingManagerResponseDto.getHubId()+" // "+shippingManagerResponseDto.getUserId()+" // "+shippingManagerResponseDto.getSlackId()+" // ");
+
+
+
+    return ResponseEntity.ok(shippingManagerResponseDto);
   }
 
   @DeleteMapping("/{id}")

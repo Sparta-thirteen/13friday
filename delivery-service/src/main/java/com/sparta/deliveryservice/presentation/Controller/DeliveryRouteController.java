@@ -1,13 +1,12 @@
 package com.sparta.deliveryservice.presentation.Controller;
 
 import com.sparta.deliveryservice.application.dto.DeliveryInfoDto;
+import com.sparta.deliveryservice.application.dto.DeliveryRoutesDto;
 import com.sparta.deliveryservice.application.service.DeliveryRouteService;
 
-import com.sparta.deliveryservice.domain.model.DeliveryRoute;
 import com.sparta.deliveryservice.domain.model.SearchDto;
 import com.sparta.deliveryservice.domain.model.SortDto;
 
-import com.sparta.deliveryservice.presentation.request.UpdateDeliveryRequest;
 import com.sparta.deliveryservice.presentation.response.DeliveryInternalResponse;
 import com.sparta.deliveryservice.presentation.response.DeliveryRouteResponse;
 import java.util.List;
@@ -17,7 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -34,12 +32,16 @@ public class DeliveryRouteController {
     private final DeliveryRouteService deliveryRouteService;
 
 
-//    @PostMapping("/redis")
-//    public ResponseEntity<String> createDeliveryRoutes() {
-//        deliveryRouteService.createDeliveryRoutes(UUID.randomUUID(),
-//            UUID.fromString("49a40c61-d672-4f6a-9edf-d8f2e05440c4"),UUID.fromString("49a40c61-d672-4f6a-9edf-d8f2e05440c4"), "인천 백범로123");
-//        return ResponseEntity.ok("성공!!");
-//    }
+    @PostMapping("/redis")
+    public ResponseEntity<String> createDeliveryRoutes() {
+        DeliveryRoutesDto dto= deliveryRouteService.createDeliveryRoutes(UUID.randomUUID(),
+            UUID.fromString("9cf0ebfc-cdfa-4eba-9da4-40e527a25f13"), UUID.fromString("5b413b9d-fbdc-4dd5-b940-d9aeee534268"), "부산 동구 중앙대로 206","수령업체A");
+
+        return ResponseEntity.ok("성공!!");
+    }
+
+
+
 
 
     @DeleteMapping("/{deliveryRouteId}")

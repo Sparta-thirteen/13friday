@@ -34,7 +34,6 @@ spring:
           uri: lb://delivery-service
           predicates:
             - Path=/api/deliveries/**,/delivery-service/swagger-ui/**,/delivery-service/v3/api-docs/**
-            - Path=/api/orders/**
 
 springdoc:
   api-docs:

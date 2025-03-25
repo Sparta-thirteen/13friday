@@ -16,6 +16,7 @@ import jakarta.ws.rs.Path;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.sql.Update;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -33,6 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/orders")
 @RequiredArgsConstructor
+@Slf4j
 @Tag(name = "Order", description = "주문 API")
 public class OrderController {
 
@@ -41,10 +43,13 @@ public class OrderController {
 
     @PostMapping
     @Operation(summary = "주문 생성")
-    public ResponseEntity<String> createOrder(@RequestBody OrderRequest req) {
+    public ResponseEntity<String> createOrder(@RequestHeader("X-User-Id") String userId,
+        @RequestHeader("X-Role") String role,@RequestBody OrderRequest req) {
 
         return orderService.createOrder(req);
     }
+
+
 
 
     // TODO: 유저아이디 필요
@@ -98,12 +103,12 @@ public class OrderController {
         return ResponseEntity.ok(orders);
     }
 
-
     @GetMapping("/internal/{orderId}")
     public OrderInternalResponse getOrdersInternal(@PathVariable UUID orderId) {
 
         return orderService.getOrderInternal(orderId);
     }
+
 
 }
 

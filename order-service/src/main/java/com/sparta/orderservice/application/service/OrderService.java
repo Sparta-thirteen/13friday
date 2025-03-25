@@ -12,13 +12,11 @@ import com.sparta.orderservice.domain.service.OrderDomainService;
 import com.sparta.orderservice.infrastructure.client.CompanyClient;
 import com.sparta.orderservice.infrastructure.client.DeliveryClient;
 import com.sparta.orderservice.infrastructure.repository.JpaOrderItemsRepository;
-import com.sparta.orderservice.presentation.advice.GlobalExceptionHandler;
 import com.sparta.orderservice.presentation.requset.DeliveryRequest;
 import com.sparta.orderservice.presentation.requset.OrderItemsRequest;
 import com.sparta.orderservice.presentation.requset.OrderRequest;
 import com.sparta.orderservice.domain.model.Order;
 import com.sparta.orderservice.infrastructure.repository.JpaOrderRepository;
-import com.sparta.orderservice.presentation.requset.ProductOrderRequestDto;
 import com.sparta.orderservice.presentation.requset.UpdateOrderRequest;
 import com.sparta.orderservice.presentation.response.CompanyResponseDto;
 import com.sparta.orderservice.presentation.response.DeliveryCreatedResponse;
@@ -36,7 +34,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -54,8 +51,7 @@ public class OrderService {
 
     // 주문 생성
     @Transactional
-    public ResponseEntity<String> createOrder(OrderRequest req) {
-
+    public ResponseEntity<String> createOrder(OrderRequest req, String role) {
         CompanyResponseDto supplier = companyClient.getCompanyByName(req.getSuppliersName());
         CompanyResponseDto recipient = companyClient.getCompanyByName(req.getRecipientsName());
 
@@ -65,12 +61,13 @@ public class OrderService {
         // 배송 서비스로 데이터 요청
         DeliveryRequest deliveryRequest = new DeliveryRequest(orderId, recipient.getCompanyId(),
             supplier.getHubId(), recipient.getHubId(),
-            recipient.getAddress());
+            recipient.getAddress(),req.getRecipientsName(), role);
         DeliveryCreatedResponse response = deliveryClient.createDelivery(deliveryRequest);
 
         // 주문 생성
         Order order = orderDomainService.createOrder(orderId, req, response.getId(),
             supplier.getCompanyId(), recipient.getCompanyId());
+        order.createdByOrder(recipient.getName());
         jpaOrderRepository.save(order);
 
 
@@ -80,7 +77,6 @@ public class OrderService {
         List<OrderItems> items = req.getOrderItemsRequests().stream()
             .map(r -> new OrderItems(r.getProductId(), r.getName(), r.getStock(), orderId))
             .toList();
-
 
         jpaOrderItemsRepository.saveAll(items);
 
@@ -108,12 +104,12 @@ public class OrderService {
 
         Order order = findOrder(orderId);
 
-        // 1. 기존 아이템 불러오기
+        // 기존 아이템 불러오기
         List<OrderItems> existingItems = jpaOrderItemsRepository.findAllByOrderId(orderId);
         Map<UUID, OrderItems> itemMap = existingItems.stream()
             .collect(Collectors.toMap(OrderItems::getId, i -> i));
 
-        // 2. 요청된 아이템 수량/이름 업데이트
+        //  요청된 아이템 수량/이름 업데이트
         for (OrderItemsRequest updateReq : req.getOrderItemsRequests()) {
             if (itemMap.containsKey(updateReq.getProductId())) {
                 itemMap.get(updateReq.getProductId())
@@ -121,7 +117,10 @@ public class OrderService {
             }
         }
 
-        // 3. 도메인 서비스에게 주문 정보 수정 위임
+
+        // 회사서비스에 재고 수정요청
+        companyClient.updateProductStock(req.getOrderItemsRequests());
+        //  도메인 서비스에게 주문 정보 수정 위임
         order = orderDomainService.updateOrder(order, req);
 
         List<OrderItemsDto> list = getOrderItemsDtoList(order.getId());

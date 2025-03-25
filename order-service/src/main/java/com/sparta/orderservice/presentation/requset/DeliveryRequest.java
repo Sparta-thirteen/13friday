@@ -19,6 +19,8 @@ public class DeliveryRequest {
     private UUID destinationHubId;
     @NotBlank
     private String shippingAddress;
+    private String recipientsName;
+    private String role;
 
 
 

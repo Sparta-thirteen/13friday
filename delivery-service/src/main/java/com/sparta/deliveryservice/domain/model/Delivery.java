@@ -30,7 +30,7 @@ public class Delivery extends BaseEntity {
     @Column(nullable = false)
     private UUID recipientsId;
     @Column(nullable = false)
-    private UUID recipientsSlackId;
+    private String recipientsSlackId;
     @Column(nullable = false)
     private UUID companyDeliveryManagerId;
     @Column(nullable = false)
@@ -42,7 +42,7 @@ public class Delivery extends BaseEntity {
     @Column(nullable = false)
     private UUID orderId;
 
-    public Delivery(UUID departureHubId, UUID destinationHubId, UUID recipientsId, UUID recipientsSlackId, UUID companyDeliveryManagerId,UUID orderId, String shippingAddress, DeliveryType deliveryStatus) {
+    public Delivery(UUID departureHubId, UUID destinationHubId, UUID recipientsId, String recipientsSlackId, UUID companyDeliveryManagerId,UUID orderId, String shippingAddress, DeliveryType deliveryStatus) {
         this.departureHubId =departureHubId;
         this.destinationHubId =destinationHubId;
         this.recipientsId = recipientsId;
@@ -53,9 +53,28 @@ public class Delivery extends BaseEntity {
         this.deliveryStatus =deliveryStatus;
     }
 
+    public Delivery(UUID departureHubId, UUID destinationHubId, UUID recipientsId,UUID orderId, String shippingAddress) {
+        this.departureHubId =departureHubId;
+        this.destinationHubId =destinationHubId;
+        this.recipientsId = recipientsId;
+        this.orderId = orderId;
+        this.shippingAddress =shippingAddress;
+        this.recipientsSlackId = "slack";
+        this.companyDeliveryManagerId = UUID.randomUUID();
+        this.deliveryStatus = DeliveryType.DELIVERED;
+    }
 
     public void updateDelivery(UpdateDeliveryRequest req) {
         this.deliveryStatus = req.getDelivery_status();
+    }
+
+    public void updateDeliveryInfo(String recipientsSlackId,UUID companyDeliveryManagerId) {
+        this.recipientsSlackId = recipientsSlackId;
+        this.companyDeliveryManagerId = companyDeliveryManagerId;
+    }
+
+    public void createdByDelivery(String userName) {
+        this.setCreatedBy(userName);
     }
 
 }
