@@ -90,7 +90,7 @@ public class OrderService {
         roleCheck(role);
         Order order = findOrder(orderId);
 
-        order.delete(userId);
+        order.delete(order.getName());
 
         return ResponseEntity.ok("주문 삭제 완료");
     }

@@ -46,7 +46,7 @@ public class OrderController {
     public ResponseEntity<String> createOrder(@RequestHeader("X-User-Id") String userId,
         @RequestHeader("X-Role") String role,@RequestBody OrderRequest req) {
 
-        return orderService.createOrder(req);
+        return orderService.createOrder(req,role);
     }
 
 
