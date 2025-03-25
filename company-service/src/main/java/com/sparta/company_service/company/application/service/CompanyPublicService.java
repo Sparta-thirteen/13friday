@@ -17,8 +17,7 @@ public class CompanyPublicService {
   private final CompanyRepository companyRepository;
 
   @Transactional
-  public void updateCompanyUser(String userId, String role, UUID companyId) {
-    roleCheck(role);
+  public void updateCompanyUser(Long userId, UUID companyId) {
     Company company = findCompany(companyId);
     deletedCheck(company);
     company.updateUser(userId);
@@ -34,12 +33,6 @@ public class CompanyPublicService {
   public CompanyResponseDto getCompanyByName(String name) {
     Company company = findCompanyByName(name);
     return CompanyResponseDto.toDto(company);
-  }
-
-  private void roleCheck(String role) {
-    if (!role.equals("MASTER")) {
-      throw new GlobalException(HttpStatus.FORBIDDEN, "권한이 없습니다.");
-    }
   }
 
   private Company findCompany(UUID companyId) {

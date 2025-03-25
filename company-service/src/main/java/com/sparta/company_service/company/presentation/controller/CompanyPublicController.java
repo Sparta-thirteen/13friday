@@ -5,9 +5,8 @@ import com.sparta.company_service.company.application.service.CompanyPublicServi
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -18,12 +17,11 @@ public class CompanyPublicController {
 
   private final CompanyPublicService companyPublicService;
 
-  @PatchMapping("/{companyId}/users")
+  @PostMapping("/{companyId}/users/{userId}")
   public void updateCompanyUser(
-      @RequestHeader("X-User-Id") String userId,
-      @RequestHeader("X-Role") String role,
+      @PathVariable Long userId,
       @PathVariable UUID companyId) {
-    companyPublicService.updateCompanyUser(userId, role, companyId);
+    companyPublicService.updateCompanyUser(userId, companyId);
   }
 
   @GetMapping("/{companyId}")

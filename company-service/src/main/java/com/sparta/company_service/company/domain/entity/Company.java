@@ -48,7 +48,7 @@ public class Company extends TimeStamped {
     this.address = requestDto.getAddress();
   }
 
-  public void updateUser(String userId) {
-    this.userId = Long.parseLong(userId);
+  public void updateUser(Long userId) {
+    this.userId = userId;
   }
 }
