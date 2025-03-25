@@ -1,0 +1,74 @@
+spring:
+  application:
+    name: gateway
+  main:
+    web-application-type: reactive
+
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+      routes:
+        - id: company-service
+          uri: lb://company-service
+          predicates:
+            - Path=/api/companies/**, /api/products/**, /company-service/swagger-ui/**, /company-service/v3/api-docs/**, /product-service/swagger-ui/**, /product-service/v3/api-docs/**
+        - id: auth-service
+          uri: lb://auth-service
+          predicates:
+            - Path=/api/users/**, /api/courier/**, /api/auth/**, /auth-service/swagger-ui/**, /auth-service/v3/api-docs/**
+        - id: hub-service
+          uri: lb://hub-service
+          predicates:
+            - Path=/api/hub/**, /hub-service/swagger-ui/**, /hub-service/v3/api-docs/**
+        - id: slack-service
+          uri: lb://slack-service
+          predicates:
+            - Path=/api/slack/**, /slack-service/swagger-ui/**, /slack-service/v3/api-docs/**
+        - id: order-service
+          uri: lb://order-service
+          predicates:
+            - Path=/api/orders/**,/order-service/swagger-ui/**, /order-service/v3/api-docs/**
+        - id: delivery-service
+          uri: lb://delivery-service
+          predicates:
+            - Path=/api/deliveries/**, /delivery-service/swagger-ui/**, /delivery-service/v3/api-docs/**
+
+
+springdoc:
+  api-docs:
+    enabled: true
+    path: /v3/api-docs
+  swagger-ui:
+    enabled: true
+    path: /
+    url: /v3/api-docs
+    urls:
+      - url: /hub-service/v3/api-docs
+        name: "hub-service"
+      - url: /company-service/v3/api-docs
+        name: "company-service"
+      - url: /slack-service/v3/api-docs
+        name: "slack-service"
+      - url: /order-service/v3/api-docs
+        name: "order-service"
+      - url: /delivery-service/v3/api-docs
+        name: "delivery-service"
+      - url: /auth-service/v3/api-docs
+        name: "auth-service"
+
+
+server:
+  port: 19091
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka-server:19090/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+
+service:
+  jwt:
+    secret-key: "401b09eab3c013d4ca54922bb802bec8fd5318192b0a75f201d8b3727429080fb337591abd3e44453b954555b7a0812e1081c39b740293f765eae731f5a65ed1"

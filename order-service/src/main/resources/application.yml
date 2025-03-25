@@ -1,0 +1,62 @@
+spring:
+  application:
+    name: order-service
+
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: true
+
+
+  datasource:
+    url: jdbc:postgresql://order-db:5432/13friday_order
+    username: ${ORDER_DB_USER}
+    password: ${ORDER_DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+management:
+  zipkin:
+    tracing:
+      endpoint: "http://zipkin:9411/api/v2/spans"
+  tracing:
+    sampling:
+      probability: 1.0
+
+server:
+  port: 19094
+
+eureka:
+  client:
+#    enabled: false
+    service-url:
+      defaultZone: http://eureka-server:19090/eureka/
+    register-with-eureka: true
+
+
+
+springdoc:
+  api-docs:
+    enabled: true
+    path: /v3/api-docs
+  swagger-ui:
+    enabled: true
+    path: /
+    url: /v3/api-docs
+    urls:
+      - url: /hub-service/v3/api-docs
+        name: "hub-service"
+      - url: /company-service/v3/api-docs
+        name: "company-service"
+      - url: /slack-service/v3/api-docs
+        name: "slack-service"
+      - url: /order-service/v3/api-docs
+        name: "order-service"
+      - url: /delivery-service/v3/api-docs
+        name: "delivery-service"
+      - url: /auth-service/v3/api-docs
+        name: "auth-service"

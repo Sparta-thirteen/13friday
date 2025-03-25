@@ -1,0 +1,63 @@
+spring:
+  application:
+    name: delivery-service
+
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: true
+
+
+
+  datasource:
+    url: jdbc:postgresql://delivery-db:5432/13friday_delivery
+    username: ${DELIVERY_DB_USER}
+    password: ${DELIVERY_DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  data:
+    redis:
+      host: delivery-redis
+      port: 6379
+
+management:
+  zipkin:
+    tracing:
+      endpoint: "http://zipkin:9411/api/v2/spans"
+  tracing:
+    sampling:
+      probability: 1.0
+
+springdoc:
+  api-docs:
+    enabled: true
+    path: /delivery-service/v3/api-docs
+  swagger-ui:
+    enabled: true
+    path: /delivery-service/
+    url: /delivery-service/v3/api-docs
+
+server:
+  port: 19095
+
+eureka:
+  client:
+    #    enabled: false
+    service-url:
+      defaultZone: http://eureka-server:19090/eureka/
+    register-with-eureka: true
+
+
+springdoc:
+  api-docs:
+    enabled: true
+    path: delivery-service/v3/api-docs
+  swagger-ui:
+    enabled: true
+    path: /delivery-service/
+    url: /delivery-service/v3/api-docs
