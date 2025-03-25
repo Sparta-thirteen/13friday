@@ -33,6 +33,15 @@ management:
     sampling:
       probability: 1.0
 
+springdoc:
+  api-docs:
+    enabled: true
+    path: /delivery-service/v3/api-docs
+  swagger-ui:
+    enabled: true
+    path: /delivery-service/
+    url: /delivery-service/v3/api-docs
+
 server:
   port: 19095
 

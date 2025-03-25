@@ -25,7 +25,14 @@ eureka:
     service-url:
       defaultZone: http://eureka-server:19090/eureka/
     register-with-eureka: true
-
+springdoc:
+  api-docs:
+    enabled: true
+    path: /company-service/v3/api-docs
+  swagger-ui:
+    enabled: true
+    path: /company-service/
+    url: /company-service/v3/api-docs
 management:
   zipkin:
     tracing:
@@ -33,3 +40,4 @@ management:
   tracing:
     sampling:
       probability: 1.0
+

@@ -13,8 +13,6 @@ spring:
         show_sql: true
 
 
-
-
   datasource:
     url: jdbc:postgresql://order-db:5432/13friday_order
     username: ${ORDER_DB_USER}
@@ -41,3 +39,11 @@ eureka:
 
 
 
+springdoc:
+  api-docs:
+    enabled: true
+    path: /order-service/v3/api-docs
+  swagger-ui:
+    enabled: true
+    path: /slack-service/
+    url: /order-service/v3/api-docs

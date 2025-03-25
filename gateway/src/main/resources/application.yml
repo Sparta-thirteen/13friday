@@ -17,7 +17,7 @@ spring:
         - id: auth-service
           uri: lb://auth-service
           predicates:
-            - Path=/api/users/**, /api/courier/**, /api/auth/**
+            - Path=/api/users/**, /api/courier/**, /api/auth/**, /auth-service/swagger-ui/**, /auth-service/v3/api-docs/**
         - id: hub-service
           uri: lb://hub-service
           predicates:
@@ -33,8 +33,8 @@ spring:
         - id: delivery-service
           uri: lb://delivery-service
           predicates:
-            - Path=/api/deliveries/**,/delivery-service/swagger-ui/**,/delivery-service/v3/api-docs/**
-            - Path=/api/orders/**
+            - Path=/api/deliveries/**, /delivery-service/swagger-ui/**, /delivery-service/v3/api-docs/**
+
 
 springdoc:
   api-docs:
@@ -55,6 +55,8 @@ springdoc:
         name: "order-service"
       - url: /delivery-service/v3/api-docs
         name: "delivery-service"
+      - url: /auth-service/v3/api-docs
+        name: "auth-service"
 
 
 server:
