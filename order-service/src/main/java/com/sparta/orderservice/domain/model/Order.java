@@ -1,6 +1,7 @@
 package com.sparta.orderservice.domain.model;
 
 
+import com.sparta.orderservice.presentation.requset.OrderRequest;
 import jakarta.persistence.Entity;
 
 import jakarta.persistence.Id;
@@ -31,11 +32,12 @@ public class Order extends BaseEntity {
     private String requestDetails;
 
 
-    public Order(UUID orderId,String name,String email, UUID suppliersId, UUID recipientsId, UUID deliveryId,
+    public Order(UUID orderId, String name, String email, UUID suppliersId, UUID recipientsId,
+        UUID deliveryId,
         String requestDetails, int totalStock) {
         this.id = orderId;
-        this.name =name;
-        this.email =email;
+        this.name = name;
+        this.email = email;
         this.suppliersId = suppliersId;
         this.recipientsId = recipientsId;
         this.deliveryId = deliveryId;
@@ -47,6 +49,10 @@ public class Order extends BaseEntity {
     public void updateStockAndRequestsDetails(int totalStock, String requestDetails) {
         this.totalStock = totalStock;
         this.requestDetails = requestDetails;
+    }
+
+    public void createdByOrder(String userName) {
+        this.setCreatedBy(userName);
     }
 
 

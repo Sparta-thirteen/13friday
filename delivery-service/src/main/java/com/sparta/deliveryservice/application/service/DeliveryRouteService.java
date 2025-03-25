@@ -52,9 +52,9 @@ public class DeliveryRouteService {
 
 
     // 배송경로생성
-    DeliveryRoutesDto createDeliveryRoutes(UUID deliveryId, UUID departureHubId,
+    public DeliveryRoutesDto createDeliveryRoutes(UUID deliveryId, UUID departureHubId,
         UUID destinationHubId,
-        String shippingAddress) {
+        String shippingAddress,String recipientsName) {
 
         // 허브 서비스 통신
         HubRouteDto.CreateDto createDto = new CreateDto(departureHubId, destinationHubId);
@@ -85,8 +85,9 @@ public class DeliveryRouteService {
         for (DeliveryRouteType type : hubTypes) {
             DeliveryRouteDto routDto = type.createDtoFromBase(dto);
             createDeliveryRouteByType(routDto, shippingManagerDto.getShippingManagerId(), type,
-                deliveryOrder, shippingManagerDto.getUserId());
+                deliveryOrder, shippingManagerDto.getUserId(),recipientsName);
         }
+
 
         // TODO: shippingmanager-service -> 출발지허브id,배송순번 / 업체배송담당자 id
         // 업체 배송 상태
@@ -101,7 +102,7 @@ public class DeliveryRouteService {
         for (DeliveryRouteType type : companyTypes) {
             DeliveryRouteDto routDto = type.createDtoFromBase(dto);
             createDeliveryRouteByType(routDto, shippingManagerDto.getShippingManagerId(), type,
-                deliveryOrder, shippingManagerDto.getUserId());
+                deliveryOrder, shippingManagerDto.getUserId(),recipientsName);
         }
 
         return new DeliveryRoutesDto(shippingManagerDto.getSlackId(),
@@ -213,7 +214,7 @@ public class DeliveryRouteService {
 
     private void createDeliveryRouteByType(DeliveryRouteDto dto, UUID shippingManagerId,
         DeliveryRouteType type,
-        int deliveryOrder, Long hubDeliveryUserId) {
+        int deliveryOrder, Long hubDeliveryUserId,String recipientsName) {
         DeliveryRoute deliveryRoute;
 //        if (type.equals(DeliveryRouteType.HUB_WAITING)) {
 //            dto.setDeliveryRouteDto(0L, null, 0L, null);
@@ -233,6 +234,7 @@ public class DeliveryRouteService {
             deliveryOrder,
             hubDeliveryUserId
         );
+        deliveryRoute.createdByDeliveryRoute(recipientsName);
         jpaDeliveryRouteRepository.save(deliveryRoute);
     }
 

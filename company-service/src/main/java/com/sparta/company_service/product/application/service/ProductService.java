@@ -66,7 +66,7 @@ public class ProductService {
   public void deleteProduct(String userId, String role, UUID productId) {
     Product product = findProduct(productId);
     deletedRoleCheck(Long.parseLong(userId), role, product);
-    product.softDelete();
+    product.softDelete(Long.parseLong(userId));
   }
 
   private Product findProduct(UUID productId) {

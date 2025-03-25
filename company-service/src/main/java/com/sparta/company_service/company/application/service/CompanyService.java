@@ -72,7 +72,7 @@ public class CompanyService {
     createdDeletedRoleCheck(Long.parseLong(userId), role, hubResponse.getUserId());
 
     productRepository.softDeleteByCompanyId(companyId, LocalDateTime.now());
-    company.softDelete();
+    company.softDelete(Long.parseLong(userId));
   }
 
   public Company findCompany(UUID companyId) {
