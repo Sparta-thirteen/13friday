@@ -16,4 +16,11 @@ public class ShippingManagerResponseDto {
     private UUID hubId;
     private ShippingManagerType type;
     private int deliveryOrder;
+
+
+
+
+
 }
+
+

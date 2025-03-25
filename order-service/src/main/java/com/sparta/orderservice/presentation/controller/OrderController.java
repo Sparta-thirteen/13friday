@@ -2,8 +2,7 @@ package com.sparta.orderservice.presentation.controller;
 
 import com.sparta.orderservice.application.dto.SortDto;
 import com.sparta.orderservice.application.service.OrderService;
-import com.sparta.orderservice.common.CustomException;
-import com.sparta.orderservice.common.GlobalExceptionCode;
+import com.sparta.orderservice.application.service.TestContoller;
 import com.sparta.orderservice.domain.model.SearchDto;
 import com.sparta.orderservice.presentation.requset.OrderRequest;
 import com.sparta.orderservice.presentation.requset.UpdateOrderRequest;
@@ -12,13 +11,11 @@ import com.sparta.orderservice.presentation.response.OrderResponse;
 import com.sparta.orderservice.presentation.response.UpdateOrderResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.ws.rs.Path;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.sql.Update;
-import org.springframework.data.domain.Page;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
