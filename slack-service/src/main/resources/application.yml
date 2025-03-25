@@ -34,6 +34,15 @@ management:
     sampling:
       probability: 1.0
 
+springdoc:
+  api-docs:
+    enabled: true
+    path: /slack-service/v3/api-docs
+  swagger-ui:
+    enabled: true
+    path: /slack-service/
+    url: /slack-service/v3/api-docs
+
 slack:
   token: ${SLACK_TOKEN}
 

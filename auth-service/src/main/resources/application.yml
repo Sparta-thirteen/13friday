@@ -3,8 +3,8 @@ spring:
     name: auth-service
   datasource:
     url: jdbc:postgresql://auth-db:5432/13friday_auth
-    username: myuser
-    password: mypassword
+    username: ${DB_USER}
+    password: ${DB_PASS}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -31,8 +31,9 @@ service:
 springdoc:
   api-docs:
     enabled: true
-    path: auth-service/v3/api-docs
+    path: /auth-service/v3/api-docs
   swagger-ui:
     enabled: true
     path: /auth-service/
     url: /auth-service/v3/api-docs
+
