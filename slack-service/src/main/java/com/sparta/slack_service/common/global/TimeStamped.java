@@ -7,7 +7,9 @@ import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import java.time.LocalDateTime;
 import lombok.Getter;
+import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -21,14 +23,14 @@ public abstract class TimeStamped {
   @Temporal(TemporalType.TIMESTAMP)
   private LocalDateTime createdAt;
 
-  //@CreatedBy
+  @CreatedBy
   private Long createdBy;
 
   @LastModifiedDate
   @Temporal(TemporalType.TIMESTAMP)
   private LocalDateTime updatedAt;
 
-  //@LastModifiedBy
+  @LastModifiedBy
   private Long updatedBy;
 
   @Temporal(TemporalType.TIMESTAMP)
@@ -36,8 +38,8 @@ public abstract class TimeStamped {
 
   private Long deletedBy;
 
-  public void softDelete() {
+  public void softDelete(Long userId) {
     this.deletedAt = LocalDateTime.now();
-    //this.deletedBy = userId;
+    this.deletedBy = userId;
   }
 }
