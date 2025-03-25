@@ -46,15 +46,18 @@ public class DeliveryService {
     public ResponseEntity<DeliveryCreatedResponse> createDelivery(DeliveryRequest req,
         String role) {
 
-
         createRoleCheck(role);
 
-        Delivery delivery = new Delivery();
+        Delivery delivery = new Delivery(req.getDepartureHubId(), req.getDestinationHubId(),
+            req.getRecipientsId(), req.getOrderId(), req.getShippingAddress());
+        delivery.createdByDelivery(req.getRecipientsName());
         jpaDeliveryRepository.save(delivery);
 
         // 배송경로기록 생성
         DeliveryRoutesDto dto = deliveryRouteService.createDeliveryRoutes(delivery.getId(),
-            req.getDepartureHubId(), req.getDestinationHubId(), req.getShippingAddress());
+            req.getDepartureHubId(), req.getDestinationHubId(), req.getShippingAddress(),req.getRecipientsName());
+
+        delivery.updateDeliveryInfo(dto.getRecipientsSlackId(), dto.getCompanyDeliveryManagerId());
 
         DeliveryCreatedResponse response = new DeliveryCreatedResponse(delivery.getId());
         return ResponseEntity.ok(response);
@@ -181,17 +184,17 @@ public class DeliveryService {
         }
     }
 
-    private Delivery initTestDelivery(UUID orderId, String shippingAddress,
-        DeliveryType deliveryStatus) {
-        UUID departureHubId = UUID.randomUUID();
-        UUID destinationHubId = UUID.randomUUID();
-        UUID recipientsId = UUID.randomUUID();
-        UUID recipientsSlackId = UUID.randomUUID();
-        UUID companyDeliveryManagerId = UUID.randomUUID();
-
-        return new Delivery(departureHubId, destinationHubId, recipientsId, recipientsSlackId,
-            companyDeliveryManagerId, orderId, shippingAddress, deliveryStatus);
-    }
+//    private Delivery initTestDelivery(UUID orderId, String shippingAddress,
+//        DeliveryType deliveryStatus) {
+//        UUID departureHubId = UUID.randomUUID();
+//        UUID destinationHubId = UUID.randomUUID();
+//        UUID recipientsId = UUID.randomUUID();
+//        UUID recipientsSlackId = UUID.randomUUID();
+//        UUID companyDeliveryManagerId = UUID.randomUUID();
+//
+//        return new Delivery(departureHubId, destinationHubId, recipientsId, recipientsSlackId,
+//            companyDeliveryManagerId, orderId, shippingAddress, deliveryStatus);
+//    }
 
     private void createRoleCheck(String role) {
         if (!role.equals("MASTER")) {
@@ -206,6 +209,7 @@ public class DeliveryService {
         }
 
     }
+
     private void deleteRoleCheck(String role) {
         if (role.equals("SHIPPINGMANAGER")) {
             throw new CustomException(GlobalExceptionCode.INVALID_ROLE);

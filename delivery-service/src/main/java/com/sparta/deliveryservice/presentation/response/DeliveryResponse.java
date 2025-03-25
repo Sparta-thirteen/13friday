@@ -21,7 +21,7 @@ public class DeliveryResponse {
     @NotBlank
     private UUID shippingManagerId;
     @NotBlank
-    private UUID shippingManagerSlackId;
+    private String shippingManagerSlackId;
     @NotBlank
     private UUID companyDeliveryManagerId;
     @NotBlank

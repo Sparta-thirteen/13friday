@@ -19,9 +19,9 @@ public enum DeliveryRouteType {
                 dto.getDeliveryId(),
                 dto.getShippingAddress(),
                 0L,
-                null,
                 0L,
-                null
+                0L,
+                0L
             );
         }
 

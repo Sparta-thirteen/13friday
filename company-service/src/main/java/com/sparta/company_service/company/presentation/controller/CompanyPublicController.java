@@ -4,6 +4,7 @@ import com.sparta.company_service.company.application.dto.CompanyResponseDto;
 import com.sparta.company_service.company.application.service.CompanyPublicService;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/public/companies")
 @RequiredArgsConstructor
+@Slf4j
 public class CompanyPublicController {
 
   private final CompanyPublicService companyPublicService;
